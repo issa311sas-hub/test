@@ -1,0 +1,89 @@
+\documentclass[a4paper,11pt]{jsarticle}
+
+% ===== パッケージ =====
+\usepackage[top=25mm, bottom=25mm, left=25mm, right=25mm]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{enumitem}
+
+% ===== タイトル情報 =====
+\title{レポートタイトル}
+\author{氏名 \\ 東京理科大学 工学部 経営工学科 \\ 秦野研究室}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% ===== 概要 =====
+\begin{abstract}
+ここに概要（アブストラクト）を記述する。
+200〜300字程度で研究の目的・手法・結果を簡潔にまとめる。
+\end{abstract}
+
+% ===== 1. はじめに =====
+\section{はじめに}
+研究の背景、目的、本レポートの構成について述べる。
+
+大規模言語モデル（LLM）は自然言語処理の分野において
+大きな進歩を遂げている\cite{sample2024}。
+
+% ===== 2. 関連研究 =====
+\section{関連研究}
+関連する先行研究について述べる。
+
+\subsection{マルチエージェントシステム}
+マルチエージェントシステム（MAS）の概要を述べる。
+
+\subsection{トークン効率化}
+トークン効率化に関する先行研究を整理する。
+
+% ===== 3. 提案手法 =====
+\section{提案手法}
+提案する手法について詳細に述べる。
+
+数式の例：
+\begin{equation}
+  L = \sum_{i=1}^{N} \alpha_i \cdot f(x_i) + \lambda \cdot R(\theta)
+\end{equation}
+
+% ===== 4. 実験 =====
+\section{実験}
+
+\subsection{実験設定}
+実験の条件、データセット、評価指標について述べる。
+
+表の例：
+\begin{table}[h]
+  \centering
+  \caption{実験結果の比較}
+  \begin{tabular}{lcc}
+    \hline
+    手法 & 精度 (\%) & トークン削減率 (\%) \\
+    \hline
+    ベースライン & 75.3 & --- \\
+    提案手法 & 78.1 & 42.5 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\subsection{結果と考察}
+実験結果について分析・考察する。
+
+% ===== 5. おわりに =====
+\section{おわりに}
+本研究のまとめと今後の課題について述べる。
+
+% ===== 参考文献 =====
+\begin{thebibliography}{9}
+  \bibitem{sample2024}
+    著者名,
+    ``論文タイトル,''
+    ジャーナル名,
+    vol.~X, no.~Y, pp.~1--10,
+    2024.
+\end{thebibliography}
+
+\end{document}

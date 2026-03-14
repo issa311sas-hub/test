@@ -1,0 +1,153 @@
+===============================================================================
+課題(6) 英語論文3本のアブストラクト和訳レポート
+提出者：（氏名を記入）
+提出日：2026年3月16日
+===============================================================================
+
+■ 選論文の選定方針
+  AI エージェントにおけるトークン効率化・省エネルギー的最適化という
+  自身の研究関心に基づき、LLMベースのマルチエージェントシステムの
+  効率化に関する最新の英語論文を3本選定した。いずれも ACL 2025 に
+  採択された論文であり、日本人著者以外の英語論文である。
+
+===============================================================================
+【論文1】AgentDropout: Dynamic Agent Elimination for Token-Efficient
+         and High-Performance LLM-Based Multi-Agent Collaboration
+===============================================================================
+
+著者：Zhexuan Wang, Yutong Wang, Xuebo Liu, Liang Ding, Miao Zhang,
+      Jie Liu, Min Zhang
+所属：Harbin Institute of Technology (Shenzhen), The University of Sydney
+出典：Proceedings of the 63rd Annual Meeting of the Association for
+      Computational Linguistics (ACL 2025), Volume 1: Long Papers,
+      pp. 24013-24035, Vienna, Austria
+arXiv：2503.18891
+URL ：https://aclanthology.org/2025.acl-long.1170/
+
+【原文アブストラクト】
+Multi-agent systems (MAS) based on large language models (LLMs) have
+demonstrated significant potential in collaborative problem-solving.
+However, they still face substantial challenges of low communication
+efficiency and suboptimal task performance, making the careful design
+of the agents' communication topologies particularly important. Inspired
+by the management theory that roles in an efficient team are often
+dynamically adjusted, we propose AgentDropout, which identifies redundant
+agents and communication across different communication rounds by
+optimizing the adjacency matrices of the communication graphs and
+eliminates them to enhance both token efficiency and task performance.
+
+【和訳アブストラクト】
+大規模言語モデル（LLM）に基づくマルチエージェントシステム（MAS）は、
+協調的な問題解決において大きな可能性を示してきた。しかし、通信効率の
+低さやタスク性能の最適化不足といった重大な課題に依然として直面しており、
+エージェント間の通信トポロジーの慎重な設計が特に重要となっている。
+効率的なチームにおける役割は動的に調整されるというマネジメント理論に
+着想を得て、本研究では AgentDropout を提案する。AgentDropout は、
+通信グラフの隣接行列を最適化することで、異なる通信ラウンドにおける
+冗長なエージェントと通信を特定し、それらを排除することで、トークン
+効率とタスク性能の両方を向上させる。
+
+【主な成果】
+- プロンプトトークン消費量を平均 21.6% 削減
+- 完了トークン消費量を平均 18.4% 削減
+- タスク性能は 1.14 ポイント向上（既存手法比）
+
+【選定理由】
+マネジメント理論（経営学）の知見をAIマルチエージェントシステムの
+最適化に応用している点が、他分野の知見を活用するという自身の研究
+方針と合致する。また、トークン効率化というテーマに直接的に取り組んで
+おり、具体的な削減効果も示されている。
+
+
+===============================================================================
+【論文2】Optima: Optimizing Effectiveness and Efficiency for
+         LLM-Based Multi-Agent System
+===============================================================================
+
+著者：Weize Chen ほか6名
+所属：Tsinghua University 等
+出典：ACL 2025 Findings / arXiv:2410.08115
+URL ：https://arxiv.org/abs/2410.08115
+GitHub：https://github.com/thunlp/Optima
+
+【原文アブストラクト】
+Large Language Model (LLM) based multi-agent systems (MAS) show remarkable
+potential in collaborative problem-solving, yet they still face critical
+challenges: low communication efficiency, poor scalability, and a lack of
+effective parameter-updating optimization methods. We present Optima, a
+novel framework that addresses these issues by significantly enhancing
+both communication efficiency and task effectiveness in LLM-based MAS
+through LLM training. Optima employs an iterative generate, rank, select,
+and train paradigm with a reward function balancing task performance,
+token efficiency, and communication readability.
+
+【和訳アブストラクト】
+大規模言語モデル（LLM）に基づくマルチエージェントシステム（MAS）は、
+協調的な問題解決において顕著な可能性を示しているが、通信効率の低さ、
+スケーラビリティの不足、効果的なパラメータ更新最適化手法の欠如という
+重大な課題に依然として直面している。本研究では、LLM の訓練を通じて
+LLM ベース MAS における通信効率とタスク有効性の両方を大幅に向上させる
+新しいフレームワーク Optima を提案する。Optima は、タスク性能・トークン
+効率・通信の可読性のバランスをとる報酬関数を用いた、反復的な生成・
+ランキング・選択・訓練パラダイムを採用している。
+
+【主な成果】
+- Llama 3 8B ベースで、最大 2.8 倍の性能向上を達成
+- トークン使用量を 10% 未満に削減（重い情報交換を要するタスクにおいて）
+- モンテカルロ木探索（MCTS）の手法を DPO データ生成に統合
+
+【選定理由】
+強化学習の枠組みを用いてマルチエージェント通信自体を最適化するという
+アプローチが独創的であり、トークン効率と性能のトレードオフを定量的に
+扱っている点が研究の参考になる。生成・ランキング・選択・訓練という
+段階的な最適化手法は、経営工学的なプロセス改善の考え方とも親和性がある。
+
+
+===============================================================================
+【論文3】Token-Budget-Aware LLM Reasoning (TALE)
+===============================================================================
+
+著者：Tingxu Han, Zhenting Wang, Chunrong Fang, Shiyu Zhao,
+      Shiqing Ma, Zhenyu Chen
+所属：Nanjing University, Rutgers University, UMass Amherst
+出典：ACL 2025 Findings / arXiv:2412.18547
+URL ：https://arxiv.org/abs/2412.18547
+GitHub：https://github.com/GeniusHTX/TALE
+
+【原文アブストラクト】
+Reasoning is critical for large language models (LLMs) to excel in a wide
+range of tasks. While methods like Chain-of-Thought (CoT) reasoning
+enhance LLM performance by decomposing problems into intermediate steps,
+they also incur significant overhead in token usage, leading to increased
+costs. We find that the reasoning process of current LLMs is unnecessarily
+lengthy and can be compressed by including a reasonable token budget in the
+prompt, but the choice of token budget plays a crucial role in the actual
+compression effectiveness. We then propose a token-budget-aware LLM
+reasoning framework, TALE, that dynamically adjusts the number of
+reasoning tokens based on the reasoning complexity of each problem.
+
+【和訳アブストラクト】
+推論は、大規模言語モデル（LLM）が幅広いタスクで優れた性能を発揮する
+ために極めて重要である。Chain-of-Thought（CoT）推論のような手法は、
+問題を中間ステップに分解することで LLM の性能を向上させるが、同時に
+トークン使用量に大きなオーバーヘッドを生じさせ、コスト増加につながる。
+本研究では、現行の LLM の推論プロセスは不必要に冗長であり、プロンプト
+に適切なトークン予算を含めることで圧縮可能であることを発見した。ただし、
+トークン予算の選択は実際の圧縮効果において重要な役割を果たす。そこで、
+各問題の推論複雑度に基づいて推論トークン数を動的に調整するトークン予算
+認識型 LLM 推論フレームワーク TALE を提案する。
+
+【主な成果】
+- 出力トークンコストを 67% 削減
+- コストを 59% 削減
+- 平均精度 80.22%（CoT と競争力のある性能を維持）
+
+【選定理由】
+LLM の推論における「予算」という経済学的概念を導入し、問題の複雑度に
+応じて動的にリソース（トークン）を配分するという発想は、オペレーションズ
+リサーチにおけるリソース配分最適化と本質的に同じ構造を持つ。経営工学の
+知見が直接活かせるテーマであり、今後の研究の出発点として最適である。
+
+===============================================================================
+以上
+===============================================================================
