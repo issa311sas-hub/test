@@ -1,0 +1,124 @@
+課題(6) 英語論文3本 アブストラクト和訳レポート
+氏名：
+提出日：2026年3月16日
+
+---
+
+今回は、自分が関心のあるAIエージェントのトークン効率化に関する英語論文を
+3本探した。課題(5)で調べた日本語論文の参考文献リストや、Google Scholarで
+キーワード検索（"LLM agent token efficiency" など）をして見つけた。
+いずれもACL 2025に採択された論文で、日本人著者以外のものである。
+
+
+【論文1】
+タイトル：AgentDropout: Dynamic Agent Elimination for Token-Efficient
+         and High-Performance LLM-Based Multi-Agent Collaboration
+著者：Zhexuan Wang, Yutong Wang, Xuebo Liu, Liang Ding, Miao Zhang,
+      Jie Liu, Min Zhang
+所属：Harbin Institute of Technology (Shenzhen), University of Sydney
+掲載：ACL 2025 Long Papers, pp.24013-24035
+
+出典：https://aclanthology.org/2025.acl-long.1170/
+
+原文Abstract:
+Multi-agent systems (MAS) based on large language models (LLMs) have
+demonstrated significant potential in collaborative problem-solving.
+However, they still face substantial challenges of low communication
+efficiency and suboptimal task performance, making the careful design
+of the agents' communication topologies particularly important. Inspired
+by the management theory that roles in an efficient team are often
+dynamically adjusted, we propose AgentDropout, which identifies redundant
+agents and communication across different communication rounds by
+optimizing the adjacency matrices of the communication graphs and
+eliminates them to enhance both token efficiency and task performance.
+
+和訳：
+LLMを使ったマルチエージェントシステム(MAS)は、協調的な問題解決で
+大きな可能性を見せている。ただ、通信の効率が悪かったりタスクの性能が
+いまいちだったりという課題があって、エージェント同士の通信の構造を
+ちゃんと設計することが重要になっている。
+この論文では、「効率的なチームでは役割が動的に調整される」という
+マネジメント理論にヒントを得て、AgentDropoutという手法を提案している。
+通信グラフの隣接行列を最適化して、各ラウンドでいらないエージェントや
+通信を見つけて削除することで、トークンの効率もタスクの性能も上げる
+というもの。結果的にプロンプトのトークンを約21%、完了トークンを約18%
+減らせたらしい。
+
+選んだ理由：
+経営学のチームマネジメント理論をAIに応用しているところが面白いと思った。
+自分もこういう他分野の考え方をAIに持ち込む研究がしたいので参考になる。
+
+
+【論文2】
+タイトル：Optima: Optimizing Effectiveness and Efficiency for
+         LLM-Based Multi-Agent System
+著者：Weize Chen ほか
+所属：Tsinghua University ほか
+掲載：ACL 2025 Findings
+
+出典：https://arxiv.org/abs/2410.08115
+
+原文Abstract:
+Large Language Model (LLM) based multi-agent systems (MAS) show remarkable
+potential in collaborative problem-solving, yet they still face critical
+challenges: low communication efficiency, poor scalability, and a lack of
+effective parameter-updating optimization methods. We present Optima, a
+novel framework that addresses these issues by significantly enhancing
+both communication efficiency and task effectiveness in LLM-based MAS
+through LLM training. Optima employs an iterative generate, rank, select,
+and train paradigm with a reward function balancing task performance,
+token efficiency, and communication readability.
+
+和訳：
+LLMベースのマルチエージェントシステムは協調的問題解決で可能性を
+見せているけど、通信効率の低さとかスケーラビリティの悪さ、あと
+パラメータ更新による最適化手法がないという問題がある。
+Optimaは、LLMの学習を通じてMASの通信効率とタスク性能を両方とも
+大幅に改善するフレームワーク。「生成→ランキング→選択→学習」を
+繰り返すやり方で、タスク性能・トークン効率・通信の読みやすさの
+バランスをとる報酬関数を使っている。
+Llama 3 8Bベースで最大2.8倍の性能向上、トークンを10%未満まで
+削減できたという結果が出ている。
+
+選んだ理由：
+論文1のAgentDropoutが通信構造の最適化だったのに対して、こっちは
+エージェントの学習自体で効率化するアプローチで、違う角度から
+同じ問題に取り組んでいるのが面白い。強化学習を使っている点も
+勉強になる。
+
+
+【論文3】
+タイトル：Token-Budget-Aware LLM Reasoning (TALE)
+著者：Tingxu Han, Zhenting Wang, Chunrong Fang, Shiyu Zhao,
+      Shiqing Ma, Zhenyu Chen
+所属：Nanjing University, Rutgers University, UMass Amherst
+掲載：ACL 2025 Findings
+
+出典：https://arxiv.org/abs/2412.18547
+
+原文Abstract:
+Reasoning is critical for large language models (LLMs) to excel in a wide
+range of tasks. While methods like Chain-of-Thought (CoT) reasoning
+enhance LLM performance by decomposing problems into intermediate steps,
+they also incur significant overhead in token usage, leading to increased
+costs. We find that the reasoning process of current LLMs is unnecessarily
+lengthy and can be compressed by including a reasonable token budget in the
+prompt, but the choice of token budget plays a crucial role in the actual
+compression effectiveness. We then propose a token-budget-aware LLM
+reasoning framework, TALE, that dynamically adjusts the number of
+reasoning tokens based on the reasoning complexity of each problem.
+
+和訳：
+推論はLLMがいろんなタスクで高い性能を出すために重要。CoT推論みたいな
+手法は問題を中間ステップに分けることで性能を上げるけど、その分トークンの
+使用量が増えてコストが高くなる。
+この論文では、今のLLMの推論って無駄に長くて、プロンプトに適切な
+トークン予算を入れれば圧縮できることを発見した。ただし予算の設定が
+重要で、TALEというフレームワークでは問題の難しさに応じてトークン数を
+動的に調整する。実験では出力トークンを67%削減しつつ精度は80%を
+維持できている。
+
+選んだ理由：
+「トークン予算」という考え方がOR(オペレーションズリサーチ)の
+リソース配分問題と似ていて、経営工学の知識が活かせそうだと思った。
+経営工学演習2の発表候補にもいいかなと考えている。
