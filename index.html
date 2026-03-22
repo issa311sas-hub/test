@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio | 経営工学 × AI研究</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ナビゲーション -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo">Portfolio</a>
+      <button class="nav-toggle" id="navToggle" aria-label="メニュー">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#research" class="nav-link">Research</a></li>
+        <li><a href="#skills" class="nav-link">Skills</a></li>
+        <li><a href="#projects" class="nav-link">Projects</a></li>
+        <li><a href="#publications" class="nav-link">Publications</a></li>
+        <li><a href="#contact" class="nav-link">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ヒーローセクション -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <div class="particle" style="--x: 10%; --y: 20%; --duration: 6s; --delay: 0s;"></div>
+      <div class="particle" style="--x: 80%; --y: 30%; --duration: 8s; --delay: 1s;"></div>
+      <div class="particle" style="--x: 50%; --y: 70%; --duration: 7s; --delay: 2s;"></div>
+      <div class="particle" style="--x: 20%; --y: 80%; --duration: 9s; --delay: 0.5s;"></div>
+      <div class="particle" style="--x: 70%; --y: 10%; --duration: 5s; --delay: 1.5s;"></div>
+      <div class="particle" style="--x: 90%; --y: 60%; --duration: 10s; --delay: 3s;"></div>
+    </div>
+    <div class="hero-content">
+      <p class="hero-greeting">Hello, I'm</p>
+      <h1 class="hero-name">Your Name</h1>
+      <p class="hero-subtitle">経営工学 × AI Research</p>
+      <p class="hero-description">
+        LLMベースマルチエージェントシステムのトークン効率化に取り組む<br>
+        経営工学専攻の研究者
+      </p>
+      <div class="hero-actions">
+        <a href="#research" class="btn btn-primary">Research</a>
+        <a href="#contact" class="btn btn-outline">Contact</a>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- About セクション -->
+  <section class="section" id="about">
+    <div class="container">
+      <h2 class="section-title">About Me</h2>
+      <div class="about-grid">
+        <div class="about-image">
+          <div class="about-image-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Your Photo</span>
+          </div>
+        </div>
+        <div class="about-content">
+          <h3>経営工学とAIの融合を目指して</h3>
+          <p>
+            秦野研究室に所属し、大規模言語モデル（LLM）ベースのマルチエージェントシステムにおける
+            トークン効率化の研究に取り組んでいます。経営工学で培ったプロセス最適化やリソース配分の知見を
+            AI技術に応用し、より効率的なAIシステムの実現を目指しています。
+          </p>
+          <p>
+            オペレーションズリサーチ、プロセスマイニング、マネジメント理論といった経営工学の手法を
+            AIエージェントの設計に取り入れるという学際的なアプローチが強みです。
+          </p>
+          <div class="about-info">
+            <div class="info-item">
+              <span class="info-label">所属</span>
+              <span class="info-value">秦野研究室</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">専攻</span>
+              <span class="info-value">経営工学</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">関心領域</span>
+              <span class="info-value">LLM, マルチエージェント, トークン効率化</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Research セクション -->
+  <section class="section section-alt" id="research">
+    <div class="container">
+      <h2 class="section-title">Research</h2>
+      <div class="research-main">
+        <div class="research-card research-card-featured">
+          <div class="research-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+          </div>
+          <h3>LLMベースマルチエージェントシステムにおけるトークン効率化手法の研究</h3>
+          <p class="research-subtitle">― 経営工学的視点からのアプローチ</p>
+          <p>
+            複数のLLMエージェント間の通信に伴うトークン消費量の増大は、運用コストの上昇や推論速度の低下を招きます。
+            本研究では、経営工学におけるプロセス最適化やリソース配分の知見を活用し、
+            マルチエージェントシステムのトークン効率を体系的に改善する手法を探求しています。
+          </p>
+        </div>
+      </div>
+
+      <h3 class="subsection-title">研究アプローチ</h3>
+      <div class="research-grid">
+        <div class="research-card">
+          <div class="research-number">01</div>
+          <h4>動的役割配分</h4>
+          <p>マネジメント理論に基づくエージェントの動的役割配分（AgentDropoutの経営工学的拡張）</p>
+        </div>
+        <div class="research-card">
+          <div class="research-number">02</div>
+          <h4>トークンバジェット最適化</h4>
+          <p>リソース配分最適化としてのトークンバジェット割当（TALEの多エージェント環境への拡張）</p>
+        </div>
+        <div class="research-card">
+          <div class="research-number">03</div>
+          <h4>通信パターン分析</h4>
+          <p>プロセスマイニング手法を用いたエージェント間通信の分析と無駄の排除</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills セクション -->
+  <section class="section" id="skills">
+    <div class="container">
+      <h2 class="section-title">Skills</h2>
+      <div class="skills-grid">
+        <div class="skill-category">
+          <h3>Programming</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">PyTorch</span>
+            <span class="skill-tag">scikit-learn</span>
+            <span class="skill-tag">LangChain</span>
+            <span class="skill-tag">AutoGen</span>
+          </div>
+        </div>
+        <div class="skill-category">
+          <h3>AI / LLM</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">GPT-4</span>
+            <span class="skill-tag">Claude</span>
+            <span class="skill-tag">Llama 3</span>
+            <span class="skill-tag">マルチエージェント</span>
+            <span class="skill-tag">プロンプトエンジニアリング</span>
+          </div>
+        </div>
+        <div class="skill-category">
+          <h3>Management Engineering</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">オペレーションズリサーチ</span>
+            <span class="skill-tag">プロセスマイニング</span>
+            <span class="skill-tag">リソース配分最適化</span>
+            <span class="skill-tag">意思決定支援</span>
+          </div>
+        </div>
+        <div class="skill-category">
+          <h3>Tools</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">LaTeX</span>
+            <span class="skill-tag">Git</span>
+            <span class="skill-tag">GPU Computing</span>
+            <span class="skill-tag">Linux</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects セクション -->
+  <section class="section section-alt" id="projects">
+    <div class="container">
+      <h2 class="section-title">Projects</h2>
+      <div class="projects-grid">
+        <div class="project-card">
+          <div class="project-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="project-icon">
+              <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+            </svg>
+            <span class="project-type">Research</span>
+          </div>
+          <h3>AgentDropout 再現実験</h3>
+          <p>マネジメント理論に基づくエージェント動的削除手法の再現実験と経営工学的拡張の検討</p>
+          <div class="project-tags">
+            <span>Python</span><span>PyTorch</span><span>Multi-Agent</span>
+          </div>
+        </div>
+        <div class="project-card">
+          <div class="project-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="project-icon">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+            </svg>
+            <span class="project-type">Research</span>
+          </div>
+          <h3>TALE フレームワーク拡張</h3>
+          <p>トークン予算認識型LLM推論フレームワークの多エージェント環境への拡張研究</p>
+          <div class="project-tags">
+            <span>Python</span><span>LLM</span><span>Optimization</span>
+          </div>
+        </div>
+        <div class="project-card">
+          <div class="project-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="project-icon">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+            <span class="project-type">Analysis</span>
+          </div>
+          <h3>トークン消費パターン分析</h3>
+          <p>プロセスマイニングを用いたLLMマルチエージェント通信のボトルネック特定と最適化</p>
+          <div class="project-tags">
+            <span>Process Mining</span><span>OR</span><span>Analysis</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Publications セクション -->
+  <section class="section" id="publications">
+    <div class="container">
+      <h2 class="section-title">Publications & Interests</h2>
+      <p class="section-description">研究で注目している主要な論文・テーマ</p>
+      <div class="publications-list">
+        <div class="publication-item">
+          <div class="pub-year">2025</div>
+          <div class="pub-content">
+            <h4>AgentDropout: Dynamic Agent Elimination for Token-Efficient Multi-Agent Collaboration</h4>
+            <p class="pub-authors">Wang et al. - ACL 2025</p>
+            <p class="pub-detail">トークン消費量をプロンプトで21.6%、完了で18.4%削減しながらタスク性能を向上</p>
+          </div>
+        </div>
+        <div class="publication-item">
+          <div class="pub-year">2025</div>
+          <div class="pub-content">
+            <h4>Optima: Optimizing Effectiveness and Efficiency for LLM-Based Multi-Agent System</h4>
+            <p class="pub-authors">Chen et al. - ACL 2025 Findings</p>
+            <p class="pub-detail">強化学習ベースのマルチエージェント通信最適化でトークン使用量を90%以上削減</p>
+          </div>
+        </div>
+        <div class="publication-item">
+          <div class="pub-year">2025</div>
+          <div class="pub-content">
+            <h4>TALE: Token-Budget-Aware LLM Reasoning</h4>
+            <p class="pub-authors">Han et al. - ACL 2025 Findings</p>
+            <p class="pub-detail">推論複雑度に基づく動的トークン予算配分で出力コスト67%削減</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline セクション -->
+  <section class="section section-alt" id="timeline">
+    <div class="container">
+      <h2 class="section-title">Research Timeline</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <span class="timeline-date">2026年 4月 - 5月</span>
+            <h4>文献サーベイ & 環境構築</h4>
+            <p>LLM効率化・マルチエージェント・ORに関する体系的サーベイと実験環境の構築</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <span class="timeline-date">2026年 6月 - 7月</span>
+            <h4>既存手法の再現実験</h4>
+            <p>AgentDropout, Optima, TALE等の再現実験とトークン消費パターンの分析</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <span class="timeline-date">2026年 8月 - 9月</span>
+            <h4>提案手法の設計</h4>
+            <p>経営工学的最適化モデルの定式化と中間報告</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <span class="timeline-date">2026年 10月 - 12月</span>
+            <h4>実装・実験・評価</h4>
+            <p>プロトタイプ開発、ベンチマークタスクでの実験と結果分析</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <span class="timeline-date">2027年 1月 - 3月</span>
+            <h4>論文執筆・発表</h4>
+            <p>卒業論文の執筆・完成・提出および最終発表</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact セクション -->
+  <section class="section" id="contact">
+    <div class="container">
+      <h2 class="section-title">Contact</h2>
+      <div class="contact-content">
+        <p class="contact-description">
+          研究に関するご質問やコラボレーションのご提案など、<br>
+          お気軽にご連絡ください。
+        </p>
+        <div class="contact-links">
+          <a href="mailto:your-email@example.com" class="contact-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <span>your-email@example.com</span>
+          </a>
+          <a href="https://github.com/" class="contact-item" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/>
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- フッター -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Portfolio. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
