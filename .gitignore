@@ -19,8 +19,7 @@ ENV/
 secrets.json
 
 # Experiment results (一時的な実行結果は含めない)
-research/experiment/pilot/results/*.csv
-research/experiment/pilot/results/*.json
+research/experiment/pilot/results/
 research/experiment/pilot/logs/
 
 # OS
