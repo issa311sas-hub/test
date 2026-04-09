@@ -29,6 +29,7 @@
 - [submission-checklist.md](templates/submission-checklist.md) — 卒論提出要項チェックリスト
 - [weekly-checkin.md](templates/weekly-checkin.md) — 週次チェックインテンプレート
 - [monthly-review.md](templates/monthly-review.md) — 月次レビューテンプレート
+- [experiment-log.md](templates/experiment-log.md) — 実験ログテンプレート
 
 ### 📅 daily-log/（日次ログ）
 - [2026-04-09.md](daily-log/2026-04-09.md) — 本日の作業記録
@@ -49,6 +50,12 @@
 - [advisor-email-draft.md](research/advisor-email-draft.md) — 指導教員への相談メール3パターン
 - [advisor-meeting-prep.md](research/advisor-meeting-prep.md) — 初回面談の準備パック
 - [risk-register.md](research/risk-register.md) — リスク台帳（17 リスク）
+- [budget-tracker.md](research/budget-tracker.md) — 研究予算トラッカー
+
+#### 文献カード（lit-cards/）
+- [guo_2017_calibration.md](research/lit-cards/guo_2017_calibration.md) — ECE 原典（記入例）
+- [kadavath_2022_language_models_know.md](research/lit-cards/kadavath_2022_language_models_know.md) — 最重要先行研究（記入例）
+- [tian_2023_just_ask.md](research/lit-cards/tian_2023_just_ask.md) — verbalized confidence 方法論の根拠（記入例）
 
 #### 論文ドラフト
 - [thesis-outline.md](research/thesis-outline.md) — 卒論全体のアウトライン
@@ -165,7 +172,9 @@
 | 実験コード | 🟢 雛形完成・テスト済み |
 | 論文執筆 | 🟡 3章分の草稿＋3章分の骨組み |
 | リスク管理 | 🟢 台帳作成済み |
-| テンプレート | 🟢 5種完備 |
+| 予算管理 | 🟢 トラッカー整備 |
+| テンプレート | 🟢 6種完備 |
+| 文献カード | 🟡 3件の記入例 |
 
 凡例: 🟢 順調 / 🟡 着手済み / 🔴 未着手
 
