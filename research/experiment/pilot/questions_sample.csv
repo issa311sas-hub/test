@@ -1,0 +1,51 @@
+id,domain,question,choices,correct_answer,answer_type
+1,commonsense,りんごを食べる時に普通に使う道具は何ですか?,包丁|のこぎり|ハサミ|金槌,包丁,mc
+2,commonsense,太陽はどの方角から昇りますか?,東|西|南|北,東,mc
+3,commonsense,水は摂氏何度で沸騰しますか?,,100,numeric
+4,commonsense,1年は何ヶ月ありますか?,,12,numeric
+5,commonsense,日本の首都はどこですか?,,東京,text
+6,commonsense,人間の体温は通常摂氏何度くらいですか?,35度|36度|40度|42度,36度,mc
+7,commonsense,1日は何時間ですか?,,24,numeric
+8,commonsense,1週間は何日ですか?,,7,numeric
+9,commonsense,信号機の赤色は何を意味しますか?,進め|止まれ|注意|駐車可,止まれ,mc
+10,commonsense,日本で一番高い山は何ですか?,,富士山,text
+11,math,りんご3個で600円、みかん5個で500円の場合、りんご1個とみかん1個の合計金額は?,,300,numeric
+12,math,3+4×2を計算してください。,,11,numeric
+13,math,半径3cmの円の面積を求めてください。円周率は3.14とします。,,28.26,numeric
+14,math,時速60kmで2時間半走ると何km進みますか?,,150,numeric
+15,math,100gで200円の肉を350g買うといくらですか?,,700,numeric
+16,math,1個80円のパンを5個と1個120円のジュースを3個買った合計は?,,760,numeric
+17,math,3の4乗はいくつですか?,,81,numeric
+18,math,12と18の最大公約数は?,,6,numeric
+19,math,2次方程式 x^2 - 5x + 6 = 0 の解を2つ求めてください。,,2と3,text
+20,math,ある数の20%が40です。この数は?,,200,numeric
+21,history,鎌倉幕府が開かれたのは西暦何年ですか?,,1192,numeric
+22,history,江戸幕府を開いた人物は誰ですか?,,徳川家康,text
+23,history,明治維新が起こったのは西暦何年ですか?,,1868,numeric
+24,history,日本国憲法が施行されたのは西暦何年ですか?,,1947,numeric
+25,history,平安京が置かれた現在の都道府県はどこですか?,,京都府,text
+26,history,織田信長が本能寺の変で討たれたのは西暦何年ですか?,,1582,numeric
+27,history,日清戦争が起きたのは西暦何年ですか?,,1894,numeric
+28,history,遣隋使を派遣した人物は誰ですか?,,聖徳太子,text
+29,history,関ヶ原の戦いが起きたのは西暦何年ですか?,,1600,numeric
+30,history,太平洋戦争が終わったのは西暦何年ですか?,,1945,numeric
+31,translation,次の文を英語に訳してください: 「私は明日図書館に行きます」,,I will go to the library tomorrow.,text
+32,translation,次の文を英語に訳してください: 「彼女は毎朝コーヒーを飲みます」,,She drinks coffee every morning.,text
+33,translation,次の英文を日本語に訳してください: The weather is nice today.,,今日は天気が良いです。,text
+34,translation,次の英文を日本語に訳してください: I have two brothers and one sister.,,私には兄弟が2人と姉妹が1人います。,text
+35,translation,次の文を英語に訳してください: 「この本はとても面白い」,,This book is very interesting.,text
+36,translation,次の英文を日本語に訳してください: He lives in Tokyo.,,彼は東京に住んでいます。,text
+37,translation,次の文を英語に訳してください: 「私は学生です」,,I am a student.,text
+38,translation,次の英文を日本語に訳してください: She can speak three languages.,,彼女は3つの言語を話せます。,text
+39,translation,次の文を英語に訳してください: 「今何時ですか?」,,What time is it now?,text
+40,translation,次の英文を日本語に訳してください: The train arrives at 10 o'clock.,,電車は10時に到着します。,text
+41,reserve,日本で二番目に高い山は何ですか?,,北岳,text
+42,reserve,元号「令和」が始まったのは西暦何年ですか?,,2019,numeric
+43,reserve,円周率を小数第3位まで書いてください。,,3.141,numeric
+44,reserve,「春眠暁を覚えず」の出典となった詩人は誰ですか?,,孟浩然,text
+45,reserve,DNAの二重らせん構造を発見した科学者2名を答えてください。,,ワトソンとクリック,text
+46,reserve,「我思う、ゆえに我あり」と述べた哲学者は誰ですか?,,デカルト,text
+47,reserve,sinの30度の値は?,,0.5,numeric
+48,reserve,光の速さは秒速約何キロメートルですか?,,300000,numeric
+49,reserve,「吾輩は猫である」の著者は誰ですか?,,夏目漱石,text
+50,reserve,水素の原子番号は?,,1,numeric

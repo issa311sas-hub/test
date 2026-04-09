@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# API keys (do NOT commit)
+.env
+*.env
+.env.*
+secrets.json
+
+# Experiment results (一時的な実行結果は含めない)
+research/experiment/pilot/results/*.csv
+research/experiment/pilot/results/*.json
+research/experiment/pilot/logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+build/
+dist/
+*.egg-info/
