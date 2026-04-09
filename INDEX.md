@@ -111,7 +111,7 @@
 - [x] 統合テスト（50問のモック実行で end-to-end 動作確認）
 
 ### 論文執筆
-- [x] 卒論の詳細アウトライン（7章構成）
+- [x] 卒論の詳細アウトライン（6章構成に再編）
 - [x] 第1章 序論 v0.1
 - [x] 第2章 関連研究 v0.1
 - [x] 第3章 研究方法 v0.1
@@ -207,3 +207,50 @@
 - **指導教員**: （連絡先を記入）
 - **学科事務**: （連絡先を記入）
 - **先輩（メンター）**: （連絡先を記入）
+
+---
+
+## 🔖 明日から動くためのクイックリファレンス
+
+### 文献を1本読んだ時
+```bash
+cp templates/literature-card.md research/lit-cards/著者_年_タイトル.md
+# カードを埋めて research/literature-list.md に反映
+```
+
+### 研究ノート（日次）を書く時
+```bash
+cp templates/research-note.md daily-log/2026-MM-DD.md
+```
+
+### パイロット実験を回す時
+```bash
+cd research/experiment/pilot
+cp .env.example .env   # 初回のみ、APIキーを埋める
+make test              # テストが通るか確認
+make mock              # モック実行で挙動確認
+# 本番:
+make pilot-openai      # OpenAI で実行
+make summary           # 結果を Markdown 集計
+```
+
+### 指導教員面談の前
+1. `research/advisor-meeting-prep.md` を開く
+2. 想定質問への回答を見直す
+3. 議事録テンプレートを `daily-log/2026-MM-DD.md` にコピー
+
+### 週次レビュー（日曜）
+```bash
+mkdir -p daily-log/weekly
+cp templates/weekly-checkin.md daily-log/weekly/2026-WXX.md
+```
+
+### 月次レビュー（月末）
+```bash
+mkdir -p daily-log/monthly
+cp templates/monthly-review.md daily-log/monthly/2026-MM.md
+```
+
+### リスク・予算の見直し（月1回）
+- `research/risk-register.md` を開いて各リスクのステータスを更新
+- `research/budget-tracker.md` に今月の支出を記入
