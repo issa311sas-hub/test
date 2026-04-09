@@ -16,6 +16,7 @@ ENV/
 .env
 *.env
 .env.*
+!.env.example
 secrets.json
 
 # Experiment results (一時的な実行結果は含めない)
