@@ -1,0 +1,185 @@
+% 卒業研究 参考文献 BibTeX データベース
+% 作成日: 2026年4月9日
+% 注意: URLと一部のページ番号は実際に論文を確認して埋めてください
+
+% ===== A. Confidence Calibration 基礎 =====
+
+@inproceedings{guo2017calibration,
+  title={On Calibration of Modern Neural Networks},
+  author={Guo, Chuan and Pleiss, Geoff and Sun, Yu and Weinberger, Kilian Q.},
+  booktitle={Proceedings of the 34th International Conference on Machine Learning},
+  year={2017},
+  series={ICML'17},
+  pages={1321--1330},
+  url={https://arxiv.org/abs/1706.04599}
+}
+
+@inproceedings{desai2020calibration,
+  title={Calibration of Pre-trained Transformers},
+  author={Desai, Shrey and Durrett, Greg},
+  booktitle={Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing},
+  year={2020},
+  pages={295--302},
+  publisher={Association for Computational Linguistics},
+  url={https://arxiv.org/abs/2003.07892}
+}
+
+@inproceedings{kuleshov2018calibrated,
+  title={Accurate Uncertainties for Deep Learning Using Calibrated Regression},
+  author={Kuleshov, Volodymyr and Fenner, Nathan and Ermon, Stefano},
+  booktitle={Proceedings of the 35th International Conference on Machine Learning},
+  year={2018},
+  url={https://arxiv.org/abs/1807.00263}
+}
+
+@inproceedings{naeini2015binning,
+  title={Obtaining Well Calibrated Probabilities Using Bayesian Binning},
+  author={Naeini, Mahdi Pakdaman and Cooper, Gregory and Hauskrecht, Milos},
+  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  year={2015},
+  volume={29},
+  number={1}
+}
+
+% ===== B. LLM の自己評価能力 =====
+
+@article{kadavath2022know,
+  title={Language Models (Mostly) Know What They Know},
+  author={Kadavath, Saurav and Conerly, Tom and Askell, Amanda and Henighan, Tom and others},
+  journal={arXiv preprint arXiv:2207.05221},
+  year={2022},
+  url={https://arxiv.org/abs/2207.05221}
+}
+
+@article{lin2022teaching,
+  title={Teaching Models to Express Their Uncertainty in Words},
+  author={Lin, Stephanie and Hilton, Jacob and Evans, Owain},
+  journal={Transactions on Machine Learning Research},
+  year={2022},
+  url={https://arxiv.org/abs/2205.14334}
+}
+
+@inproceedings{tian2023justask,
+  title={Just Ask for Calibration: Strategies for Eliciting Calibrated Confidence Scores from Language Models Fine-Tuned with Human Feedback},
+  author={Tian, Katherine and Mitchell, Eric and Zhou, Allan and Khattab, Omar and others},
+  booktitle={Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing},
+  year={2023},
+  url={https://arxiv.org/abs/2305.14975}
+}
+
+@inproceedings{xiong2024llmuncertainty,
+  title={Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in LLMs},
+  author={Xiong, Miao and Hu, Zhiyuan and Lu, Xinyang and Li, Yifei and others},
+  booktitle={International Conference on Learning Representations},
+  year={2024},
+  url={https://arxiv.org/abs/2306.13063}
+}
+
+@article{mielke2022reducing,
+  title={Reducing Conversational Agents' Overconfidence through Linguistic Calibration},
+  author={Mielke, Sabrina J. and Szlam, Arthur and Dinan, Emily and Boureau, Y-Lan},
+  journal={Transactions of the Association for Computational Linguistics},
+  year={2022},
+  volume={10},
+  pages={857--872},
+  url={https://arxiv.org/abs/2012.14983}
+}
+
+% ===== C. LLM 評価・ベンチマーク =====
+
+@inproceedings{hendrycks2021mmlu,
+  title={Measuring Massive Multitask Language Understanding},
+  author={Hendrycks, Dan and Burns, Collin and Basart, Steven and Zou, Andy and others},
+  booktitle={International Conference on Learning Representations},
+  year={2021},
+  url={https://arxiv.org/abs/2009.03300}
+}
+
+@article{cobbe2021gsm8k,
+  title={Training Verifiers to Solve Math Word Problems},
+  author={Cobbe, Karl and Kosaraju, Vineet and Bavarian, Mohammad and Chen, Mark and others},
+  journal={arXiv preprint arXiv:2110.14168},
+  year={2021},
+  url={https://arxiv.org/abs/2110.14168}
+}
+
+@inproceedings{shi2023mgsm,
+  title={Language Models are Multilingual Chain-of-Thought Reasoners},
+  author={Shi, Freda and Suzgun, Mirac and Freitag, Markus and Wang, Xuezhi and others},
+  booktitle={International Conference on Learning Representations},
+  year={2023},
+  url={https://arxiv.org/abs/2210.03057}
+}
+
+% ===== D. 日本語 LLM・日本語評価 =====
+
+@misc{llmjpeval2024,
+  title={llm-jp-eval: A Cross-Tool Evaluation Framework for Japanese Large Language Models},
+  author={{LLM-jp Community}},
+  year={2024},
+  howpublished={\url{https://github.com/llm-jp/llm-jp-eval}}
+}
+
+@inproceedings{fujii2024swallow,
+  title={Continual Pre-Training for Cross-Lingual LLM Adaptation: Enhancing Japanese Language Capabilities},
+  author={Fujii, Kazuki and Nakamura, Taishi and Loem, Mengsay and Iida, Hiroki and Ohi, Masanari and Hattori, Kakeru and Shota, Hirai and Mizuki, Sakae and Yokota, Rio and Okazaki, Naoaki},
+  booktitle={First Conference on Language Modeling},
+  year={2024}
+}
+
+@inproceedings{kurihara2022jglue,
+  title={JGLUE: Japanese General Language Understanding Evaluation},
+  author={Kurihara, Kentaro and Kawahara, Daisuke and Shibata, Tomohide},
+  booktitle={Proceedings of the Thirteenth Language Resources and Evaluation Conference},
+  year={2022},
+  pages={2957--2966}
+}
+
+% ===== E. 幻覚（Hallucination）研究 =====
+
+@article{ji2023hallucination,
+  title={Survey of Hallucination in Natural Language Generation},
+  author={Ji, Ziwei and Lee, Nayeon and Frieske, Rita and Yu, Tiezheng and others},
+  journal={ACM Computing Surveys},
+  year={2023},
+  volume={55},
+  number={12},
+  pages={1--38},
+  url={https://arxiv.org/abs/2202.03629}
+}
+
+@article{huang2023hallucination,
+  title={A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions},
+  author={Huang, Lei and Yu, Weijiang and Ma, Weitao and Zhong, Weihong and others},
+  journal={arXiv preprint arXiv:2311.05232},
+  year={2023},
+  url={https://arxiv.org/abs/2311.05232}
+}
+
+% ===== F. 社会・倫理 =====
+
+@inproceedings{bender2021parrots,
+  title={On the Dangers of Stochastic Parrots: Can Language Models Be Too Big?},
+  author={Bender, Emily M. and Gebru, Timnit and McMillan-Major, Angelina and Shmitchell, Shmargaret},
+  booktitle={Proceedings of the 2021 ACM Conference on Fairness, Accountability, and Transparency},
+  year={2021},
+  pages={610--623}
+}
+
+% ===== G. LLM 一般 =====
+
+@inproceedings{devlin2019bert,
+  title={{BERT}: Pre-training of Deep Bidirectional Transformers for Language Understanding},
+  author={Devlin, Jacob and Chang, Ming-Wei and Lee, Kenton and Toutanova, Kristina},
+  booktitle={Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics},
+  year={2019},
+  pages={4171--4186}
+}
+
+@article{nllb2022,
+  title={No Language Left Behind: Scaling Human-Centered Machine Translation},
+  author={{NLLB Team} and others},
+  journal={arXiv preprint arXiv:2207.04672},
+  year={2022},
+  url={https://arxiv.org/abs/2207.04672}
+}
