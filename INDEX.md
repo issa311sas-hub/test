@@ -27,6 +27,8 @@
 - [literature-card.md](templates/literature-card.md) — 文献要約カードテンプレート
 - [research-note.md](templates/research-note.md) — 研究ノートの日次テンプレート
 - [submission-checklist.md](templates/submission-checklist.md) — 卒論提出要項チェックリスト
+- [weekly-checkin.md](templates/weekly-checkin.md) — 週次チェックインテンプレート
+- [monthly-review.md](templates/monthly-review.md) — 月次レビューテンプレート
 
 ### 📅 daily-log/（日次ログ）
 - [2026-04-09.md](daily-log/2026-04-09.md) — 本日の作業記録
@@ -38,17 +40,24 @@
 - [theme-evaluation.md](research/theme-evaluation.md) — ルーブリック評価（上位3候補選定）
 - [theme-deep-dive.md](research/theme-deep-dive.md) — トップ3の詳細分析と仮決定
 
-#### 研究計画
+#### 研究計画・運営
 - [research-proposal-draft.md](research/research-proposal-draft.md) — 研究計画書草稿 v0.1
 - [literature-list.md](research/literature-list.md) — 先行研究リスト（シード15本）
+- [references.bib](research/references.bib) — BibTeX データベース（約20エントリ）
 - [pilot-experiment-design.md](research/pilot-experiment-design.md) — パイロット実験設計書
 - [dataset-construction-guide.md](research/dataset-construction-guide.md) — 200問データセット構築ガイド
 - [advisor-email-draft.md](research/advisor-email-draft.md) — 指導教員への相談メール3パターン
+- [advisor-meeting-prep.md](research/advisor-meeting-prep.md) — 初回面談の準備パック
+- [risk-register.md](research/risk-register.md) — リスク台帳（17 リスク）
 
 #### 論文ドラフト
 - [thesis-outline.md](research/thesis-outline.md) — 卒論全体のアウトライン
 - [thesis-drafts/chapter1-introduction-draft.md](research/thesis-drafts/chapter1-introduction-draft.md) — 第1章 序論 v0.1
+- [thesis-drafts/chapter2-related-work-draft.md](research/thesis-drafts/chapter2-related-work-draft.md) — 第2章 関連研究 v0.1
 - [thesis-drafts/chapter3-methods-draft.md](research/thesis-drafts/chapter3-methods-draft.md) — 第3章 研究方法 v0.1
+- [thesis-drafts/chapter4-results-skeleton.md](research/thesis-drafts/chapter4-results-skeleton.md) — 第4章 実験結果 骨組み
+- [thesis-drafts/chapter5-discussion-skeleton.md](research/thesis-drafts/chapter5-discussion-skeleton.md) — 第5章 考察 骨組み
+- [thesis-drafts/chapter6-conclusion-skeleton.md](research/thesis-drafts/chapter6-conclusion-skeleton.md) — 第6章 結論 骨組み
 
 ### 💻 research/experiment/pilot/（パイロット実験コード）
 - [README.md](research/experiment/pilot/README.md) — 使い方ドキュメント
@@ -62,6 +71,7 @@
 - [questions_sample.csv](research/experiment/pilot/questions_sample.csv) — サンプル50問
 - [test_parser.py](research/experiment/pilot/test_parser.py) — パーサーの単体テスト（21件）
 - [test_calibration.py](research/experiment/pilot/test_calibration.py) — 指標計算のテスト（14件）
+- [generate_dummy_figures.py](research/experiment/pilot/generate_dummy_figures.py) — 論文 Figure 5-1〜5-4 のダミー生成
 
 ---
 
@@ -93,8 +103,21 @@
 - [x] 統合テスト（50問のモック実行で end-to-end 動作確認）
 
 ### 論文執筆
+- [x] 卒論の詳細アウトライン（7章構成）
 - [x] 第1章 序論 v0.1
+- [x] 第2章 関連研究 v0.1
 - [x] 第3章 研究方法 v0.1
+- [x] 第4章 実験結果 骨組み
+- [x] 第5章 考察 骨組み
+- [x] 第6章 結論 骨組み
+- [x] BibTeX 参考文献 DB（約20エントリ）
+- [x] 論文 Figure 5-1〜5-4 のダミー版生成
+
+### プロジェクト運営
+- [x] リスク台帳（17 リスク、影響度×可能性で整理）
+- [x] 週次チェックインテンプレート
+- [x] 月次レビューテンプレート
+- [x] 指導教員初回面談の準備パック
 
 ---
 
@@ -139,7 +162,9 @@
 | 研究計画書 | 🟡 v0.1 作成済み |
 | データセット | 🟡 サンプル50問のみ |
 | 実験コード | 🟢 雛形完成・テスト済み |
-| 論文執筆 | 🔴 2章分の草稿のみ |
+| 論文執筆 | 🟡 3章分の草稿＋3章分の骨組み |
+| リスク管理 | 🟢 台帳作成済み |
+| テンプレート | 🟢 5種完備 |
 
 凡例: 🟢 順調 / 🟡 着手済み / 🔴 未着手
 
