@@ -72,6 +72,7 @@
 - [test_parser.py](research/experiment/pilot/test_parser.py) — パーサーの単体テスト（21件）
 - [test_calibration.py](research/experiment/pilot/test_calibration.py) — 指標計算のテスト（14件）
 - [generate_dummy_figures.py](research/experiment/pilot/generate_dummy_figures.py) — 論文 Figure 5-1〜5-4 のダミー生成
+- [summarize_results.py](research/experiment/pilot/summarize_results.py) — 実験結果 CSV から Markdown サマリを自動生成
 
 ---
 
