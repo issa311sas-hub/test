@@ -30,9 +30,11 @@
 - [weekly-checkin.md](templates/weekly-checkin.md) — 週次チェックインテンプレート
 - [monthly-review.md](templates/monthly-review.md) — 月次レビューテンプレート
 - [experiment-log.md](templates/experiment-log.md) — 実験ログテンプレート
+- [self-analysis-worksheet.md](templates/self-analysis-worksheet.md) — 自己分析 10 問ワークシート（仮テーマ適合度検証用）
 
 ### 📅 daily-log/（日次ログ）
-- [2026-04-09.md](daily-log/2026-04-09.md) — 本日の作業記録
+- [2026-04-09.md](daily-log/2026-04-09.md) — 4/9 の作業記録（autonomous session の実績）
+- [2026-04-10.md](daily-log/2026-04-10.md) — 4/10 の予定（翌朝の最初の 3 タスクを事前記入）
 
 ### 🔬 research/（研究関連ドキュメント）
 
