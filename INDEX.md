@@ -40,6 +40,7 @@
 - [ai-theme-candidates.md](research/ai-theme-candidates.md) — 20候補の洗い出し（8カテゴリ）
 - [theme-evaluation.md](research/theme-evaluation.md) — ルーブリック評価（上位3候補選定）
 - [theme-deep-dive.md](research/theme-deep-dive.md) — トップ3の詳細分析と仮決定
+- [theme-selection-process-guide.md](research/theme-selection-process-guide.md) — テーマ決定プロセスの設計書（参考資料）
 
 #### 研究計画・運営
 - [research-proposal-draft.md](research/research-proposal-draft.md) — 研究計画書草稿 v0.1
