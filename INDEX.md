@@ -43,6 +43,7 @@
 - [theme-evaluation.md](research/theme-evaluation.md) — ルーブリック評価（上位3候補選定）
 - [theme-deep-dive.md](research/theme-deep-dive.md) — トップ3の詳細分析と仮決定
 - [theme-selection-process-guide.md](research/theme-selection-process-guide.md) — テーマ決定プロセスの設計書（参考資料）
+- [ai-research-landscape-reference.md](research/ai-research-landscape-reference.md) — 学部卒論向け AI 研究テーマ広域サーベイ（参考資料・辞書用途）
 
 #### 研究計画・運営
 - [research-proposal-draft.md](research/research-proposal-draft.md) — 研究計画書草稿 v0.1
