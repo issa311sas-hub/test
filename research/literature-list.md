@@ -239,12 +239,39 @@
 - **本研究との関連**: まず G-1 に取り組む前に、この項目で全体像を把握する。
 - **読み方**: 最初の 30 分で概要を掴むのに最適。
 
-### G-5（未確定・要検索）
-- **キーワード**: "dynamic epistemic logic" + "large language models"
-- **検索先**: Google Scholar, ACL Anthology, arXiv
-- **目的**: 既に DEL × LLM の先行研究が存在するかを確認
-- **本研究との関連**: 存在する場合は新規性の主張を調整する必要あり
-- **アクション**: 4 月中に 30 分だけ検索する（タスク化）
+### G-5 ⭐重要（2026-04-10 検索で発見）
+- **著者**: （要確認・EMNLP 2025 著者一覧）
+- **年**: 2025
+- **タイトル**: DEL-ToM: Inference-Time Scaling for Theory-of-Mind Reasoning via Dynamic Epistemic Logic
+- **掲載**: EMNLP 2025
+- **URL**: https://aclanthology.org/2025.emnlp-main.573/
+- **一言**: DEL を使って LLM の Theory-of-Mind 推論を改善。公共発表演算子で
+  信念更新をトレースし、inference-time compute で最良のトレースを選択する。
+- **本研究との関連**: **直接の比較対象**。ただし DEL-ToM は「DEL で推論を改善する」
+  処方的アプローチであり、本研究の「DEL で calibration を解釈する」記述的アプローチ
+  とは異なる。第 2 章で明確に差別化する必要あり。
+- **読み方**: abstract + introduction + conclusion を精読。方法論の差異を把握する。
+
+### G-6（2026-04-10 検索で発見）
+- **著者**: （要確認）
+- **年**: 2024
+- **タイトル**: Epistemic Integrity in Large Language Models
+- **掲載**: arXiv:2411.06528 / OpenReview
+- **URL**: https://arxiv.org/abs/2411.06528
+- **一言**: LLM の「認識的整合性」—— 表現する確信度と内部状態の一致を研究。
+  言語的 assertiveness の測定により、calibration error を 50% 以上削減する手法を報告。
+- **本研究との関連**: 認識的整合性の概念は本研究の問題意識と近い。
+  ただし DEL の公理系との明示的対応は取っていない。
+
+### G-7（2026-04-10 検索で発見）
+- **著者**: （要確認）
+- **年**: 2024
+- **タイトル**: Do Large Language Models Know What They Don't Know? Evaluating Epistemic Calibration via Prediction Markets
+- **掲載**: arXiv:2512.16030
+- **URL**: https://arxiv.org/abs/2512.16030
+- **一言**: 予測市場メカニズムを使った LLM の認識的キャリブレーション評価。
+- **本研究との関連**: 認識的キャリブレーションという概念は近いが、DEL とは独立した
+  枠組み。日本語視点もなし。
 
 ---
 

@@ -110,7 +110,7 @@
 - 4 モデル × 4 ドメイン × 4 プロンプト方式の体系的比較
 
 ### 3.2 追加される新規性（DEL 視点）
-- **LLM を DEL エージェントとして扱う実証研究は希少**
+- ~~LLM を DEL エージェントとして扱う実証研究は希少~~ → 下記 3.4 で修正
 - 認識公理の **empirical な測定値としての ECE** という解釈
 - 論理学と機械学習の架橋
 
@@ -122,6 +122,47 @@
 | 理論基盤 | ベイズ統計 / PAC 学習 | 様相論理 / DEL |
 | 解釈 | 「LLM は過信傾向」 | 「LLM の負の内省公理は部分的にしか成立しない」 |
 | 含意 | calibration 補正手法の提案 | 「LLM は S5 エージェントではなく KD45 系の部分実装」 |
+
+### 3.4 既存の DEL × LLM 研究（2026-04-10 調査結果）
+
+> **重要**: 2026-04-10 の Web 検索で以下の関連研究が見つかった。
+> 「DEL × LLM は希少」という当初の主張は修正が必要。
+
+#### 発見された主な先行研究
+
+1. **DEL-ToM (EMNLP 2025)**
+   - タイトル: "DEL-ToM: Inference-Time Scaling for Theory-of-Mind Reasoning via Dynamic Epistemic Logic"
+   - 内容: DEL を使って LLM の Theory-of-Mind 推論を改善。公共発表演算子で
+     信念更新をトレースし、Process Belief Model で候補を評価する
+   - URL: https://aclanthology.org/2025.emnlp-main.573/
+   - **本研究との差異**: DEL を推論改善に使う**処方的**アプローチ。
+     本研究は DEL を calibration の**記述的**解釈枠組みに使う点が異なる
+
+2. **Epistemic Integrity in Large Language Models (2024)**
+   - arXiv: 2411.06528
+   - 内容: LLM の「認識的整合性」—— 表現する確信度と内部状態の一致を研究
+   - **本研究との差異**: 「認識的整合性」の概念は近いが、DEL の公理系と
+     明示的に対応させる枠組みは取っていない
+
+3. **"Do Large Language Models Know What They Don't Know?" (2024)**
+   - arXiv: 2512.16030
+   - 内容: 予測市場を用いた認識的キャリブレーションの評価
+   - **本研究との差異**: DEL とは独立の枠組み。日本語視点もなし
+
+#### 新規性の再定義
+
+上記の発見を受け、新規性の主張を以下のように修正:
+
+| 修正前 | 修正後 |
+|---|---|
+| 「LLM を DEL エージェントとして扱う研究は希少」 | 「DEL を calibration の解釈枠組みとして使い、ECE を認識公理の違反度と読み替える研究は未発見」 |
+| 「DEL × LLM の先行研究なし」 | 「DEL-ToM (2025) は処方的、本研究は記述的：アプローチが異なる」 |
+
+**処方的 vs 記述的の区別**:
+- **処方的（DEL-ToM 等）**: DEL を使って LLM の推論を**改善する**
+- **記述的（本研究）**: DEL を使って LLM の内省能力を**測定・解釈する**
+
+この区別を第 2 章関連研究で明確に述べれば、新規性は十分に維持できる。
 
 ---
 
@@ -200,17 +241,21 @@
 - **対策**: 第 1 章と公理系（S5/KD45）だけを先に読み、残りは必要に応じて
 - **代替**: 日本語の入門書（小野寛晰『情報科学における論理』等）を探す
 
-### 6.4 既存の DEL × LLM 研究の見落とし
-- もし既に DEL × LLM 研究が存在するなら新規性が弱まる
-- **対策**: Google Scholar で "dynamic epistemic logic" + "large language models"
-  を検索、ACL Anthology でも確認
+### 6.4 既存の DEL × LLM 研究の見落とし — **調査済み（2026-04-10）**
+- ~~もし既に DEL × LLM 研究が存在するなら新規性が弱まる~~
+- **結果**: DEL-ToM (EMNLP 2025) など複数の DEL × LLM 研究が存在する。
+  ただし全て**処方的**（DEL で推論を改善する）であり、本研究のような
+  **記述的**（DEL で calibration を解釈する）アプローチは見つかっていない。
+- **対策（実施済み）**: 上記 §3.4 で新規性の主張を修正。
+  第 2 章で「処方的 vs 記述的」の差を明確にすれば新規性は維持可能。
+- **残作業**: DEL-ToM の full paper を精読し、本研究との差異を正確に記述する
 
 ---
 
 ## 7. 次のアクション
 
 - [ ] van Ditmarsch et al. "Dynamic Epistemic Logic" の第 1, 2 章を斜め読み
-- [ ] DEL × LLM の先行研究検索（Google Scholar / ACL Anthology）
+- [x] DEL × LLM の先行研究検索（2026-04-10 実施済み → §3.4 に結果記載）
 - [ ] 教員面談時にこの文書を持参し、フレーミングの可否を確認
 - [ ] 承認されたら `research/research-proposal-draft.md` を DEL フレーミングに更新
 - [ ] `thesis-drafts/chapter1-introduction-draft.md` に DEL 導入節を追記検討
