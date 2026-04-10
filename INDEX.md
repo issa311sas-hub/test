@@ -65,11 +65,11 @@
 
 #### 研究計画・運営
 - [research-proposal-draft.md](research/research-proposal-draft.md) — 研究計画書草稿 v0.1
-- [literature-list.md](research/literature-list.md) — 先行研究リスト（シード15本）
-- [references.bib](research/references.bib) — BibTeX データベース（約20エントリ）
+- [literature-list.md](research/literature-list.md) — 先行研究リスト（シード 15 本＋DEL 7 件、精読目標 8 本）
+- [references.bib](research/references.bib) — BibTeX データベース（約 25 エントリ、DEL 含む）
 - [pilot-experiment-design.md](research/pilot-experiment-design.md) — パイロット実験設計書
-- [dataset-construction-guide.md](research/dataset-construction-guide.md) — 200問データセット構築ガイド
-- [advisor-email-draft.md](research/advisor-email-draft.md) — 指導教員への相談メール3パターン
+- [dataset-construction-guide.md](research/dataset-construction-guide.md) — データセット構築ガイド（原計画 200 問、改訂 100 問）
+- [advisor-email-draft.md](research/advisor-email-draft.md) — 指導教員への相談メール（autonomous 版推奨）
 - [advisor-meeting-prep.md](research/advisor-meeting-prep.md) — 初回面談の準備パック（DEL フレーミング反映済み）
 - [advisor-theme-alignment.md](research/advisor-theme-alignment.md) — **仮テーマと指導教員専門（DEL）の整合性分析**
 - [scope-revision-plan.md](research/scope-revision-plan.md) — **週 2h 予算前提のスコープ改訂プラン（4 レベル縮小案）**
