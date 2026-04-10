@@ -3,6 +3,24 @@
 > **作成日**: 2026年4月1日
 > **対象**: 日本の大学4年生（理系・文系共通）
 > **期間**: 2026年4月 〜 2027年1月末（約10ヶ月間）
+>
+> ---
+>
+> ## ⚠️ 本人の状況に合わせた改訂版について（2026-04-09）
+>
+> **このドキュメントは汎用的な卒論ガイドです。** 本人の実際の制約（週 2 時間、
+> 教員多忙、DEL フレーミング等）を反映した **プロジェクト固有の計画** は
+> 以下を参照してください:
+>
+> | 内容 | ファイル |
+> |---|---|
+> | **改訂スケジュール（84h 予算版）** | [`research/scope-revision-plan.md`](research/scope-revision-plan.md) |
+> | **プロジェクトナビゲーション** | [`INDEX.md`](INDEX.md) |
+> | **DEL 理論的フレーミング** | [`research/advisor-theme-alignment.md`](research/advisor-theme-alignment.md) |
+> | **リスク台帳** | [`research/risk-register.md`](research/risk-register.md) |
+> | **予算トラッカー** | [`research/budget-tracker.md`](research/budget-tracker.md) |
+>
+> 以下の汎用ガイドは「一般的にはこうすべき」の参考として残しておく。
 
 本ドキュメントは**リサーチャー**（調査担当）と**プランナー**（計画策定担当）の2つのAIエージェントによるマルチエージェント分析の成果を統合したものです。
 
