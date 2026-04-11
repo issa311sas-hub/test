@@ -1,0 +1,101 @@
+id,domain,question,choices,correct_answer,answer_type,difficulty,source
+1,commonsense,りんごを食べる時に普通に使う道具は何ですか?,包丁|のこぎり|ハサミ|金槌,包丁,mc,easy,自作
+2,commonsense,太陽はどの方角から昇りますか?,東|西|南|北,東,mc,easy,自作
+3,commonsense,水は摂氏何度で沸騰しますか?,,100,numeric,easy,自作
+4,commonsense,1年は何ヶ月ありますか?,,12,numeric,easy,自作
+5,commonsense,日本の首都はどこですか?,,東京,text,easy,自作
+6,commonsense,人間の体温は通常摂氏何度くらいですか?,35度|36度|40度|42度,36度,mc,easy,自作
+7,commonsense,1日は何時間ですか?,,24,numeric,easy,自作
+8,commonsense,信号機の赤色は何を意味しますか?,進め|止まれ|注意|駐車可,止まれ,mc,easy,自作
+9,commonsense,日本で一番高い山は何ですか?,,富士山,text,easy,自作
+10,commonsense,日本で二番目に高い山は何ですか?,,北岳,text,medium,自作
+11,commonsense,虹は何色あるとされていますか?,,7,numeric,medium,自作
+12,commonsense,地球から一番近い恒星は何ですか?,,太陽,text,medium,自作
+13,commonsense,世界で最も面積が大きい国はどこですか?,,ロシア,text,medium,自作
+14,commonsense,音が空気中を伝わる速さは秒速約何メートルですか?,約170m|約340m|約680m|約1000m,約340m,mc,medium,自作
+15,commonsense,DNAの二重らせん構造を発見した科学者2名を答えてください。,,ワトソンとクリック,text,medium,自作
+16,commonsense,「我思う、ゆえに我あり」と述べた哲学者は誰ですか?,,デカルト,text,medium,自作
+17,commonsense,水素の原子番号は?,,1,numeric,medium,自作
+18,commonsense,光の速さは秒速約何キロメートルですか?,約30万km|約15万km|約3万km|約3000km,約30万km,mc,medium,自作
+19,commonsense,日本の通貨単位は何ですか?,,円,text,easy,自作
+20,commonsense,地球の衛星（自然）は何個ですか?,,1,numeric,medium,自作
+21,commonsense,ノーベル賞を創設したアルフレッド・ノーベルの出身国はどこですか?,,スウェーデン,text,hard,自作
+22,commonsense,標高が最も高い都道府県庁所在地はどこですか?,長野市|松本市|甲府市|盛岡市,長野市,mc,hard,自作
+23,commonsense,世界で最も深い湖は何ですか?,,バイカル湖,text,hard,自作
+24,commonsense,元素記号 Fe は何の元素を表しますか?,,鉄,text,medium,自作
+25,commonsense,「春眠暁を覚えず」の出典となった詩人は誰ですか?,,孟浩然,text,hard,自作
+26,math,3+4×2を計算してください。,,11,numeric,easy,自作
+27,math,りんご3個で600円の場合、りんご1個はいくらですか?,,200,numeric,easy,自作
+28,math,半径3cmの円の面積を求めてください。円周率は3.14とします。,,28.26,numeric,medium,自作
+29,math,時速60kmで2時間半走ると何km進みますか?,,150,numeric,easy,自作
+30,math,100gで200円の肉を350g買うといくらですか?,,700,numeric,medium,自作
+31,math,1個80円のパンを5個と1個120円のジュースを3個買った合計は?,,760,numeric,easy,自作
+32,math,3の4乗はいくつですか?,,81,numeric,medium,自作
+33,math,12と18の最大公約数は?,,6,numeric,medium,自作
+34,math,2次方程式 x^2 - 5x + 6 = 0 の解を2つ求めてください。,,2と3,text,medium,自作
+35,math,ある数の20%が40です。この数は?,,200,numeric,medium,自作
+36,math,sinの30度の値は?,,0.5,numeric,medium,自作
+37,math,円周率を小数第3位まで書いてください。,,3.141,numeric,medium,自作
+38,math,1から10までの整数の合計は?,,55,numeric,easy,自作
+39,math,底辺8cm、高さ5cmの三角形の面積は?,,20,numeric,easy,自作
+40,math,2の10乗はいくつですか?,,1024,numeric,medium,自作
+41,math,√144はいくつですか?,,12,numeric,easy,自作
+42,math,時速80kmで走る車が150km先の目的地に着くまで何時間何分かかりますか?,,1時間52分30秒,text,hard,自作
+43,math,log₂(64)の値は?,,6,numeric,medium,自作
+44,math,3人でジャンケンをする時、あいこになる確率は?（分数で答えてください）,,1/3,text,hard,自作
+45,math,100の階乗（100!）の末尾に0は何個並びますか?,,24,numeric,hard,自作
+46,math,等差数列3, 7, 11, 15, ...の第20項は?,,79,numeric,medium,自作
+47,math,1/7を小数で表した時の循環節は何桁ですか?,,6,numeric,hard,自作
+48,math,正十二面体の面の形は何ですか?,,正五角形,text,hard,自作
+49,math,連続する3つの整数の和が72の時、最も小さい整数は?,,23,numeric,medium,自作
+50,math,x + y = 10 かつ xy = 24 のとき、x² + y² の値は?,,52,numeric,medium,自作
+51,history,鎌倉幕府が開かれたのは西暦何年ですか?,,1185,numeric,medium,自作
+52,history,江戸幕府を開いた人物は誰ですか?,,徳川家康,text,easy,自作
+53,history,明治維新が起こったのは西暦何年ですか?,,1868,numeric,easy,自作
+54,history,日本国憲法が施行されたのは西暦何年ですか?,,1947,numeric,medium,自作
+55,history,平安京が置かれた現在の都道府県はどこですか?,,京都府,text,easy,自作
+56,history,織田信長が本能寺の変で討たれたのは西暦何年ですか?,,1582,numeric,medium,自作
+57,history,日清戦争が起きたのは西暦何年ですか?,,1894,numeric,medium,自作
+58,history,遣隋使を派遣した人物は誰ですか?,,聖徳太子,text,medium,自作
+59,history,関ヶ原の戦いが起きたのは西暦何年ですか?,,1600,numeric,medium,自作
+60,history,太平洋戦争が終わったのは西暦何年ですか?,,1945,numeric,easy,自作
+61,history,元号「令和」が始まったのは西暦何年ですか?,,2019,numeric,easy,自作
+62,history,大化の改新が起きたのは西暦何年ですか?,,645,numeric,medium,自作
+63,history,日本初の女性天皇は誰ですか?,,推古天皇,text,medium,自作
+64,history,ペリーが浦賀に来航したのは西暦何年ですか?,,1853,numeric,medium,自作
+65,history,源頼朝の弟で壇ノ浦の戦いで活躍した武将は誰ですか?,,源義経,text,easy,自作
+66,history,日露戦争の講和条約はどこで結ばれましたか?,,ポーツマス,text,medium,自作
+67,history,応仁の乱が起きたのは西暦何年ですか?,,1467,numeric,medium,自作
+68,history,廃藩置県が行われたのは西暦何年ですか?,,1871,numeric,hard,自作
+69,history,日本で最初の征夷大将軍は誰ですか?,坂上田村麻呂|源頼朝|徳川家康|大伴弟麻呂,坂上田村麻呂,mc,hard,自作
+70,history,サンフランシスコ平和条約が調印されたのは西暦何年ですか?,,1951,numeric,hard,自作
+71,history,班田収授法の基となった制度は何ですか?,,均田制,text,hard,自作
+72,history,日本がポツダム宣言を受諾したのは何月何日ですか?,,8月14日,text,medium,自作
+73,history,室町幕府の初代将軍は誰ですか?,,足利尊氏,text,easy,自作
+74,history,墾田永年私財法が制定されたのは西暦何年ですか?,,743,numeric,hard,自作
+75,history,五箇条の御誓文が発布されたのは何年ですか?,,1868,numeric,medium,自作
+76,translation,次の文を英語に訳してください:「私は明日図書館に行きます」,,I will go to the library tomorrow.,text,easy,自作
+77,translation,次の文を英語に訳してください:「彼女は毎朝コーヒーを飲みます」,,She drinks coffee every morning.,text,easy,自作
+78,translation,次の英文を日本語に訳してください: The weather is nice today.,,今日は天気が良いです。,text,easy,自作
+79,translation,次の英文を日本語に訳してください: I have two brothers and one sister.,,私には兄弟が2人と姉妹が1人います。,text,easy,自作
+80,translation,次の文を英語に訳してください:「この本はとても面白い」,,This book is very interesting.,text,easy,自作
+81,translation,次の英文を日本語に訳してください: He lives in Tokyo.,,彼は東京に住んでいます。,text,easy,自作
+82,translation,次の文を英語に訳してください:「私は学生です」,,I am a student.,text,easy,自作
+83,translation,次の英文を日本語に訳してください: She can speak three languages.,,彼女は3つの言語を話せます。,text,easy,自作
+84,translation,次の文を英語に訳してください:「今何時ですか?」,,What time is it now?,text,easy,自作
+85,translation,次の英文を日本語に訳してください: The train arrives at 10 o'clock.,,電車は10時に到着します。,text,easy,自作
+86,translation,次の文を英語に訳してください:「彼はその問題を解くのに3時間かかった」,,It took him three hours to solve the problem.,text,medium,自作
+87,translation,次の英文を日本語に訳してください: Despite the heavy rain the game was not canceled.,,大雨にもかかわらず試合は中止されなかった。,text,medium,自作
+88,translation,次の文を英語に訳してください:「私が子供の頃、この辺りは田んぼだらけだった」,,When I was a child this area was full of rice paddies.,text,medium,自作
+89,translation,次の英文を日本語に訳してください: The more you practice the better you get.,,練習すればするほど上達する。,text,medium,自作
+90,translation,次の文を英語に訳してください:「もし明日雨が降ったら、遠足は延期されます」,,If it rains tomorrow the field trip will be postponed.,text,medium,自作
+91,translation,次の英文を日本語に訳してください: Not until I read the book did I understand the importance of the issue.,,その本を読んで初めてその問題の重要性を理解した。,text,hard,自作
+92,translation,次の文を英語に訳してください:「彼女が来るかどうかはまだ分からない」,,It is still unknown whether she will come or not.,text,medium,自作
+93,translation,次の英文を日本語に訳してください: Had it not been for your help I would have failed the exam.,,あなたの助けがなければ試験に落ちていただろう。,text,hard,自作
+94,translation,次の文を英語に訳してください:「その映画は期待していたほど面白くなかった」,,The movie was not as interesting as I had expected.,text,medium,自作
+95,translation,次の英文を日本語に訳してください: The committee has yet to reach a consensus on the matter.,,委員会はその件についてまだ合意に達していない。,text,hard,自作
+96,translation,次の文を英語に訳してください:「この地域では毎年多くの祭りが行われている」,,Many festivals are held in this area every year.,text,medium,自作
+97,translation,次の英文を日本語に訳してください: It goes without saying that health is more important than wealth.,,健康が富よりも大切なのは言うまでもない。,text,medium,自作
+98,translation,次の文を英語に訳してください:「あの時もっと勉強しておけばよかったと後悔している」,,I regret not having studied harder at that time.,text,hard,自作
+99,translation,次の英文を日本語に訳してください: No sooner had the bell rung than the students rushed out of the classroom.,,ベルが鳴るや否や生徒たちは教室から飛び出した。,text,hard,自作
+100,translation,次の文を英語に訳してください:「科学技術の発展は私たちの生活を大きく変えた」,,The development of science and technology has greatly changed our lives.,text,medium,自作
