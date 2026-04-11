@@ -11,7 +11,8 @@
 experiment/pilot/
 ├── README.md               # このファイル
 ├── requirements.txt        # Python依存パッケージ
-├── questions_sample.csv    # 50問のサンプル問題データセット
+├── questions_sample.csv    # 50問のサンプル問題データセット（初期版）
+├── questions_100.csv       # 100問の本番用データセット（25問×4ドメイン、品質確認待ち）
 ├── prompts.py              # プロンプトテンプレート
 ├── parser.py               # 応答パーサー（回答・信頼度の抽出）
 ├── calibration.py          # ECE, Brier, AUROC の計算
