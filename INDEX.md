@@ -1,6 +1,6 @@
 # 卒業研究プロジェクト インデックス
 
-> **最終更新**: 2026年4月9日（夜・自己分析ラウンド反映）
+> **最終更新**: 2026年4月11日（確定情報反映・LaTeX / 1月提出 / 7月中間発表）
 > **仮テーマ**: LLMの自己評価能力の検証 —— 日本語 Verbalized Confidence Calibration の実証分析
 > **理論的フレーミング**: 動的認識論理（DEL）の実証実験として位置づけ（`research/advisor-theme-alignment.md`）
 > **作業ブランチ**: `claude/thesis-planning-multi-agent-oBNwO`
@@ -15,6 +15,11 @@
 3. **研究室予算**: 年 50,000 円まで使用可（`research/budget-tracker.md`）
 4. **教員専門**: 動的認識論理（DEL）→ 仮テーマと**強い理論的接続**を発見
 5. **ゴール優先順位**: 「通すこと」 > 面白さ > 学会発表
+6. **提出期限**: **1 月中**（具体日は未定、2026-04-10 本人確認）
+7. **中間発表**: **7 月頃**
+8. **執筆ツール**: **LaTeX**
+9. **Python 環境**: pip / Anaconda 利用可能（構築済み）
+10. **API キー**: 本人立替精算
 
 → 原計画（208h）を 84h（−60%）に縮減、AI 支援前提の工程分担へ移行
 
@@ -52,6 +57,7 @@
 ### 📅 daily-log/（日次ログ）
 - [2026-04-09.md](daily-log/2026-04-09.md) — 4/9 の作業記録（autonomous session の実績）
 - [2026-04-10.md](daily-log/2026-04-10.md) — 4/10 の予定（週 2h 予算内で 4 タスク）
+- [2026-04-11.md](daily-log/2026-04-11.md) — 4/11 の予定（Kadavath 2022 精読集中日）
 - [self-analysis-2026-04-09.md](daily-log/self-analysis-2026-04-09.md) — **自己分析（本人情報反映済み、Q2 のみ未記入）**
 
 ### 🔬 research/（研究関連ドキュメント）
@@ -89,6 +95,13 @@
 - [thesis-drafts/chapter4-results-skeleton.md](research/thesis-drafts/chapter4-results-skeleton.md) — 第4章 実験結果 骨組み
 - [thesis-drafts/chapter5-discussion-skeleton.md](research/thesis-drafts/chapter5-discussion-skeleton.md) — 第5章 考察 骨組み
 - [thesis-drafts/chapter6-conclusion-skeleton.md](research/thesis-drafts/chapter6-conclusion-skeleton.md) — 第6章 結論 骨組み
+
+### 📄 latex/（LaTeX 卒論テンプレート）
+- [main.tex](latex/main.tex) — メインファイル（LuaLaTeX + biblatex）
+- [chapters/](latex/chapters/) — 各章の .tex ファイル（chapter1〜6）
+- [references.bib](latex/references.bib) — 参考文献 DB（research/ のコピー）
+- [Makefile](latex/Makefile) — ビルド自動化（`make` で PDF 生成）
+- [README.md](latex/README.md) — LaTeX 環境の説明
 
 ### 💻 research/experiment/pilot/（パイロット実験コード）
 - [README.md](research/experiment/pilot/README.md) — 使い方ドキュメント
@@ -156,15 +169,16 @@
 
 ## ⏳ 次のアクション（優先順位順・週 2h 予算）
 
-### 4/10 金（本日予定）
-1. 指導教員への初回相談メール送信（**20 分、返信不問**）
+### 4/10 金（メール送信依頼済み）
+1. ~~指導教員への初回相談メール送信~~（**送信依頼済み・本人対応待ち**）
 2. Zotero の最小インストール（40 分）
 3. 自己分析 Q2 の記入（20 分）
 4. DEL 入門資料の取り寄せ手配（10 分）
 
-### 4/11 土〜4/12 日（週末集中）
+### 4/11 土（本日）〜4/12 日（週末集中）
 5. **Kadavath 2022 の精読**（最優先、2〜3 時間）
 6. Zotero の詳細設定（余裕があれば）
+7. LaTeX テンプレートの確認（AI が雛形を用意済み）
 
 ### 今月中（4月）
 7. Guo 2017 / Tian 2023 の精読（各 2 時間）
@@ -186,9 +200,9 @@
 - [ ] テーマの方向性は研究室の専門と整合するか？
 - [ ] 倫理審査は本当に不要か？
 - [x] ~~API費用は研究室で負担可能か？~~ → **年 50,000 円まで OK（本人確認済み）**
-- [ ] 研究室名義の API キー発行と本人立替精算のどちらが楽か？
-- [ ] 提出要項の特殊事項（フォーマット・字数）
-- [ ] 中間報告のタイミング（推定: 7 月中旬〜下旬）
+- [x] ~~研究室名義の API キー発行と本人立替精算のどちらが楽か？~~ → **本人立替精算**（2026-04-10 確認）
+- [ ] 提出要項の特殊事項（フォーマット・字数）— LaTeX 確定済み、細かい書式要件は事務確認
+- [x] ~~中間報告のタイミング~~ → **7 月頃**（2026-04-10 本人確認）
 - [ ] 学会発表の可能性（IPSJ / 言語処理学会など）
 - [ ] 週 2 時間という本人の作業時間制約は許容範囲か？
 
@@ -229,6 +243,9 @@
 8. **スコープ**: レベル 0 で計画、進捗次第でレベル 1〜3 に縮小（`scope-revision-plan.md`）
 9. **作業分担**: AI が下書き・実装・集計、本人は意思決定・検証・考察のみ
 10. **予算**: 年 50,000 円（研究室負担確定）
+11. **執筆ツール**: LaTeX（本人確認 2026-04-10）
+12. **提出期限**: 1 月中（具体日未定）
+13. **中間発表**: 7 月頃
 
 ---
 

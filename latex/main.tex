@@ -1,0 +1,153 @@
+% ============================================================
+% 卒業論文 メインファイル
+% テーマ: LLM の自己評価能力の検証
+% 作成日: 2026-04-11（AI 生成テンプレート）
+% ============================================================
+\documentclass[12pt,a4paper,titlepage]{ltjsarticle}
+
+% --- パッケージ ---
+\usepackage{luatexja}          % 日本語組版（LuaLaTeX 用）
+\usepackage{amsmath,amssymb}   % 数式
+\usepackage{graphicx}          % 画像
+\usepackage{booktabs}          % 美しい表
+\usepackage{hyperref}          % ハイパーリンク
+\usepackage{url}               % URL 表示
+\usepackage[backend=biber,style=authoryear]{biblatex} % 参考文献
+\usepackage{listings}          % コード表示
+\usepackage{xcolor}            % 色
+\usepackage{float}             % 図表の配置制御
+\usepackage{subcaption}        % サブ図
+\usepackage{geometry}          % 余白設定
+
+% --- 余白 ---
+\geometry{
+  top=25mm,
+  bottom=25mm,
+  left=30mm,
+  right=25mm
+}
+
+% --- 参考文献ファイル ---
+\addbibresource{references.bib}
+
+% --- ハイパーリンク設定 ---
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=blue!60!black,
+  urlcolor=blue!60!black
+}
+
+% --- コード表示設定 ---
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!60!black},
+  stringstyle=\color{red!60!black}
+}
+
+% ============================================================
+\begin{document}
+
+% --- 表紙 ---
+\begin{titlepage}
+  \centering
+  \vspace*{3cm}
+
+  {\LARGE 令和7年度 卒業論文}\\[2cm]
+
+  {\Huge\bfseries 大規模言語モデルの自己評価能力の検証}\\[0.8cm]
+  {\Large —— 日本語タスクにおける Verbalized Confidence\\
+  Calibration の実証分析 ——}\\[3cm]
+
+  {\Large 〇〇大学 〇〇学部 〇〇学科}\\[0.5cm]
+  {\Large 学籍番号: 〇〇〇〇〇〇〇〇}\\[0.5cm]
+  {\Large\bfseries 〇〇 〇〇}\\[2cm]
+
+  {\Large 指導教員: 〇〇 〇〇 教授}\\[1cm]
+
+  {\Large 2027年1月}
+
+  \vfill
+\end{titlepage}
+
+% --- 概要 ---
+\begin{abstract}
+% TODO: 論文完成後に記述
+本研究は、日本語タスクにおける大規模言語モデル（LLM）の自己評価能力、
+すなわち verbalized confidence calibration の品質を体系的に検証した。
+（以下、結果が出てから記述）
+\end{abstract}
+
+\newpage
+
+% --- 目次 ---
+\tableofcontents
+\newpage
+
+% --- 図目次・表目次（必要に応じて） ---
+% \listoffigures
+% \listoftables
+% \newpage
+
+% ============================================================
+% 本文
+% ============================================================
+
+% --- 第1章 ---
+\section{序論}\label{sec:introduction}
+\input{chapters/chapter1.tex}
+
+% --- 第2章 ---
+\section{関連研究}\label{sec:related-work}
+\input{chapters/chapter2.tex}
+
+% --- 第3章 ---
+\section{研究方法}\label{sec:methods}
+\input{chapters/chapter3.tex}
+
+% --- 第4章 ---
+\section{実験結果}\label{sec:results}
+\input{chapters/chapter4.tex}
+
+% --- 第5章 ---
+\section{考察}\label{sec:discussion}
+\input{chapters/chapter5.tex}
+
+% --- 第6章 ---
+\section{結論}\label{sec:conclusion}
+\input{chapters/chapter6.tex}
+
+% ============================================================
+% 謝辞
+% ============================================================
+\section*{謝辞}
+\addcontentsline{toc}{section}{謝辞}
+
+本研究を進めるにあたり、終始丁寧なご指導をいただいた
+〇〇教授に心より感謝申し上げます。
+
+% TODO: 必要に応じて追記
+
+% ============================================================
+% 参考文献
+% ============================================================
+\newpage
+\printbibliography[title={参考文献}]
+\addcontentsline{toc}{section}{参考文献}
+
+% ============================================================
+% 付録（必要に応じて）
+% ============================================================
+% \appendix
+% \section{プロンプトテンプレート}\label{app:prompts}
+% \input{appendices/prompts.tex}
+%
+% \section{データセット一覧}\label{app:dataset}
+% \input{appendices/dataset.tex}
+
+\end{document}
