@@ -1,9 +1,9 @@
 # 卒業研究 研究計画書（v0.3 ゼミ承認版）
 
 > **作成日**: 2026年4月9日
-> **最終更新**: 2026年5月25日（ゼミ発表承認を受けて計画を確定）
+> **最終更新**: 2026年6月19日（プロンプト設計・評価指標・データセット・正答判定の詳細を追加）
 > **ステータス**: 🟢 方向性承認済み（2026-05-20 ゼミ発表にて指導教員承認）
-> **次の更新**: 実験設計確定後（評価指標・データセット選定完了時）
+> **次の更新**: 実験環境構築完了後（パイロット実験結果の反映）
 >
 > ---
 >
@@ -101,6 +101,12 @@ Tian et al. [3] の知見を日本語に適用し、以下の方式を比較す�
 - Lin et al. (2022) "Teaching Models to Express Their Uncertainty in Words" TMLR
 - Tian et al. (2023) "Just Ask for Calibration" EMNLP
 - Xiong et al. (2024) "Can LLMs Express Their Uncertainty?" ICLR
+- Yang et al. (2024) "On Verbalized Confidence Scores for LLMs" arXiv:2412.14737
+- Dai (2025) "Rescaling Confidence: What Scale Design Reveals About LLM Metacognition" arXiv:2603.09309
+- Seo et al. (2025) "ADVICE: Answer-Dependent Verbalized Confidence Estimation" arXiv:2510.10913
+
+### 4.5 多言語キャリブレーション
+- Xue et al. (2025) "MlingConf: A Comprehensive Study of Multilingual Confidence Estimation on LLMs" ACL Findings 2025
 
 ### 4.3 日本語 LLM 評価
 - llm-jp-eval プロジェクト（日本語LLM評価フレームワーク）
@@ -163,42 +169,72 @@ Tian et al. [3] の知見を日本語に適用し、以下の方式を比較す�
 
 ### 5.4 プロンプトフォーマット
 
-#### Verb.1S — 回答と確信度を同時出力（主要条件）
+> 詳細な設計根拠・先行研究比較・全ドメイン版テンプレート: `research/prompt-design-analysis.md`（2026-06-19 調査完了）
+
+**設計原則**（先行研究から導出）:
+1. Tian 2023・Xiong 2024 のプロンプト構造を踏襲し比較可能性を確保
+2. MlingConf 2025 の native-tone 原則に基づく自然な日本語指示
+3. 自動パース可能な構造化出力形式
+4. 0.0–1.0スケール（確率値として直接ECE計算に使用）
+5. 過信抑制の誘導的指示は加えない（バイアス回避）
+
+#### Verb.1S — 回答と確信度を同時出力（Xiong 2024 Vanilla 方式に対応）
 ```
-以下の問題に回答してください。さらに、自分の回答が正しい
-確率を0.0〜1.0の数値で表してください。
+以下の数学の問題を読み、回答と、その回答が正しいと思う確率（確信度）を
+答えてください。確信度は0.0（まったく自信がない）から1.0（完全に確信
+している）の数値で表してください。
 
 問題: {question}
 
-出力形式:
-回答: ...
-確信度: 0.XX
+以下の形式で回答してください。形式以外の出力はしないでください。
+回答: [数値のみ]
+確信度: [0.0〜1.0の数値]
 ```
+※ 上記は数学ドメインの例。常識QA・知識QA・翻訳ではドメイン固有の回答形式指示に置換（詳細は分析ドキュメント参照）
 
-#### Verb.2S — 別ターンで確信度を質問
+#### Verb.2S — 別ターンで確信度を質問（Xiong 2024 Self-Probing / Tian 2023 Two-Stage に対応）
 ```
-[Turn 1]
-以下の問題に回答してください。
+[Turn 1] 回答のみを取得
+以下の数学の問題に回答してください。
+問題: {question}
+以下の形式で回答してください。形式以外の出力はしないでください。
+回答: [数値のみ]
+
+[Turn 2] 同一セッション内で確信度を質問
+あなたは先ほどの問題に対して「{answer}」と回答しました。
+この回答が正しい確率を0.0（まったく自信がない）から1.0（完全に確信
+している）の数値で答えてください。
+以下の形式で回答してください。形式以外の出力はしないでください。
+確信度: [0.0〜1.0の数値]
+```
+※ 回答と確信度評価を分離することで回答依存型の確信度を誘発（ADVICE 2025 の知見: 回答非依存性が過信の主因）
+
+#### Ling.1S — 言語表現で確信度を表現（Tian 2023 Linguistic 方式に対応）
+```
+以下の数学の問題を読み、回答と、その回答に対する自信の度合いを答えてください。
+自信の度合いは以下の5つの表現から最も当てはまるものを1つ選んでください。
+
+- ほぼ確実
+- かなり自信がある
+- どちらともいえない
+- あまり自信がない
+- ほとんどわからない
 
 問題: {question}
 
-[Turn 2]
-あなたの回答「{answer}」が正しい確率を0.0〜1.0の数値で答えてください。
-確信度: 0.XX
+以下の形式で回答してください。形式以外の出力はしないでください。
+回答: [数値のみ]
+確信度: [上記5つの表現から1つ]
 ```
+数値マッピング: ほぼ確実=0.95 / かなり自信がある=0.80 / どちらともいえない=0.50 / あまり自信がない=0.25 / ほとんどわからない=0.05
+※ マッピング値 ±0.05 の感度分析をECEと併せて報告
 
-#### Ling.1S — 言語表現で確信度を表現
-```
-以下の問題に回答してください。確信の程度を
-「ほぼ確実」「おそらく」「五分五分」「あまり自信なし」「わからない」
-のいずれかで表してください。
+#### CoTを独立条件にしない理由
+CoT（Chain-of-Thought）は Xiong 2024 で評価されているが、本研究では採用しない: (1) 推論の一貫性向上が過信助長につながる場合がある、(2) 正答率自体を変化させるため確信度設計の効果と分離困難、(3) 条件数倍増によるコスト増大。将来の拡張として §7 に記載。
 
-問題: {question}
-
-出力形式:
-回答: ...
-確信度表現: [上記いずれか]
-```
+#### 実験統制
+- **temperature = 0**: 同一問題への確信度ばらつきを排除
+- **システムプロンプト不使用**: モデルデフォルト動作への影響を排除
 
 ### 5.5 評価指標
 
@@ -341,9 +377,15 @@ Tian et al. [3] の知見を日本語に適用し、以下の方式を比較す�
 2. Kadavath, S., et al. (2022). Language Models (Mostly) Know What They Know. *arXiv preprint arXiv:2207.05221*.
 3. Lin, S., Hilton, J., & Evans, O. (2022). Teaching Models to Express Their Uncertainty in Words. *TMLR*.
 4. Tian, K., et al. (2023). Just Ask for Calibration. *EMNLP*.
-5. Xiong, M., et al. (2024). Can LLMs Express Their Uncertainty? *ICLR*.
+5. Xiong, M., et al. (2024). Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in LLMs. *ICLR 2024*.
+6. Zheng, L., et al. (2023). Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. *NeurIPS 2023*.
+7. Yang, D., Tsai, Y.-H. H., & Yamada, M. (2024). On Verbalized Confidence Scores for LLMs. *arXiv:2412.14737*.
+8. Dai, Y. (2025). Rescaling Confidence: What Scale Design Reveals About LLM Metacognition. *arXiv:2603.09309*.
+9. Xue, B., et al. (2025). MlingConf: A Comprehensive Study of Multilingual Confidence Estimation on Large Language Models. *Findings of ACL 2025*.
+10. Seo, K. J., et al. (2025). ADVICE: Answer-Dependent Verbalized Confidence Estimation. *arXiv:2510.10913*.
+11. Liu, S., et al. (2025). ConfTuner: Training Large Language Models to Express Their Confidence Verbally. *NeurIPS 2025*.
 
-（※ 実際の文献精読後に追加）
+（※ 実際の文献精読後にさらに追加）
 
 ---
 
