@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ゼミ発表 2026-06-24 | 指田一茶</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hiragino Sans', 'Meiryo', 'Yu Gothic', sans-serif;
+    background: #1a1a2e;
+    color: #333;
+    overflow: hidden;
+  }
+
+  /* ===== Slide container ===== */
+  .slideshow {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slide {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: #fff;
+  }
+  .slide.active { display: flex; flex-direction: column; }
+
+  /* ===== Header bar ===== */
+  .slide-header {
+    background: #1a3a5c;
+    color: #fff;
+    padding: 10px 32px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .slide-header .title { font-weight: 600; letter-spacing: 0.03em; }
+  .slide-header .info { opacity: 0.75; font-size: 12px; }
+
+  /* ===== Content area ===== */
+  .slide-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 36px 56px 28px;
+    overflow: hidden;
+  }
+
+  h1.slide-title {
+    font-size: 28px;
+    color: #1a3a5c;
+    border-bottom: 3px solid #e8a000;
+    padding-bottom: 10px;
+    margin-bottom: 24px;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+
+  /* ===== Cover slide ===== */
+  .slide.cover {
+    background: linear-gradient(135deg, #1a3a5c 0%, #0d2035 60%, #0a1a2e 100%);
+    color: #fff;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .cover .meta { font-size: 13px; opacity: 0.65; margin-top: 6px; }
+  .cover h1 {
+    font-size: 30px;
+    color: #fff;
+    border-bottom: none;
+    line-height: 1.45;
+    max-width: 840px;
+    margin-bottom: 0;
+  }
+  .cover .accent { color: #e8a000; }
+  .cover .tag {
+    display: inline-block;
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 4px;
+    padding: 2px 10px;
+    font-size: 12px;
+    margin-top: 12px;
+    opacity: 0.75;
+  }
+  .cover .presenter {
+    margin-top: 28px;
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .cover .affiliation { font-size: 13px; opacity: 0.65; margin-top: 6px; }
+  .cover .date { font-size: 14px; opacity: 0.55; margin-top: 20px; }
+
+  /* ===== TOC ===== */
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    flex: 1;
+  }
+  .toc-item {
+    background: #f4f7fb;
+    border-left: 4px solid #1a3a5c;
+    border-radius: 6px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .toc-item .num {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a3a5c;
+    opacity: 0.3;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .toc-item .text { font-size: 14px; line-height: 1.5; color: #333; }
+  .toc-item.highlight { border-left-color: #e8a000; background: #fff8ec; }
+  .toc-item.highlight .num { color: #e8a000; opacity: 0.6; }
+
+  /* ===== Section badge ===== */
+  .section-badge {
+    display: inline-block;
+    background: #e8a000;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+  .section-badge.blue { background: #1a3a5c; }
+  .section-badge.green { background: #2a7d4f; }
+  .section-badge.red { background: #c0392b; }
+
+  /* ===== Cards ===== */
+  .card-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .card {
+    background: #f4f7fb;
+    border-radius: 8px;
+    padding: 16px 18px;
+    flex: 1;
+    border-top: 4px solid #1a3a5c;
+  }
+  .card.yellow { border-top-color: #e8a000; }
+  .card.green { border-top-color: #2a7d4f; }
+  .card.red { border-top-color: #c0392b; }
+  .card.gray { border-top-color: #888; background: #f9f9f9; }
+  .card h3 { font-size: 13px; font-weight: 700; color: #1a3a5c; margin-bottom: 8px; }
+  .card.yellow h3 { color: #b07800; }
+  .card.green h3 { color: #2a7d4f; }
+  .card.red h3 { color: #c0392b; }
+  .card p, .card ul { font-size: 13px; line-height: 1.65; color: #444; }
+  .card ul { padding-left: 16px; }
+  .card ul li { margin-bottom: 3px; }
+
+  /* ===== Table ===== */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+  }
+  th {
+    background: #1a3a5c;
+    color: #fff;
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e5e9ef;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  .badge {
+    display: inline-block;
+    background: #1a3a5c;
+    color: #fff;
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .badge.gold { background: #e8a000; }
+  .badge.green { background: #2a7d4f; }
+  .badge.gray { background: #888; }
+
+  /* ===== Progress items ===== */
+  .progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .progress-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #f4f7fb;
+  }
+  .progress-item.done { background: #eaf7f0; }
+  .progress-item.todo { background: #f0f4ff; }
+  .progress-icon { font-size: 20px; flex-shrink: 0; line-height: 1; }
+  .progress-text h4 { font-size: 14px; font-weight: 700; color: #222; margin-bottom: 3px; }
+  .progress-text p { font-size: 12px; color: #555; line-height: 1.5; }
+
+  /* ===== Two column layout ===== */
+  .two-col { display: flex; gap: 24px; flex: 1; }
+  .col { flex: 1; }
+  .col h3 { font-size: 14px; font-weight: 700; color: #1a3a5c; margin-bottom: 10px; border-bottom: 2px solid #e8a000; padding-bottom: 4px; }
+
+  /* ===== Body text ===== */
+  p.body { font-size: 14px; line-height: 1.8; color: #333; margin-bottom: 10px; }
+  ul.body { font-size: 14px; line-height: 1.75; color: #333; padding-left: 20px; margin-bottom: 10px; }
+  ul.body li { margin-bottom: 5px; }
+
+  strong.hl { color: #1a3a5c; }
+  strong.hl-o { color: #e8a000; }
+
+  /* ===== Key point box ===== */
+  .key-box {
+    background: #fff8ec;
+    border: 2px solid #e8a000;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #333;
+  }
+  .key-box::before {
+    content: "▶ ";
+    color: #e8a000;
+    font-weight: 700;
+  }
+
+  /* ===== Code block ===== */
+  .code-block {
+    background: #1e2a3a;
+    color: #a8d5f7;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin-top: 10px;
+  }
+
+  /* ===== Gantt ===== */
+  .gantt { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .gantt th { background: #1a3a5c; color: #fff; padding: 7px 8px; text-align: center; font-weight: 600; font-size: 11px; }
+  .gantt td { padding: 7px 10px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+  .gantt td:first-child { font-weight: 600; font-size: 13px; }
+  .gantt .cell { text-align: center; font-size: 14px; }
+  .gantt .done-bar { background: #2a7d4f22; }
+  .gantt .active-bar { background: #e8a00022; }
+  .gantt .plan-bar { background: #1a3a5c11; }
+  .gantt .milestone { color: #c0392b; font-size: 11px; font-weight: 700; }
+
+  /* ===== Landing points ===== */
+  .landing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    flex: 1;
+  }
+  .landing-card {
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 5px solid;
+    background: #f8f9fc;
+  }
+  .landing-card.a { border-color: #2a7d4f; }
+  .landing-card.b { border-color: #1a3a5c; }
+  .landing-card.c { border-color: #e8a000; }
+  .landing-card.d { border-color: #888; }
+  .landing-card .label { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .landing-card.a .label { color: #2a7d4f; }
+  .landing-card.b .label { color: #1a3a5c; }
+  .landing-card.c .label { color: #b07800; }
+  .landing-card.d .label { color: #666; }
+  .landing-card h4 { font-size: 13px; font-weight: 700; color: #222; margin-bottom: 6px; }
+  .landing-card p { font-size: 12px; color: #555; line-height: 1.6; }
+
+  /* ===== Reference ===== */
+  .ref-list { font-size: 12px; color: #444; line-height: 1.8; }
+  .ref-list li { margin-bottom: 6px; }
+
+  /* ===== Appendix ===== */
+  .appendix-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #888;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+
+  /* ===== Footer / nav ===== */
+  .slide-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 56px;
+    border-top: 1px solid #e5e9ef;
+    font-size: 11px;
+    color: #999;
+    flex-shrink: 0;
+    background: #fff;
+  }
+  .nav-btn {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 16px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #555;
+    transition: 0.15s;
+  }
+  .nav-btn:hover { background: #f0f0f0; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* ===== Divider ===== */
+  .divider { width: 100%; height: 1px; background: #e5e9ef; margin: 14px 0; }
+
+  /* ===== Utility ===== */
+  .mt8 { margin-top: 8px; }
+  .mt14 { margin-top: 14px; }
+  .small { font-size: 11px; color: #777; }
+  .check { color: #2a7d4f; font-weight: 700; }
+  .warn { color: #e8a000; font-weight: 700; }
+  .note { color: #888; font-size: 12px; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="slideshow" id="slideshow">
+
+<!-- ============================================================ -->
+<!-- SLIDE 1: 表紙 -->
+<!-- ============================================================ -->
+<div class="slide cover active">
+  <div>
+    <div style="font-size:12px; opacity:0.5; margin-bottom:24px; letter-spacing:0.1em;">SEMINAR PRESENTATION — 2026.06.24</div>
+    <h1>プロンプト設計による<br>大規模言語モデルの<br><span class="accent">キャリブレーション性能向上</span><br>に関する研究</h1>
+    <div class="tag">卒業研究 進捗報告 #2</div>
+    <div class="presenter">指田 一茶</div>
+    <div class="affiliation">東京理科大学 創域理工学部 経営システム工学科<br>秦野研究室</div>
+    <div class="date">2026年6月24日</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 2: 目次 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <h1 class="slide-title">目次</h1>
+    <div class="toc-grid">
+      <div class="toc-item">
+        <div class="num">1</div>
+        <div class="text"><strong>直近の活動報告</strong><br><span style="color:#888;font-size:12px;">近況・環境変化のご報告</span></div>
+      </div>
+      <div class="toc-item">
+        <div class="num">2</div>
+        <div class="text"><strong>前回の振り返り</strong><br><span style="color:#888;font-size:12px;">テーマ・先行研究との差別化</span></div>
+      </div>
+      <div class="toc-item highlight">
+        <div class="num">3</div>
+        <div class="text"><strong>今回の研究進捗（主）</strong><br><span style="color:#888;font-size:12px;">評価指標 / データセット / 判定方法 / プロンプト設計</span></div>
+      </div>
+      <div class="toc-item highlight">
+        <div class="num">4</div>
+        <div class="text"><strong>今後の方向性・スケジュール</strong><br><span style="color:#888;font-size:12px;">予算 / 実験環境 / 着地地点の構想</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span id="page-2">2 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3: 直近の活動報告 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge">1. 直近の活動</div>
+    <h1 class="slide-title">直近の活動報告</h1>
+    <div class="progress-list">
+      <div class="progress-item done">
+        <div class="progress-icon">📝</div>
+        <div class="progress-text">
+          <h4>経営工学演習2の添削 — ありがとうございました</h4>
+          <p>フィードバックを受け取りました。次回演習に活かします。</p>
+        </div>
+      </div>
+      <div class="progress-item done">
+        <div class="progress-icon">✅</div>
+        <div class="progress-text">
+          <h4>就職活動の終了（結果待ち）</h4>
+          <p>内定の可否はまだですが、活動自体は完全終了しました。</p>
+        </div>
+      </div>
+      <div class="progress-item done">
+        <div class="progress-icon">🎯</div>
+        <div class="progress-text">
+          <h4>長期インターンの完全終了（全引き継ぎ完了）</h4>
+          <p>研究の時間を最大限確保できる環境になりました。<br>
+          これにより <strong>研究に専念できる体制が整いました</strong>。</p>
+        </div>
+      </div>
+      <div class="progress-item todo">
+        <div class="progress-icon">💬</div>
+        <div class="progress-text">
+          <h4>余談：学費確保のためのバイト情報 募集中</h4>
+          <p>後期の学費分はまだ稼ぎ切れていないため、スキマ時間でできるバイトがあればご教示いただけると助かります。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>3 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 4: 前回の振り返り①：テーマ -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge">2. 前回の振り返り</div>
+    <h1 class="slide-title">研究テーマと Research Questions</h1>
+    <div class="two-col" style="gap:28px;">
+      <div class="col">
+        <h3>研究テーマ</h3>
+        <p class="body" style="font-size:15px; color:#1a3a5c; font-weight:700; line-height:1.5; border-left:4px solid #e8a000; padding-left:12px; margin-bottom:14px;">
+          プロンプト設計による LLM の<br>キャリブレーション性能向上
+        </p>
+        <p class="body"><strong class="hl">キャリブレーション</strong>とは：<br>
+        モデルが表明する確信度と実際の正答率の整合性</p>
+        <p class="body" style="margin-top:10px;">良い例：「90%自信あり → 約90%正解」<br>
+        悪い例：「95%自信あり → 実際は誤答が多い」</p>
+        <div class="key-box" style="margin-top:10px; font-size:13px;">
+          プロンプトの聞き方を変えるだけで<br>LLMは自分の実力をより正確に言えるようになるか？
+        </div>
+      </div>
+      <div class="col">
+        <h3>Research Questions</h3>
+        <table style="font-size:12px;">
+          <tr>
+            <th style="width:45px;">RQ</th>
+            <th>問い</th>
+          </tr>
+          <tr>
+            <td><strong>RQ0</strong></td>
+            <td>確信度は正答率と整合しているか？プロンプトで改善できるか？</td>
+          </tr>
+          <tr>
+            <td><strong>RQ1</strong></td>
+            <td>モデル間に差があるか？<span class="small">（GPT / Claude / Gemini / Swallow）</span></td>
+          </tr>
+          <tr>
+            <td><strong>RQ2</strong></td>
+            <td>ドメインによって差があるか？<span class="small">（数学 / 常識 / 知識 / 翻訳）</span></td>
+          </tr>
+          <tr>
+            <td><strong>RQ3</strong></td>
+            <td>プロンプト方式によって差があるか？<span class="small">（Verb.1S / Verb.2S / Ling.1S）</span></td>
+          </tr>
+          <tr>
+            <td><strong>RQ4</strong></td>
+            <td>日本語と英語で差があるか？</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>4 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 5: 前回の振り返り②：先行研究との差別化 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge">2. 前回の振り返り</div>
+    <h1 class="slide-title">先行研究と本研究の位置づけ</h1>
+    <table>
+      <tr>
+        <th style="width:180px;">論文</th>
+        <th>言語</th>
+        <th>主な貢献</th>
+        <th>本研究との関係</th>
+      </tr>
+      <tr>
+        <td><strong>Tian et al. 2023</strong><br><span class="small">EMNLP</span></td>
+        <td>英語</td>
+        <td>Verbalized confidence が ECE を約50%改善</td>
+        <td>手法の出発点・ベースライン</td>
+      </tr>
+      <tr>
+        <td><strong>Xiong et al. 2024</strong><br><span class="small">ICLR</span></td>
+        <td>英語</td>
+        <td>5種のプロンプト戦略を体系的に比較</td>
+        <td>プロンプト設計の参照元</td>
+      </tr>
+      <tr>
+        <td><strong>MlingConf 2025</strong><br><span class="small">ACL Findings</span></td>
+        <td>英・中・仏・タイ・<strong>日</strong></td>
+        <td>多言語で verbalized confidence を比較。英語が最優秀</td>
+        <td>最近傍の先行研究。日本語単独の詳細分析はない</td>
+      </tr>
+      <tr style="background:#eaf7f0;">
+        <td><strong>本研究</strong></td>
+        <td><strong>日本語（＋英語比較）</strong></td>
+        <td>日本語特化・4ドメイン・3プロンプト方式・4モデルを交差分析</td>
+        <td><span class="badge green">新規性</span> 日本語に特化した初の体系的 calibration 研究</td>
+      </tr>
+    </table>
+    <div class="key-box" style="margin-top:16px;">
+      日本語タスクに特化したキャリブレーション研究はまだ存在しない — これが本研究のギャップ
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>5 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 6: 評価指標の決定 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge">3. 今回の進捗</div>
+    <h1 class="slide-title">① 評価指標の調査と決定</h1>
+    <p class="body" style="margin-bottom:14px;">10種類の候補指標を比較検討し、3指標を採用。</p>
+    <div class="card-row" style="margin-bottom:0;">
+      <div class="card yellow">
+        <h3>主指標：ECE（Expected Calibration Error）</h3>
+        <p><strong>定義</strong>：確信度と正答率のズレの重み付き平均（M=10ビン）<br>
+        <strong>採用理由</strong>：Tian 2023 / Xiong 2024 と同一指標で直接比較可能<br>
+        <strong>判断基準</strong>：低いほど良い（完全キャリブレーション＝0）</p>
+      </div>
+      <div class="card">
+        <h3>副指標：Brier Score</h3>
+        <p><strong>定義</strong>：確信度と正誤ラベルの二乗誤差の平均<br>
+        <strong>採用理由</strong>：Proper Scoring Rule（理論的保証あり）。ECEはビン数依存<br>
+        <strong>補足</strong>：Murphy分解でキャリブレーション誤差と識別能力を分離</p>
+      </div>
+      <div class="card green">
+        <h3>補助指標：AUROC</h3>
+        <p><strong>定義</strong>：高確信度の回答が実際に正解しやすいか（識別能力）<br>
+        <strong>採用理由</strong>：ECEと直交する性質（相関≈0）。失敗予測の評価に<br>
+        <strong>用途</strong>：Xiong 2024でも使用。calibrationと独立した側面を評価</p>
+      </div>
+    </div>
+    <div class="divider" style="margin:14px 0 10px;"></div>
+    <div style="display:flex; gap:16px;">
+      <div style="flex:1; background:#f4f7fb; border-radius:6px; padding:12px 14px;">
+        <p style="font-size:12px; color:#1a3a5c; font-weight:700; margin-bottom:4px;">なぜECEだけでは不十分か</p>
+        <p style="font-size:12px; color:#555;">ECEはビン分割に依存し、Proper Scoring Ruleではない。
+        Brier Scoreとセットで報告することで結論の頑健性を確保する。</p>
+      </div>
+      <div style="flex:1; background:#f4f7fb; border-radius:6px; padding:12px 14px;">
+        <p style="font-size:12px; color:#1a3a5c; font-weight:700; margin-bottom:4px;">可視化：Reliability Diagram</p>
+        <p style="font-size:12px; color:#555;">全条件で作成。対角線（＝完全キャリブレーション）からの乖離を
+        一目で確認できる。論文Figureに必ず含める。</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>6 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 7: データセット選定 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge">3. 今回の進捗</div>
+    <h1 class="slide-title">② 使用データセットの選定</h1>
+    <table style="margin-bottom:14px;">
+      <tr>
+        <th>ドメイン</th>
+        <th>データセット</th>
+        <th>問数</th>
+        <th>形式</th>
+        <th>英語対応 (RQ4)</th>
+      </tr>
+      <tr>
+        <td>数学</td>
+        <td><strong>MGSM</strong><br><span class="small">GSM8Kの日本語版</span></td>
+        <td><span class="badge gold">250問</span></td>
+        <td>自由回答（数値）</td>
+        <td>GSM8K（同一問題の翻訳ペア）</td>
+      </tr>
+      <tr>
+        <td>常識QA</td>
+        <td><strong>JCommonsenseQA</strong></td>
+        <td><span class="badge gold">250問</span></td>
+        <td>5択選択肢</td>
+        <td>CommonsenseQA（同設計・異問題）</td>
+      </tr>
+      <tr>
+        <td>知識QA</td>
+        <td><strong>JMMLU</strong><br><span class="small">日本史等4科目</span></td>
+        <td><span class="badge gold">250問</span></td>
+        <td>4択選択肢</td>
+        <td>MMLU（翻訳部分で同一問題比較）</td>
+      </tr>
+      <tr>
+        <td>翻訳</td>
+        <td><strong>FLORES-200</strong><br><span class="small">日→英</span></td>
+        <td><span class="badge gold">250問</span></td>
+        <td>翻訳文生成</td>
+        <td>FLORES-200 英→日（方向変更）</td>
+      </tr>
+    </table>
+    <div class="key-box" style="font-size:13px;">
+      <strong>250問/ドメインの根拠</strong>：ECE（10ビン）で各ビン平均25問を確保するために必要な最低サンプル数。
+      旧計画（25問/ドメイン）は統計的に不十分だった（Roelofs et al. 2022）。<br>
+      合計：4ドメイン × 250問 ＝ <strong>1,000問</strong>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>7 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8: 正答判定方法 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge">3. 今回の進捗</div>
+    <h1 class="slide-title">③ 正答判定方法の確立</h1>
+    <table style="margin-bottom:14px;">
+      <tr>
+        <th>ドメイン</th>
+        <th>主判定方法</th>
+        <th>判定基準</th>
+        <th>補助</th>
+      </tr>
+      <tr>
+        <td>数学（MGSM）</td>
+        <td>正規化完全一致</td>
+        <td>抽出数値 ＝＝ 正解数値</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>常識（JCommonsenseQA）</td>
+        <td>選択肢ラベル一致</td>
+        <td>出力ラベル ＝＝ 正解ラベル</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>知識（JMMLU）</td>
+        <td>選択肢ラベル一致</td>
+        <td>出力ラベル ＝＝ 正解ラベル</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>翻訳（FLORES-200）</td>
+        <td><strong>COMETスコア閾値</strong></td>
+        <td>COMET ≥ θ<br><span class="small">50文の人手評価でF1最大化して決定</span></td>
+        <td>LLM-as-a-Judge（境界サンプル検証のみ）</td>
+      </tr>
+    </table>
+    <div class="two-col">
+      <div class="col">
+        <h3>なぜ翻訳のみ特別な判定が必要か</h3>
+        <ul class="body" style="font-size:13px;">
+          <li>翻訳は「完全一致」が成立しない（正解が複数存在）</li>
+          <li>BLEUは人間評価との相関が低い（WMT22: 70.8% vs COMET 83.9%）</li>
+          <li>COMETは再現性・自動判定が可能</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3>LLM-as-a-Judge を主判定に使わない理由</h3>
+        <ul class="body" style="font-size:13px;">
+          <li><strong>位置バイアス</strong>：並べ方で35%も結果が変わる</li>
+          <li><strong>多数決回避</strong>：正解が多い側に引っ張られる</li>
+          <li><strong>再現性の問題</strong>：モデル・バージョンで変化</li>
+          <li>→ 検証ツールとしてのみ使用</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>8 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 9: プロンプト設計 概要 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge">3. 今回の進捗</div>
+    <h1 class="slide-title">④ プロンプトの設計（RQ3の比較条件）</h1>
+    <div class="card-row">
+      <div class="card yellow">
+        <h3>Verb.1S — 同時出力型</h3>
+        <p style="font-size:12px; color:#555; margin-bottom:8px;">回答と確信度を一度にまとめて出力させる。最もシンプルな方法。</p>
+        <div style="background:#1e2a3a; color:#a8d5f7; border-radius:6px; padding:10px; font-family:monospace; font-size:11px; line-height:1.6;">
+問題: {question}<br><br>
+回答: [数値のみ]<br>
+確信度: [0.0〜1.0の数値]
+        </div>
+        <p style="font-size:11px; color:#888; margin-top:6px;">対応：Xiong 2024 Vanilla / Tian 2023 numeric</p>
+      </div>
+      <div class="card">
+        <h3>Verb.2S — 二段階型</h3>
+        <p style="font-size:12px; color:#555; margin-bottom:8px;">Turn 1で回答 → Turn 2で「その回答が正しい確率は？」と追加質問。</p>
+        <div style="background:#1e2a3a; color:#a8d5f7; border-radius:6px; padding:10px; font-family:monospace; font-size:11px; line-height:1.6;">
+[Turn 1] 問題に回答<br>
+→ 回答: {answer}<br><br>
+[Turn 2]「{answer}」が<br>正しい確率は？<br>
+→ 確信度: [0.0〜1.0]
+        </div>
+        <p style="font-size:11px; color:#888; margin-top:6px;">対応：Xiong 2024 Self-Probing / Tian 2023 Two-Stage</p>
+      </div>
+      <div class="card green">
+        <h3>Ling.1S — 言語表現型</h3>
+        <p style="font-size:12px; color:#555; margin-bottom:8px;">数値でなく言語表現で確信度を出力。事後的に数値にマッピング。</p>
+        <div style="background:#1e2a3a; color:#a8d5f7; border-radius:6px; padding:10px; font-family:monospace; font-size:11px; line-height:1.6;">
+・ほぼ確実 → 0.95<br>
+・かなり自信がある → 0.80<br>
+・どちらともいえない → 0.50<br>
+・あまり自信がない → 0.25<br>
+・ほとんどわからない → 0.05
+        </div>
+        <p style="font-size:11px; color:#888; margin-top:6px;">対応：Tian 2023 Linguistic。ラウンドナンバー問題を回避</p>
+      </div>
+    </div>
+    <div class="key-box" style="font-size:13px;">
+      全4ドメイン × 日英のテンプレートを設計完了。CoTは独立条件にしない（過信助長リスク・正答率への交絡効果のため）。
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>9 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10: 今回の進捗サマリ -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge">3. 今回の進捗</div>
+    <h1 class="slide-title">進捗まとめ：実験設計が確定</h1>
+    <div class="progress-list">
+      <div class="progress-item done">
+        <div class="progress-icon">✅</div>
+        <div class="progress-text">
+          <h4>評価指標：ECE（主）＋ Brier Score（副）＋ AUROC（補助）</h4>
+          <p>10種類の候補から論文根拠で3指標を選定。Reliability Diagramも作成予定。</p>
+        </div>
+      </div>
+      <div class="progress-item done">
+        <div class="progress-icon">✅</div>
+        <div class="progress-text">
+          <h4>データセット：4ドメイン × 250問 ＝ 1,000問（HuggingFace公開データ）</h4>
+          <p>MGSM / JCommonsenseQA / JMMLU / FLORES-200。RQ4用英語対応も確定。</p>
+        </div>
+      </div>
+      <div class="progress-item done">
+        <div class="progress-icon">✅</div>
+        <div class="progress-text">
+          <h4>正答判定：完全一致（数学・MC） ＋ COMETスコア閾値（翻訳）</h4>
+          <p>翻訳のみCOMETを使用。LLM-as-a-Judgeは補助的な検証手段として限定使用。</p>
+        </div>
+      </div>
+      <div class="progress-item done">
+        <div class="progress-icon">✅</div>
+        <div class="progress-text">
+          <h4>プロンプト設計：Verb.1S / Verb.2S / Ling.1S の3条件</h4>
+          <p>全ドメイン × 日英のテンプレートを論文根拠（6論文）に基づいて確定。</p>
+        </div>
+      </div>
+    </div>
+    <div class="key-box" style="font-size:13px; margin-top:8px;">
+      → 実験設計フェーズ完了。次のフェーズは実験環境構築・パイロット実験へ。
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>10 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11: 予算見積もり -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge blue">4. 今後の方向性</div>
+    <h1 class="slide-title">予算見積もり（確定版）</h1>
+    <div class="two-col">
+      <div class="col">
+        <h3>API費用の試算</h3>
+        <table style="font-size:12px;">
+          <tr>
+            <th>実験</th>
+            <th>コール数</th>
+            <th>概算費用</th>
+          </tr>
+          <tr>
+            <td>実験1（基本calibration）<br><span class="small">4モデル × 1,000問 × 1条件</span></td>
+            <td>4,000</td>
+            <td>¥5,000〜8,000</td>
+          </tr>
+          <tr>
+            <td>実験2（プロンプト比較）<br><span class="small">4モデル × 1,000問 × 3条件</span></td>
+            <td>12,000</td>
+            <td>¥15,000〜24,000</td>
+          </tr>
+          <tr>
+            <td>実験3（日英比較）<br><span class="small">4モデル × 1,000問（英語）</span></td>
+            <td>4,000</td>
+            <td>¥5,000〜8,000</td>
+          </tr>
+          <tr style="background:#eaf7f0; font-weight:700;">
+            <td>合計</td>
+            <td>20,000</td>
+            <td>¥25,000〜40,000</td>
+          </tr>
+        </table>
+      </div>
+      <div class="col">
+        <h3>年間予算との対比</h3>
+        <div class="card" style="margin-bottom:12px;">
+          <h3>研究室予算枠</h3>
+          <p style="font-size:20px; font-weight:800; color:#1a3a5c;">¥50,000</p>
+          <p style="font-size:12px;">年間。API費用はこの枠内で収まる見込み。</p>
+        </div>
+        <div class="card yellow">
+          <h3>コスト削減策（実装済み）</h3>
+          <ul style="font-size:12px; padding-left:16px; color:#444;">
+            <li>パイロット実験で出力形式を事前確認</li>
+            <li>温度0（再試行コスト削減）</li>
+            <li>実験3は省略可能フラグ</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>11 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12: 実験環境構築 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge blue">4. 今後の方向性</div>
+    <h1 class="slide-title">実験環境構築（7月中間発表前に完了予定）</h1>
+    <div class="card-row">
+      <div class="card">
+        <h3>データ取得・整備</h3>
+        <ul style="font-size:12px; padding-left:16px; color:#444; line-height:1.7;">
+          <li>HuggingFace datasets で各データセット取得</li>
+          <li>正解ラベル付きCSVの整備</li>
+          <li>各ドメイン250問のサンプリング</li>
+        </ul>
+      </div>
+      <div class="card yellow">
+        <h3>API問い合わせスクリプト</h3>
+        <ul style="font-size:12px; padding-left:16px; color:#444; line-height:1.7;">
+          <li>OpenAI / Anthropic / Google API対応</li>
+          <li>3条件のプロンプトを一括実行</li>
+          <li>出力をCSV保存（回答・確信度・生テキスト）</li>
+          <li>Verb.2Sの会話セッション管理</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>評価・可視化スクリプト</h3>
+        <ul style="font-size:12px; padding-left:16px; color:#444; line-height:1.7;">
+          <li>正答判定の自動化（正規表現・COMET）</li>
+          <li>ECE / Brier Score / AUROC の計算</li>
+          <li>Reliability Diagram の生成</li>
+          <li>netcal ライブラリ活用</li>
+        </ul>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="progress-list" style="gap:8px;">
+      <div class="progress-item todo">
+        <div class="progress-icon">🔧</div>
+        <div class="progress-text">
+          <h4>パイロット実験（各ドメイン10問）</h4>
+          <p>出力形式遵守率 &gt;95%・確信度分布の異常がないかを確認してから本実験へ</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>12 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 13: 着地地点の構想 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge blue">4. 今後の方向性</div>
+    <h1 class="slide-title">着地地点の構想<br><span style="font-size:16px; color:#888; font-weight:400;">「ライバルが出てきそう」という先生のご指摘への回答</span></h1>
+    <div class="landing-grid">
+      <div class="landing-card a">
+        <div class="label">A — メインシナリオ（予定通り）</div>
+        <h4>日本語 × 多モデル × 3プロンプト方式の全比較</h4>
+        <p>ECE/Brier Score で条件間差を定量化。「日本語で最も calibration が良いプロンプト方式」を特定して実務的指針を提示。</p>
+      </div>
+      <div class="landing-card b">
+        <div class="label">B — 差が出なかった場合</div>
+        <h4>ネガティブ結果の体系的報告</h4>
+        <p>「どのプロンプトを使っても差がない」こと自体が重要な知見。先行研究（英語）との比較で日本語特有の挙動を分析。</p>
+      </div>
+      <div class="landing-card c">
+        <div class="label">C — 競合研究が先行した場合</div>
+        <h4>翻訳ドメインへの絞り込み深掘り</h4>
+        <p>翻訳は確信度評価が最も難しく、先行研究でもあまり扱われていない。COMET閾値とcalibrationの関係に焦点を当てた独自貢献を狙う。</p>
+      </div>
+      <div class="landing-card d">
+        <div class="label">D — 時間が足りない場合</div>
+        <h4>スコープ縮小トリガー（事前定義済み）</h4>
+        <p>Lv1: 3モデル×3条件 / Lv2: 2モデル×2ドメイン / Lv3: 1モデル×2ドメイン×50問（論文成立最低ライン）</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>13 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 14: ガントチャート -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="section-badge blue">4. 今後の方向性</div>
+    <h1 class="slide-title">今後のスケジュール</h1>
+    <table class="gantt">
+      <tr>
+        <th style="width:150px;">タスク</th>
+        <th>4月</th><th>5月</th><th>6月</th><th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th><th>1月〜</th>
+      </tr>
+      <tr>
+        <td>関連研究調査</td>
+        <td class="cell done-bar">✅</td><td class="cell done-bar">✅</td><td class="cell done-bar">✅</td>
+        <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td>
+      </tr>
+      <tr>
+        <td>実験設計（★完了）</td>
+        <td class="cell"></td><td class="cell done-bar">✅</td><td class="cell done-bar">✅</td>
+        <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td>
+      </tr>
+      <tr>
+        <td>実験環境構築</td>
+        <td class="cell"></td><td class="cell"></td><td class="cell active-bar">🔴</td><td class="cell active-bar">🔴</td>
+        <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td>
+      </tr>
+      <tr>
+        <td>本実験（モデル比較）</td>
+        <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell plan-bar">🔵</td><td class="cell plan-bar">🔵</td><td class="cell plan-bar">✅</td>
+        <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td>
+      </tr>
+      <tr>
+        <td>結果分析・考察</td>
+        <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell plan-bar">🔵</td><td class="cell plan-bar">✅</td>
+        <td class="cell"></td><td class="cell"></td><td class="cell"></td>
+      </tr>
+      <tr>
+        <td>論文執筆</td>
+        <td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell"></td><td class="cell plan-bar">🔵</td><td class="cell plan-bar">🔵</td><td class="cell plan-bar">🔵</td><td class="cell plan-bar">✅</td>
+      </tr>
+    </table>
+    <div style="margin-top:12px; display:flex; gap:20px; font-size:12px; color:#555;">
+      <span>✅ 完了</span>
+      <span>🔴 実施中</span>
+      <span>🔵 予定</span>
+    </div>
+    <div style="margin-top:12px; background:#fff0f0; border-left:4px solid #c0392b; border-radius:4px; padding:10px 14px; font-size:12px; color:#333;">
+      <strong style="color:#c0392b;">重要マイルストーン</strong><br>
+      ■ <strong>2026-07-17</strong>（金）12:00 — 中間発表 概要2p PDF 提出（LETUS 厳守）<br>
+      ■ <strong>2026-07-20〜27</strong> — 中間発表会（6分＋質疑3分）<br>
+      ■ <strong>2027-01月中</strong> — 卒業論文提出
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>14 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 15: 参考文献 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <h1 class="slide-title">参考文献</h1>
+    <ol class="ref-list">
+      <li>Guo, C., et al. (2017). On Calibration of Modern Neural Networks. <em>ICML</em>.</li>
+      <li>Kadavath, S., et al. (2022). Language Models (Mostly) Know What They Know. <em>arXiv:2207.05221</em>.</li>
+      <li>Lin, S., et al. (2022). Teaching Models to Express Their Uncertainty in Words. <em>TMLR</em>.</li>
+      <li><strong>Tian, K., et al. (2023). Just Ask for Calibration: Strategies for Eliciting Calibrated Confidence Scores from Language Models Fine-Tuned with Human Feedback. <em>EMNLP 2023</em>.</strong></li>
+      <li><strong>Xiong, M., et al. (2024). Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in LLMs. <em>ICLR 2024</em>.</strong></li>
+      <li>Yang, D., et al. (2024). On Verbalized Confidence Scores for LLMs. <em>arXiv:2412.14737</em>.</li>
+      <li>Dai, Y. (2025). Rescaling Confidence: What Scale Design Reveals About LLM Metacognition. <em>arXiv:2603.09309</em>.</li>
+      <li><strong>Xue, B., et al. (2025). MlingConf: A Comprehensive Study of Multilingual Confidence Estimation on LLMs. <em>Findings of ACL 2025</em>.</strong></li>
+      <li>Seo, K. J., et al. (2025). ADVICE: Answer-Dependent Verbalized Confidence Estimation. <em>arXiv:2510.10913</em>.</li>
+      <li>Liu, S., et al. (2025). ConfTuner: Training LLMs to Express Their Confidence Verbally. <em>NeurIPS 2025</em>.</li>
+      <li>Roelofs, R., et al. (2022). Mitigating Bias in Calibration Error Estimation. <em>AISTATS 2022</em>.</li>
+      <li>Zheng, L., et al. (2023). Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. <em>NeurIPS 2023</em>.</li>
+    </ol>
+    <p class="note" style="margin-top:12px;">太字：本研究の設計判断に直接関与した主要文献</p>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>15 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 16: Appendix A — ECE詳細 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="appendix-title">Appendix A</div>
+    <h1 class="slide-title">評価指標の詳細：ECE の数式と直感的解釈</h1>
+    <div class="two-col">
+      <div class="col">
+        <h3>ECE の定義（数式）</h3>
+        <div style="background:#f4f7fb; border-radius:8px; padding:16px; font-size:14px; line-height:2.2; margin-bottom:12px; font-family:'Courier New', monospace; color:#1a3a5c;">
+          ECE = Σ<sub>m=1</sub><sup>M</sup> (|B<sub>m</sub>| / n) × |acc(B<sub>m</sub>) − conf(B<sub>m</sub>)|
+        </div>
+        <ul class="body" style="font-size:13px;">
+          <li><strong>M</strong> = ビン数（本研究では M=10）</li>
+          <li><strong>B<sub>m</sub></strong> = ビン m に属するサンプル集合</li>
+          <li><strong>acc(B<sub>m</sub>)</strong> = ビン m 内の正答率</li>
+          <li><strong>conf(B<sub>m</sub>)</strong> = ビン m 内の平均確信度</li>
+          <li>→ 差の絶対値を サンプル数で重み付き平均</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3>直感的な例</h3>
+        <table style="font-size:12px;">
+          <tr>
+            <th>確信度帯</th>
+            <th>実際の正答率</th>
+            <th>差 (誤差)</th>
+          </tr>
+          <tr><td>90〜100%</td><td>85%</td><td>5pp</td></tr>
+          <tr><td>70〜80%</td><td>65%</td><td>8pp</td></tr>
+          <tr><td>50〜60%</td><td>55%</td><td>2pp</td></tr>
+          <tr style="background:#eaf7f0;"><td colspan="2"><strong>ECE（重み付き平均）</strong></td><td><strong>~5pp</strong></td></tr>
+        </table>
+        <div class="key-box" style="margin-top:12px; font-size:13px;">
+          ECE = 0 → 完全キャリブレーション<br>
+          ECE が低いほど確信度が「正直」
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>16 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()">次へ →</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 17: Appendix B — プロンプト全文 -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="title">プロンプト設計による LLM キャリブレーション性能向上に関する研究</span>
+    <span class="info">指田一茶 ｜ 2026-06-24</span>
+  </div>
+  <div class="slide-body">
+    <div class="appendix-title">Appendix B</div>
+    <h1 class="slide-title">プロンプトテンプレート全文（数学ドメイン例）</h1>
+    <div style="display:flex; gap:16px; flex:1;">
+      <div style="flex:1;">
+        <p style="font-size:12px; font-weight:700; color:#1a3a5c; margin-bottom:6px;">Verb.1S — 同時出力型</p>
+        <div class="code-block">以下の数学の問題を読み、回答と、その回答が
+正しいと思う確率（確信度）を答えてください。
+確信度は0.0（まったく自信がない）から1.0
+（完全に確信している）の数値で表してください。
+
+問題: {question}
+
+以下の形式で回答してください。
+形式以外の出力はしないでください。
+回答: [数値のみ]
+確信度: [0.0〜1.0の数値]</div>
+      </div>
+      <div style="flex:1;">
+        <p style="font-size:12px; font-weight:700; color:#1a3a5c; margin-bottom:6px;">Verb.2S — 二段階型（Turn 2）</p>
+        <div class="code-block">あなたは先ほどの問題に対して
+「{answer}」と回答しました。
+この回答が正しい確率を0.0（まったく自信
+がない）から1.0（完全に確信している）の
+数値で答えてください。
+
+以下の形式で回答してください。
+形式以外の出力はしないでください。
+確信度: [0.0〜1.0の数値]</div>
+      </div>
+      <div style="flex:1;">
+        <p style="font-size:12px; font-weight:700; color:#2a7d4f; margin-bottom:6px;">Ling.1S — 言語表現型</p>
+        <div class="code-block">以下の数学の問題を読み、回答と、その回答
+に対する自信の度合いを答えてください。
+自信の度合いは以下の5つから1つ選んで。
+
+- ほぼ確実      → 0.95
+- かなり自信がある → 0.80
+- どちらともいえない → 0.50
+- あまり自信がない → 0.25
+- ほとんどわからない → 0.05
+
+問題: {question}
+
+回答: [数値のみ]
+確信度: [上記5つの表現から1つ]</div>
+      </div>
+    </div>
+    <p class="note" style="margin-top:8px;">全4ドメイン × 日英のテンプレートは research/prompt-design-analysis.md に記載</p>
+  </div>
+  <div class="slide-footer">
+    <button class="nav-btn" onclick="prevSlide()">← 前へ</button>
+    <span>17 / 17</span>
+    <button class="nav-btn" onclick="nextSlide()" disabled>次へ →</button>
+  </div>
+</div>
+
+</div><!-- /slideshow -->
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    // Update all page counters
+    document.querySelectorAll('.slide-footer span').forEach(el => {
+      // figure out which slide this footer belongs to
+    });
+  }
+
+  function nextSlide() {
+    if (current < total - 1) showSlide(current + 1);
+  }
+  function prevSlide() {
+    if (current > 0) showSlide(current - 1);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault(); nextSlide();
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault(); prevSlide();
+    }
+  });
+</script>
+</body>
+</html>
