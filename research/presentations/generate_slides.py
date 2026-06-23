@@ -1,20 +1,22 @@
 """
-2026-06-24 ゼミ発表スライド生成スクリプト（v2）
+2026-06-24 ゼミ発表スライド生成スクリプト（v3）
 python generate_slides.py で .pptx を生成 → Google Drive にアップロードして開く
 
-変更点 (v2):
-  - 文字サイズを全体的に拡大
-  - 主メッセージから環境構築・予算の話を削除（次回発表）
-  - 活動報告のAI使用表現を調整
-  - 前回の振り返りを3スライドに拡充（発表記録に基づく）
-  - 評価指標：採用しなかった指標スライドを追加、採用指標に数式・範囲・採用理由を追加
-  - データセット・正答判定に先行研究比較・理由を追加
-  - プロンプト設計に専門用語説明と具体例を追加
-  - 環境構築を具体的な内容に変更
-  - 予算に計算式を追加
-  - 参考文献にスライド番号マッピングを追加
-  - 旧Appendix A/B/C を本編に移動
-  - Appendix は採用しなかった指標の計算式のみ
+変更点 (v3):
+  - フッター全削除
+  - 論文紹介スライドで論文名・著者・出典を丁寧に記載
+  - Slide 5: 左右レイアウト入れ替え（左=テーマ+キャリブレーション定義, 右=問題意識+RLHF）
+  - Slide 6: 下部「本研究との関係」を削除（→ Slide 7 に移動）
+  - Slide 7: 「本研究との関係」を追加
+  - Slide 9: 調査した評価指標一覧（サーベイ概観）に変更
+  - Slide 10: Proper Scoring Rule の説明を追加
+  - Slides 11, 12: 数式を TeX 記法からユニコード整形に変更
+  - Slide 13: AUROC の数式を追加
+  - Slide 14: 知識ドメインの先行研究を Xiong 2024・Yang 2024 に明示
+  - Slide 15（新規）: 250問にした根拠（先行研究の問題数比較付き）
+  - Slide 16（旧15）: 正答判定に具体例を追加
+  - Slide 18（旧17）: プロンプト具体例の順序を Verb.1S / Ling.1S / Verb.2S に変更
+  - Appendix B（新規Slide 26）: 採用しなかった指標の詳細理由（旧Slide 9）
 """
 
 from pptx import Presentation
@@ -22,7 +24,6 @@ from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 
-# ===== カラーパレット =====
 C_BG      = RGBColor(0xFF, 0xFF, 0xFF)
 C_ACCENT  = RGBColor(0x1A, 0x56, 0xAA)
 C_ACCENT2 = RGBColor(0xE8, 0x4C, 0x3C)
@@ -40,7 +41,7 @@ prs.slide_width  = W
 prs.slide_height = H
 BLANK = prs.slide_layouts[6]
 
-TOTAL_SLIDES = 24
+TOTAL_SLIDES = 26
 
 
 def add_rect(slide, x, y, w, h, color, line=False):
@@ -99,18 +100,6 @@ def header_bar(slide, title_text, slide_no=None):
                  size=16, color=C_GRAY, align=PP_ALIGN.RIGHT)
 
 
-def footer_bar(slide):
-    add_rect(slide, 0, H - Inches(0.38), W, Inches(0.38), C_LIGHTBG)
-    add_text(slide,
-             "東京理科大学 経営システム工学科 秦野研究室　指田一茶　2026-06-24",
-             Inches(0.3), H - Inches(0.35), Inches(13), Inches(0.32),
-             size=12, color=C_GRAY)
-
-
-def divider(slide, y):
-    add_rect(slide, Inches(0.4), y, W - Inches(0.8), Inches(0.03), C_LIGHTBG)
-
-
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Slide 1 — 表紙
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -130,11 +119,10 @@ add_text(sl,
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 2 — 主メッセージ（環境構築・予算は触れない）
+# Slide 2 — 主メッセージ
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "【本日の主メッセージ】", 2)
-footer_bar(sl)
 
 add_rect(sl, Inches(0.4), Inches(0.95), W - Inches(0.8), Inches(1.05), C_LIGHTBG)
 add_text(sl,
@@ -150,7 +138,7 @@ lines = [
     "",
     "📅  次の山場：中間発表（概要 2p 提出 07/17 → 発表会 07/20〜07/27）",
 ]
-bullet_box(sl, lines, Inches(0.8), Inches(2.1), Inches(11.8), Inches(4.8), size=24)
+bullet_box(sl, lines, Inches(0.8), Inches(2.1), Inches(11.8), Inches(5.0), size=24)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -158,7 +146,6 @@ bullet_box(sl, lines, Inches(0.8), Inches(2.1), Inches(11.8), Inches(4.8), size=
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "目次", 3)
-footer_bar(sl)
 
 items = [
     ("1.", "直近の活動報告"),
@@ -180,7 +167,6 @@ for i, (num, label) in enumerate(items):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "直近の活動報告", 4)
-footer_bar(sl)
 
 lines = [
     "就活終了（結果はまだ）",
@@ -194,76 +180,93 @@ lines = [
     "",
     "余談：後期学費確保のため、スキマバイトの情報があればご教示ください🙏",
 ]
-bullet_box(sl, lines, Inches(0.7), Inches(1.1), Inches(12.0), Inches(5.8),
+bullet_box(sl, lines, Inches(0.7), Inches(1.1), Inches(12.0), Inches(6.0),
            size=22, indent_map={4: 1, 5: 1, 6: 1, 7: 1})
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Slide 5 — 前回の振り返り①：研究背景・テーマ
+# レイアウト: 左=研究テーマ+キャリブレーション定義 / 右=問題意識+RLHF
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "前回の振り返り①：研究背景とテーマ", 5)
-footer_bar(sl)
 
-# 左カラム：問題意識
-add_rect(sl, Inches(0.4), Inches(0.95), Inches(6.2), Inches(5.9), C_LIGHTBG)
-add_text(sl, "問題意識", Inches(0.5), Inches(1.0), Inches(6.0), Inches(0.55),
+# 左カラム：研究テーマ + キャリブレーション定義
+add_rect(sl, Inches(0.4), Inches(0.95), Inches(6.2), Inches(2.55), C_LIGHTBG)
+add_text(sl, "研究テーマ", Inches(0.5), Inches(1.0), Inches(6.0), Inches(0.55),
          size=22, bold=True, color=C_ACCENT)
-lines_l = [
-    "LLM はハルシネーション（誤情報を自信",
-    "ありげに生成する現象）を起こす [1]",
+add_text(sl, "プロンプト設計による\nLLM のキャリブレーション性能向上",
+         Inches(0.5), Inches(1.6), Inches(6.0), Inches(1.6),
+         size=22, bold=True, color=C_DARK)
+
+add_rect(sl, Inches(0.4), Inches(3.65), Inches(6.2), Inches(3.2), C_LIGHTBG)
+add_text(sl, "キャリブレーション とは", Inches(0.5), Inches(3.7), Inches(6.0), Inches(0.55),
+         size=22, bold=True, color=C_ACCENT)
+add_text(sl,
+         "モデルが出力する確信度と\n実際の正答率がどの程度一致しているか",
+         Inches(0.5), Inches(4.3), Inches(6.0), Inches(1.2), size=21, color=C_DARK)
+add_text(sl,
+         "「完全キャリブレーション」=\n  確信度 X% のとき、X% の確率で正解\n\n"
+         "✓  70% 確信 → 約 70% 正解   ← 良いキャリブレーション\n"
+         "✗  95% 確信 → 実際は誤答    ← 悪いキャリブレーション",
+         Inches(0.5), Inches(5.5), Inches(6.0), Inches(1.2),
+         size=18, color=C_GRAY, italic=False)
+
+# 右カラム：問題意識 + RLHF 言及
+add_rect(sl, Inches(6.9), Inches(0.95), Inches(6.0), Inches(5.9), C_LIGHTBG)
+add_text(sl, "問題意識", Inches(7.0), Inches(1.0), Inches(5.8), Inches(0.55),
+         size=22, bold=True, color=C_ACCENT)
+
+lines_r = [
+    "LLM はハルシネーション（誤情報を自信あり",
+    "げに生成する現象）を起こす [1]",
     "",
     "問題の本質：間違えることより",
-    "「自信度と正答率の乖離」",
+    "「自信度と正答率の乖離」が重大",
     "",
-    "✓  90% 確信 → 約 90% 正解  ← 良い例",
-    "✗  95% 確信 → 実際は誤答   ← 悪い例",
+    "なぜ起きるか？──── RLHF の影響",
+    "  RLHF（人間のフィードバックによる強化学習）",
+    "  で訓練されたモデルは自信ありげな表現を",
+    "  好む傾向があり、過信になりやすい [3]",
     "",
     "→ 確信度が信頼できれば、利用者が",
     "   リスク判断の指標として使えるようになる",
 ]
-bullet_box(sl, lines_l, Inches(0.5), Inches(1.6), Inches(6.0), Inches(5.0),
-           size=21, indent_map={3: 1, 4: 1, 10: 1})
-
-# 右カラム：テーマ・キーワード
-add_rect(sl, Inches(6.9), Inches(0.95), Inches(6.0), Inches(2.7), C_LIGHTBG)
-add_text(sl, "研究テーマ", Inches(7.0), Inches(1.0), Inches(5.8), Inches(0.55),
-         size=22, bold=True, color=C_ACCENT)
-add_text(sl, "プロンプト設計による\nLLM のキャリブレーション性能向上",
-         Inches(7.0), Inches(1.6), Inches(5.8), Inches(1.8),
-         size=22, bold=True, color=C_DARK)
-
-add_rect(sl, Inches(6.9), Inches(3.85), Inches(6.0), Inches(3.0), C_LIGHTBG)
-add_text(sl, "キャリブレーション とは", Inches(7.0), Inches(3.9), Inches(5.8), Inches(0.55),
-         size=22, bold=True, color=C_ACCENT)
-add_text(sl,
-         "モデルが出力する確信度と\n実際の正答率がどの程度一致しているか",
-         Inches(7.0), Inches(4.5), Inches(5.8), Inches(1.2), size=21, color=C_DARK)
-add_text(sl,
-         "「完全キャリブレーション」=\n確信度 X% のとき、X% の確率で正解",
-         Inches(7.0), Inches(5.75), Inches(5.8), Inches(0.9),
-         size=18, color=C_GRAY, italic=True)
+bullet_box(sl, lines_r, Inches(7.0), Inches(1.6), Inches(5.7), Inches(5.0),
+           size=19, indent_map={3: 1, 4: 1, 8: 2, 9: 2, 10: 2})
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Slide 6 — 前回の振り返り②：先行研究（Tian 2023）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "前回の振り返り②：重要先行研究 ── Tian et al. 2023 [3]", 6)
-footer_bar(sl)
+header_bar(sl, "前回の振り返り②：最重要先行研究", 6)
 
-add_text(sl, "「Just Ask for Calibration」 EMNLP 2023",
-         Inches(0.5), Inches(0.95), Inches(12.0), Inches(0.5),
-         size=22, bold=True, color=C_ACCENT)
+# 論文情報を丁寧に記載
+add_rect(sl, Inches(0.4), Inches(0.95), W - Inches(0.8), Inches(1.3), C_LIGHTBG)
+add_text(sl, "論文名:",
+         Inches(0.55), Inches(1.0), Inches(1.3), Inches(0.45),
+         size=18, bold=True, color=C_ACCENT)
+add_text(sl,
+         "「Just Ask for Calibration: Strategies for Eliciting Calibrated Confidence Scores"
+         " from Language Models Fine-Tuned with Human Feedback」",
+         Inches(1.85), Inches(1.0), Inches(11.2), Inches(0.55),
+         size=18, bold=True, color=C_DARK)
+add_text(sl,
+         "著者: Tian, K., Mitchell, E., Yao, H., Manning, C. D., & Finn, C.　　"
+         "出典: Proceedings of EMNLP 2023",
+         Inches(0.55), Inches(1.58), Inches(12.5), Inches(0.45),
+         size=17, color=C_GRAY)
 
 # 研究の概要
-add_rect(sl, Inches(0.4), Inches(1.5), Inches(12.5), Inches(1.65), C_LIGHTBG)
-add_text(sl, "研究の概要", Inches(0.5), Inches(1.55), Inches(4.0), Inches(0.5),
+add_rect(sl, Inches(0.4), Inches(2.35), W - Inches(0.8), Inches(1.45), C_LIGHTBG)
+add_text(sl, "研究の概要", Inches(0.5), Inches(2.4), Inches(4.0), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
 add_text(sl,
-         "ChatGPT / GPT-4 / Claude 等の RLHF 学習済み LLM に対し、確信度を「言葉」で出力させる\n"
-         "（Verbalized Confidence）と、内部確率より大幅にキャリブレーションが改善することを実証。",
-         Inches(0.5), Inches(2.05), Inches(12.3), Inches(1.0), size=21, color=C_DARK)
+         "ChatGPT / GPT-4 / Claude 等の RLHF 学習済み LLM に対し、確信度を「言葉」で出力させる"
+         "（Verbalized Confidence）と、\n内部確率より大幅にキャリブレーションが改善することを実証。"
+         "Verb.1S / Verb.2S / Ling.1S の3手法を比較。",
+         Inches(0.5), Inches(2.9), Inches(12.3), Inches(0.85), size=20, color=C_DARK)
 
 # 主な知見
 results = [
@@ -272,27 +275,19 @@ results = [
     ("CoT は効果なし", "Chain-of-Thought は確信度の精度に寄与しない（推論強化と混同注意）"),
     ("モデル間で差あり", "Claude 2 が最も優秀、Llama-2 はやや劣る傾向"),
 ]
-add_text(sl, "主な知見", Inches(0.5), Inches(3.25), Inches(4.0), Inches(0.5),
+add_text(sl, "主な知見", Inches(0.5), Inches(3.9), Inches(4.0), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
 for i, (title, desc) in enumerate(results):
     x = Inches(0.4) + (i % 2) * Inches(6.4)
-    y = Inches(3.75) + (i // 2) * Inches(1.4)
+    y = Inches(4.4) + (i // 2) * Inches(1.4)
     add_rect(sl, x, y, Inches(6.0), Inches(1.2), C_LIGHTBG)
     add_text(sl, title, x + Inches(0.1), y + Pt(5), Inches(5.8), Inches(0.5),
              size=20, bold=True, color=C_DARK)
     add_text(sl, desc, x + Inches(0.1), y + Pt(28), Inches(5.8), Inches(0.7),
              size=18, color=C_GRAY)
 
-# 本研究との関係
-add_rect(sl, Inches(0.4), Inches(6.6), W - Inches(0.8), Inches(0.5), C_ACCENT)
-add_text(sl,
-         "本研究：この成果を日本語環境で再検証 → 英語 vs 日本語で同様の改善が得られるか？",
-         Inches(0.6), Inches(6.63), Inches(12.5), Inches(0.44),
-         size=19, bold=True, color=C_BG)
-
-# Xiong 2024 補強
-add_text(sl, "補強研究: Xiong et al. 2024 (ICLR) [4] が複数モデルで同様の傾向を確認",
-         Inches(0.5), Inches(7.12), Inches(12.0), Inches(0.38),
+add_text(sl, "補強研究: Xiong et al. 2024 (ICLR) [4] が複数モデル・データセットで同様の傾向を確認",
+         Inches(0.5), Inches(7.25), Inches(12.0), Inches(0.38),
          size=17, color=C_GRAY)
 
 
@@ -301,7 +296,6 @@ add_text(sl, "補強研究: Xiong et al. 2024 (ICLR) [4] が複数モデルで�
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "前回の振り返り③：RQ と実験設計の方向性", 7)
-footer_bar(sl)
 
 add_text(sl, "メイン RQ（承認済み）",
          Inches(0.4), Inches(0.95), Inches(12.5), Inches(0.5),
@@ -321,15 +315,22 @@ rqs = [
 add_text(sl, "サブ RQ", Inches(0.4), Inches(2.5), Inches(3.0), Inches(0.5),
          size=22, bold=True, color=C_ACCENT)
 for i, (rq, axis, q) in enumerate(rqs):
-    y = Inches(3.0) + i * Inches(0.95)
-    add_rect(sl, Inches(0.4), y, Inches(1.0), Inches(0.8), C_ACCENT)
-    add_text(sl, rq, Inches(0.4), y + Pt(6), Inches(1.0), Inches(0.72),
+    y = Inches(3.0) + i * Inches(0.82)
+    add_rect(sl, Inches(0.4), y, Inches(1.0), Inches(0.72), C_ACCENT)
+    add_text(sl, rq, Inches(0.4), y + Pt(6), Inches(1.0), Inches(0.65),
              size=18, bold=True, color=C_BG, align=PP_ALIGN.CENTER)
-    add_rect(sl, Inches(1.55), y, Inches(1.9), Inches(0.8), C_LIGHTBG)
-    add_text(sl, axis, Inches(1.6), y + Pt(6), Inches(1.8), Inches(0.72),
+    add_rect(sl, Inches(1.55), y, Inches(1.9), Inches(0.72), C_LIGHTBG)
+    add_text(sl, axis, Inches(1.6), y + Pt(6), Inches(1.8), Inches(0.65),
              size=18, bold=True, color=C_ACCENT)
-    add_text(sl, q, Inches(3.6), y + Pt(10), Inches(9.5), Inches(0.7),
+    add_text(sl, q, Inches(3.6), y + Pt(8), Inches(9.5), Inches(0.65),
              size=20, color=C_DARK)
+
+# 本研究との関係（Slide 6 から移動）
+add_rect(sl, Inches(0.4), Inches(6.38), W - Inches(0.8), Inches(0.62), C_ACCENT)
+add_text(sl,
+         "本研究：Tian 2023・Xiong 2024 の成果を日本語環境で再検証 → 英語と同様の改善が得られるか？（→ RQ4）",
+         Inches(0.6), Inches(6.42), Inches(12.5), Inches(0.56),
+         size=19, bold=True, color=C_BG)
 
 add_text(sl,
          "前回時点の課題（今回解決）: 評価指標の選定 / データセット選定 / 正答判定方法 / プロンプト設計",
@@ -342,7 +343,6 @@ add_text(sl,
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "今回の進捗サマリー（4項目）", 8)
-footer_bar(sl)
 
 rows = [
     ("①", "評価指標",    "ECE（主）＋ Brier Score（副）＋ AUROC（補助）に決定"),
@@ -363,52 +363,65 @@ for i, (no, item, result) in enumerate(rows):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 9 — 採用しなかった評価指標（新規）
+# Slide 9 — 調査した評価指標の一覧（サーベイ概観）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "進捗①：評価指標の候補と不採用理由", 9)
-footer_bar(sl)
+header_bar(sl, "進捗①：調査した評価指標の一覧", 9)
 
-add_text(sl, "（計算式・値の範囲は Appendix 参照）",
-         Inches(8.0), Inches(0.9), Inches(5.0), Inches(0.45),
-         size=16, color=C_GRAY, italic=True)
+add_text(sl, "調査方法: 関連論文（Guo 2017 [2], Tian 2023 [3], Xiong 2024 [4], Yang 2024 [7] 等）およびウェブ検索",
+         Inches(0.4), Inches(0.95), Inches(12.8), Inches(0.5),
+         size=19, color=C_GRAY, italic=True)
 
-not_adopted = [
-    ("MCE\n最大キャリブレーション誤差",
-     "最大値（1ビンの外れ値）を見る指標。外れ値に過敏で全体傾向を反映しない。"
-     "高リスク系（医療等）向けであり本研究の RQ には不要。"),
-    ("ACE\n適応的キャリブレーション誤差",
-     "等質量ビンを使いサンプル偏り問題を解決するが、ECE と互換性がなく Tian 2023 との"
-     "直接比較が不能になる。"),
-    ("Log-loss / NLL\n負の対数尤度",
-     "理論的には Proper Scoring Rule だが、確信度が 0 や 1 に極めて近い場合に値が発散して"
-     "数値的に不安定。過信傾向の強い LLM では扱いにくい。"),
-    ("AUPRC\n適合率-再現率曲線下面積",
-     "クラス不均衡が激しい場合に AUROC より優れるが、本研究では正答率 50〜80% 程度と不均衡が"
-     "少なく AUROC で代替可能。"),
-    ("AUARC\n精度-棄却曲線下面積",
-     "「信頼度の低い予測から棄却した際に精度がどう上がるか」を測る指標。"
-     "本研究では棄却操作を実施しないため対象外。"),
-    ("SCE / cw-ECE\nクラス別 ECE",
-     "多クラス分類向け指標。本研究は「正解 or 不正解」の二値問題が基本であり、"
-     "クラス別拡張の追加価値が限定的。"),
+# 採用した指標
+add_rect(sl, Inches(0.4), Inches(1.55), Inches(6.1), Inches(5.55), C_LIGHTBG)
+add_text(sl, "✅ 採用した指標（3種）",
+         Inches(0.5), Inches(1.6), Inches(5.9), Inches(0.55),
+         size=22, bold=True, color=C_GREEN)
+adopted = [
+    ("ECE", "Expected Calibration Error", "主指標"),
+    ("Brier Score", "ブライアスコア", "副指標"),
+    ("AUROC", "Area Under ROC Curve", "補助指標"),
 ]
-for i, (name, reason) in enumerate(not_adopted):
-    x = Inches(0.4) + (i % 2) * Inches(6.5)
-    y = Inches(1.4) + (i // 2) * Inches(1.85)
-    add_rect(sl, x, y, Inches(6.1), Inches(1.7), C_LIGHTBG)
-    add_text(sl, name, x + Inches(0.1), y + Pt(5), Inches(5.9), Inches(0.6),
-             size=19, bold=True, color=C_ACCENT2)
-    add_text(sl, reason, x + Inches(0.1), y + Pt(38), Inches(5.9), Inches(1.1),
-             size=17, color=C_DARK)
+for i, (name, full, role) in enumerate(adopted):
+    y = Inches(2.2) + i * Inches(1.5)
+    add_rect(sl, Inches(0.5), y, Inches(5.8), Inches(1.3), C_BG)
+    add_text(sl, f"{name}  （{role}）",
+             Inches(0.6), y + Pt(5), Inches(5.5), Inches(0.5),
+             size=21, bold=True, color=C_ACCENT)
+    add_text(sl, full,
+             Inches(0.6), y + Pt(33), Inches(5.5), Inches(0.45),
+             size=18, color=C_GRAY, italic=True)
+
+# 不採用の指標
+add_rect(sl, Inches(6.8), Inches(1.55), Inches(6.15), Inches(5.55), C_LIGHTBG)
+add_text(sl, "🔍 調査・検討したが採用しなかった指標（6種）",
+         Inches(6.9), Inches(1.6), Inches(5.9), Inches(0.55),
+         size=19, bold=True, color=C_ACCENT2)
+not_adopted_brief = [
+    ("MCE", "最大キャリブレーション誤差"),
+    ("ACE", "適応的キャリブレーション誤差"),
+    ("Log-loss / NLL", "負の対数尤度"),
+    ("AUPRC", "適合率-再現率曲線下面積"),
+    ("AUARC", "精度-棄却曲線下面積"),
+    ("SCE / cw-ECE", "クラス別 ECE"),
+]
+for i, (name, full) in enumerate(not_adopted_brief):
+    y = Inches(2.2) + i * Inches(0.85)
+    add_rect(sl, Inches(6.9), y, Inches(5.9), Inches(0.75), C_BG)
+    add_text(sl, f"{name}  ──  {full}",
+             Inches(7.0), y + Pt(6), Inches(5.7), Inches(0.65),
+             size=19, color=C_DARK)
+
+add_text(sl, "不採用の詳細理由・計算式は Appendix A/B 参照",
+         Inches(0.4), Inches(7.2), Inches(12.8), Inches(0.38),
+         size=17, color=C_GRAY, italic=True)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 10 — 採用した評価指標（概要）
+# Slide 10 — 採用した評価指標（概要）+ Proper Scoring Rule 説明
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "進捗①：採用した評価指標（概要）", 10)
-footer_bar(sl)
 
 add_text(sl, "→ 詳細は次のスライドで説明",
          Inches(10.5), Inches(0.9), Inches(2.7), Inches(0.45),
@@ -422,7 +435,7 @@ metrics = [
     ("Brier Score\n（副指標）", C_ACCENT2,
      "ブライアスコア",
      "値: 0.0〜1.0（低いほど良）",
-     "厳密な Proper Scoring Rule [2]\n理論的保証が強く ECE の弱点を補完"),
+     "★ Proper Scoring Rule [2]\n理論的保証が強く ECE の弱点を補完"),
     ("AUROC\n（補助指標）", C_GREEN,
      "ROC曲線下面積\nArea Under ROC Curve",
      "値: 0.5〜1.0（高いほど良）",
@@ -433,98 +446,118 @@ for i, (name, color, fullname, val_range, reason) in enumerate(metrics):
     add_rect(sl, x, Inches(1.1), Inches(4.0), Inches(0.9), color)
     add_text(sl, name, x, Inches(1.1), Inches(4.0), Inches(0.9),
              size=22, bold=True, color=C_BG, align=PP_ALIGN.CENTER)
-    add_rect(sl, x, Inches(2.05), Inches(4.0), Inches(4.9), C_LIGHTBG)
+    add_rect(sl, x, Inches(2.05), Inches(4.0), Inches(4.5), C_LIGHTBG)
     add_text(sl, fullname, x + Inches(0.1), Inches(2.1), Inches(3.8), Inches(0.85),
              size=18, color=C_GRAY, italic=True)
     add_text(sl, val_range, x + Inches(0.1), Inches(3.0), Inches(3.8), Inches(0.6),
              size=19, bold=True, color=C_DARK)
-    add_text(sl, reason, x + Inches(0.1), Inches(3.65), Inches(3.8), Inches(1.3),
+    add_text(sl, reason, x + Inches(0.1), Inches(3.65), Inches(3.8), Inches(1.0),
              size=18, color=C_DARK)
 
+# Proper Scoring Rule 説明ボックス
+add_rect(sl, Inches(0.4), Inches(6.6), W - Inches(0.8), Inches(0.85), C_LIGHTBG)
+add_text(sl, "★ Proper Scoring Rule（PSR）とは",
+         Inches(0.55), Inches(6.63), Inches(4.0), Inches(0.42),
+         size=18, bold=True, color=C_ACCENT2)
+add_text(sl,
+         "「自分の真の確率的信念を正直に報告することが、最良スコアになる」性質を持つ指標。"
+         "本当に 70% 確信なら 0.7 と答えるのが最適。"
+         "Brier Score と Log-loss が PSR。ECE は PSR ではない（定数予測でも 0 になりうる）。",
+         Inches(4.7), Inches(6.63), Inches(8.4), Inches(0.8),
+         size=17, color=C_DARK)
+
 add_text(sl, "可視化: Reliability Diagram（信頼性図）— 論文の Figure に必ず掲載",
-         Inches(0.5), Inches(7.1), Inches(12.5), Inches(0.45),
-         size=18, color=C_GRAY)
+         Inches(0.5), Inches(7.52), Inches(12.5), Inches(0.35),
+         size=16, color=C_GRAY)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 11 — ECE 詳細（旧Appendix A → 本編に移動）
+# Slide 11 — ECE 詳細（Unicode 数式）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "ECE（期待キャリブレーション誤差）の詳細", 11)
-footer_bar(sl)
 
 # 数式
-add_rect(sl, Inches(0.4), Inches(0.95), W - Inches(0.8), Inches(1.65), C_LIGHTBG)
+add_rect(sl, Inches(0.4), Inches(0.95), W - Inches(0.8), Inches(2.0), C_LIGHTBG)
 add_text(sl, "数式",
          Inches(0.6), Inches(1.0), Inches(2.0), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
-add_text(sl, "ECE = Σ_{m=1}^{M}  ( |B_m| / n )  ×  | acc(B_m) − conf(B_m) |",
-         Inches(0.7), Inches(1.48), Inches(12.0), Inches(0.95),
-         size=26, bold=True, color=C_DARK)
+add_text(sl,
+         "ECE  =  Σ  ( |Bₘ| / n )  ×  | acc(Bₘ) − conf(Bₘ) |",
+         Inches(0.7), Inches(1.45), Inches(12.0), Inches(0.75),
+         size=28, bold=True, color=C_DARK)
+add_text(sl,
+         "（m = 1, 2, ..., M　等幅ビンで総和　M = 10 に固定）",
+         Inches(0.7), Inches(2.18), Inches(12.0), Inches(0.55),
+         size=19, color=C_GRAY, italic=True)
 
 # 変数説明
 defs = [
-    "B_m  : ビン m に属するサンプル集合　　　n : 総サンプル数",
-    "acc(B_m)  : ビン m 内の正答率　　　　　 conf(B_m) : ビン m 内の平均確信度",
-    "M = 10（等幅ビン、0.1 刻みで 0.0〜1.0 を分割）",
+    "Bₘ  : ビン m に属するサンプルの集合　　　　n : 全サンプル数",
+    "acc(Bₘ)  : ビン m 内の正答率　　　　　　　conf(Bₘ) : ビン m 内の平均確信度",
+    "M = 10（確信度 0.0〜1.0 を 0.1 刻みの等幅ビンで分割）",
 ]
-bullet_box(sl, defs, Inches(0.7), Inches(2.65), Inches(12.0), Inches(1.1), size=19)
+bullet_box(sl, defs, Inches(0.7), Inches(3.05), Inches(12.0), Inches(1.1), size=19)
 
 # 値の範囲
-add_rect(sl, Inches(0.4), Inches(3.85), Inches(4.0), Inches(1.35), C_LIGHTBG)
+add_rect(sl, Inches(0.4), Inches(4.25), Inches(4.0), Inches(1.35), C_LIGHTBG)
 add_text(sl, "値の範囲と解釈",
-         Inches(0.5), Inches(3.9), Inches(3.8), Inches(0.5),
+         Inches(0.5), Inches(4.3), Inches(3.8), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
 add_text(sl, "0.0 = 完全キャリブレーション\n0.1 = 確信度が正答率から平均 10% ズレ\n（低いほど良い）",
-         Inches(0.5), Inches(4.42), Inches(3.8), Inches(0.75), size=19, color=C_DARK)
+         Inches(0.5), Inches(4.82), Inches(3.8), Inches(0.75), size=19, color=C_DARK)
 
 # 採用理由
-add_rect(sl, Inches(4.6), Inches(3.85), Inches(8.3), Inches(1.35), C_LIGHTBG)
+add_rect(sl, Inches(4.6), Inches(4.25), Inches(8.3), Inches(1.35), C_LIGHTBG)
 add_text(sl, "採用理由",
-         Inches(4.7), Inches(3.9), Inches(8.0), Inches(0.5),
+         Inches(4.7), Inches(4.3), Inches(8.0), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
 lines_r = [
     "① Tian 2023 [3]・Xiong 2024 [4] と同一指標 → 先行研究の数値と直接比較可能",
     "② 「確信度と正答率の平均ズレ」という本研究の核心的問いに直接対応",
     "③ ECE=0.10 なら「平均 10% ズレ」と直感的に説明できる（発表・論文向き）",
 ]
-bullet_box(sl, lines_r, Inches(4.7), Inches(4.4), Inches(8.0), Inches(0.75), size=18)
+bullet_box(sl, lines_r, Inches(4.7), Inches(4.8), Inches(8.0), Inches(0.75), size=18)
 
 # 出典・補足
-add_rect(sl, Inches(0.4), Inches(5.35), W - Inches(0.8), Inches(1.6), C_LIGHTBG)
+add_rect(sl, Inches(0.4), Inches(5.75), W - Inches(0.8), Inches(1.7), C_LIGHTBG)
 add_text(sl, "出典と注意点",
-         Inches(0.5), Inches(5.4), Inches(4.0), Inches(0.5),
+         Inches(0.5), Inches(5.8), Inches(4.0), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
 notes = [
-    "出典: Guo et al. 2017 (ICML) [2] が深層学習への適用を普及させた",
+    "出典: Guo, C. et al. (2017). On Calibration of Modern Neural Networks. ICML. [2]",
     "注意: ECE は Proper Scoring Rule ではない（定数予測でも 0 になりうる）→ Brier Score で補完",
     "注意: ビン数（M）に依存。本研究では M=10 に固定し先行研究と条件を揃える",
 ]
-bullet_box(sl, notes, Inches(0.5), Inches(5.95), Inches(12.5), Inches(0.95), size=18)
+bullet_box(sl, notes, Inches(0.5), Inches(6.35), Inches(12.5), Inches(1.1), size=18)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 12 — Brier Score 詳細
+# Slide 12 — Brier Score 詳細（Unicode 数式）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "Brier Score（ブライアスコア）の詳細", 12)
-footer_bar(sl)
 
-add_rect(sl, Inches(0.4), Inches(0.95), W - Inches(0.8), Inches(1.45), C_LIGHTBG)
+add_rect(sl, Inches(0.4), Inches(0.95), W - Inches(0.8), Inches(1.85), C_LIGHTBG)
 add_text(sl, "数式",
          Inches(0.6), Inches(1.0), Inches(2.0), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
-add_text(sl, "BS = (1/N) × Σ_{i=1}^{N} ( p_i − y_i )²",
-         Inches(0.7), Inches(1.45), Inches(12.0), Inches(0.85),
-         size=26, bold=True, color=C_DARK)
+add_text(sl,
+         "BS  =  (1/N)  ×  Σ  ( pᵢ − yᵢ )²",
+         Inches(0.7), Inches(1.42), Inches(12.0), Inches(0.72),
+         size=28, bold=True, color=C_DARK)
+add_text(sl,
+         "（i = 1, 2, ..., N　全サンプルで総和）",
+         Inches(0.7), Inches(2.12), Inches(12.0), Inches(0.45),
+         size=19, color=C_GRAY, italic=True)
 
-bullet_box(sl, ["p_i : モデルの確信度（0.0〜1.0）　　y_i : 正誤ラベル（正解=1, 不正解=0）"],
-           Inches(0.7), Inches(2.45), Inches(12.0), Inches(0.55), size=20)
+bullet_box(sl, ["pᵢ : モデルの確信度（0.0〜1.0）　　　yᵢ : 正誤ラベル（正解=1, 不正解=0）"],
+           Inches(0.7), Inches(2.88), Inches(12.0), Inches(0.55), size=20)
 
 # Murphy分解
-add_rect(sl, Inches(0.4), Inches(3.05), W - Inches(0.8), Inches(2.1), C_LIGHTBG)
-add_text(sl, "Murphy (1973) 分解 ── Brier Score = REL − RES + UNC",
-         Inches(0.5), Inches(3.1), Inches(12.5), Inches(0.55),
+add_rect(sl, Inches(0.4), Inches(3.55), W - Inches(0.8), Inches(2.0), C_LIGHTBG)
+add_text(sl, "Murphy (1973) 分解  ──  BS = REL − RES + UNC",
+         Inches(0.5), Inches(3.6), Inches(12.5), Inches(0.55),
          size=20, bold=True, color=C_ACCENT)
 comps = [
     ("REL（Reliability）", "キャリブレーション誤差", "小さいほど良", C_ACCENT2),
@@ -533,178 +566,219 @@ comps = [
 ]
 for i, (comp, meaning, dir_, color) in enumerate(comps):
     x = Inches(0.5) + i * Inches(4.25)
-    add_rect(sl, x, Inches(3.75), Inches(3.9), Inches(1.2), color)
-    add_text(sl, comp, x + Inches(0.1), Inches(3.8), Inches(3.7), Inches(0.45),
+    add_rect(sl, x, Inches(4.2), Inches(3.9), Inches(1.15), color)
+    add_text(sl, comp, x + Inches(0.1), Inches(4.25), Inches(3.7), Inches(0.45),
              size=17, bold=True, color=C_BG)
-    add_text(sl, meaning, x + Inches(0.1), Inches(4.25), Inches(3.7), Inches(0.5),
+    add_text(sl, meaning, x + Inches(0.1), Inches(4.7), Inches(3.7), Inches(0.5),
              size=17, color=C_BG)
-    add_text(sl, dir_, x + Inches(0.1), Inches(4.72), Inches(3.7), Inches(0.25),
+    add_text(sl, dir_, x + Inches(0.1), Inches(5.18), Inches(3.7), Inches(0.2),
              size=16, color=C_BG, italic=True)
 
 # 値の範囲と採用理由
-add_rect(sl, Inches(0.4), Inches(5.3), Inches(5.8), Inches(1.65), C_LIGHTBG)
+add_rect(sl, Inches(0.4), Inches(5.65), Inches(5.8), Inches(1.65), C_LIGHTBG)
 add_text(sl, "値の範囲と解釈",
-         Inches(0.5), Inches(5.35), Inches(5.6), Inches(0.5),
+         Inches(0.5), Inches(5.7), Inches(5.6), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
 add_text(sl, "0.0 = 完全予測　　0.25 = ランダム予測に相当\n（低いほど良い）",
-         Inches(0.5), Inches(5.88), Inches(5.6), Inches(1.0), size=20, color=C_DARK)
+         Inches(0.5), Inches(6.23), Inches(5.6), Inches(1.0), size=20, color=C_DARK)
 
-add_rect(sl, Inches(6.4), Inches(5.3), Inches(6.5), Inches(1.65), C_LIGHTBG)
+add_rect(sl, Inches(6.4), Inches(5.65), Inches(6.5), Inches(1.65), C_LIGHTBG)
 add_text(sl, "採用理由",
-         Inches(6.5), Inches(5.35), Inches(6.3), Inches(0.5),
+         Inches(6.5), Inches(5.7), Inches(6.3), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
 add_text(sl,
          "① Proper Scoring Rule → ECE の理論的弱点を補完\n"
          "② ビン数に依存しない独立測定が得られる\n"
          "③ Murphy 分解で「なぜズレるか」を分離して分析できる",
-         Inches(6.5), Inches(5.88), Inches(6.2), Inches(1.0), size=18, color=C_DARK)
+         Inches(6.5), Inches(6.23), Inches(6.2), Inches(1.05), size=18, color=C_DARK)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 13 — AUROC 詳細
+# Slide 13 — AUROC 詳細（数式を追加）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "AUROC（ROC 曲線下面積）の詳細", 13)
-footer_bar(sl)
 
 add_text(sl, "AUROC = Area Under the Receiver Operating Characteristic Curve",
          Inches(0.5), Inches(0.95), Inches(12.5), Inches(0.5),
          size=19, color=C_GRAY, italic=True)
 
-add_rect(sl, Inches(0.4), Inches(1.5), W - Inches(0.8), Inches(1.2), C_LIGHTBG)
-add_text(sl, "概念的な定義（数式なし）",
-         Inches(0.5), Inches(1.55), Inches(5.0), Inches(0.5),
+# 数式
+add_rect(sl, Inches(0.4), Inches(1.52), W - Inches(0.8), Inches(1.65), C_LIGHTBG)
+add_text(sl, "数式",
+         Inches(0.6), Inches(1.57), Inches(2.0), Inches(0.45),
          size=20, bold=True, color=C_ACCENT)
 add_text(sl,
-         "ランダムに選んだ「正解サンプル」と「不正解サンプル」のペアで、\n"
-         "モデルが正解サンプルに高い確信度を与える確率",
-         Inches(0.5), Inches(2.05), Inches(12.3), Inches(0.6), size=21, color=C_DARK)
+         "AUROC  =  P( p⁺ > p⁻ )",
+         Inches(0.7), Inches(1.95), Inches(8.0), Inches(0.62),
+         size=28, bold=True, color=C_DARK)
+add_text(sl,
+         "p⁺ : 正解サンプルの確信度　　　p⁻ : 不正解サンプルの確信度\n"
+         "= ランダムに選んだ「正解」と「不正解」のペアで、正解側に高い確信度を与える確率",
+         Inches(0.7), Inches(2.6), Inches(12.3), Inches(0.55),
+         size=18, color=C_GRAY)
 
 # 値の解釈
-add_rect(sl, Inches(0.4), Inches(2.85), Inches(5.8), Inches(1.5), C_LIGHTBG)
+add_rect(sl, Inches(0.4), Inches(3.32), Inches(5.8), Inches(1.4), C_LIGHTBG)
 add_text(sl, "値の範囲と解釈",
-         Inches(0.5), Inches(2.9), Inches(5.5), Inches(0.5),
+         Inches(0.5), Inches(3.37), Inches(5.5), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
 add_text(sl, "0.5 = ランダムと同等（確信度が意味を持たない）\n1.0 = 完全に正解・不正解を区別できる\n（高いほど良い）",
-         Inches(0.5), Inches(3.42), Inches(5.6), Inches(0.88), size=19, color=C_DARK)
+         Inches(0.5), Inches(3.88), Inches(5.6), Inches(0.78), size=19, color=C_DARK)
 
 # ECEとの比較
-add_rect(sl, Inches(6.4), Inches(2.85), Inches(6.5), Inches(1.5), C_LIGHTBG)
+add_rect(sl, Inches(6.4), Inches(3.32), Inches(6.5), Inches(1.4), C_LIGHTBG)
 add_text(sl, "ECE との重要な違い",
-         Inches(6.5), Inches(2.9), Inches(6.3), Inches(0.5),
+         Inches(6.5), Inches(3.37), Inches(6.3), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
 add_text(sl,
          "ECE: 「70% 確信は本当に 70% 正解か？」絶対値が重要\n"
          "AUROC: 「高確信の方が低確信より正しいか？」順序が重要\n"
          "→ 両者は独立（相関≈0）。両方報告することが推奨 [4]",
-         Inches(6.5), Inches(3.42), Inches(6.3), Inches(0.88), size=18, color=C_DARK)
+         Inches(6.5), Inches(3.88), Inches(6.3), Inches(0.78), size=18, color=C_DARK)
 
-add_rect(sl, Inches(0.4), Inches(4.5), W - Inches(0.8), Inches(2.1), C_LIGHTBG)
+add_rect(sl, Inches(0.4), Inches(4.87), W - Inches(0.8), Inches(2.05), C_LIGHTBG)
 add_text(sl, "採用理由",
-         Inches(0.5), Inches(4.55), Inches(4.0), Inches(0.5),
+         Inches(0.5), Inches(4.92), Inches(4.0), Inches(0.5),
          size=20, bold=True, color=C_ACCENT)
 lines_au = [
-    "① Xiong et al. 2024 [4] が ECE と AUROC を同時に報告しており、先行研究と比較可能",
-    "② 確信度の絶対値が少しズレていても（ECE が高くても）、ランキングが正しい場合に高評価できる",
+    "① Xiong et al. 2024 [4] が ECE と AUROC を同時報告 → 先行研究と直接比較可能",
+    "② 確信度のスケールがズレていても（ECE が高くても）、ランキングが正しい場合に高評価できる",
     "③ LLM の verbalized confidence は系統的な過信がある → スケール不変の AUROC で補完測定が有効",
     "④ Xiong 2024・Mind the Gap 2026 等でも ECE ＋ AUROC の組み合わせが推奨されている",
 ]
-bullet_box(sl, lines_au, Inches(0.5), Inches(5.08), Inches(12.3), Inches(1.45), size=19)
+bullet_box(sl, lines_au, Inches(0.5), Inches(5.47), Inches(12.3), Inches(1.4), size=19)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 14 — データセット選定（先行研究比較・問題数の根拠）
+# Slide 14 — データセット選定（先行研究明示）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
 header_bar(sl, "進捗②：データセットの選定", 14)
-footer_bar(sl)
 
-add_text(sl, "各 250 問 × 4 ドメイン = 合計 1,000 問",
-         Inches(0.5), Inches(0.92), Inches(8.0), Inches(0.5),
+add_text(sl, "各 250 問 × 4 ドメイン = 合計 1,000 問　（問題数の根拠 → 次スライド）",
+         Inches(0.5), Inches(0.92), Inches(12.0), Inches(0.5),
          size=22, bold=True, color=C_ACCENT)
 
 datasets = [
     ("数学",  "MGSM",           "GSM8K（英語）の人手翻訳版",
-     "先行研究（Tian 2023, MlingConf 2025）でも GSM8K 使用。本研究は日本語対応の MGSM を選択"),
+     "先行研究: Tian 2023 [3]・MlingConf 2025 [8] が GSM8K 使用。本研究は日本語対応 MGSM を選択"),
     ("常識",  "JCommonsenseQA", "日本語ネイティブ作成 5択MC",
-     "Xiong 2024 が CommonsenseQA（英語）を使用。日本語対応版として JCommonsenseQA を採用"),
+     "先行研究: Xiong 2024 [4] が CommonsenseQA（英語）を使用。日本語対応版 JCommonsenseQA を採用"),
     ("知識",  "JMMLU",          "日本人教師作成・日本史中心 4択MC",
-     "先行研究は MMLU（英語）使用。日本語対応版 JMMLU（nlp-waseda）を採用"),
+     "先行研究: Xiong 2024 [4]・Yang 2024 [7] が MMLU（英語）を使用。日本語対応版 JMMLU を採用"),
     ("翻訳",  "FLORES-200",     "Meta AI 公開の対訳データセット",
-     "翻訳ドメインを評価するのは本研究の新規性。MlingConf 2025 でも使用実績あり"),
+     "本研究の新規性。MlingConf 2025 [8] でも使用実績あり。翻訳 × 確信度評価の先行事例はほぼなし"),
 ]
 for i, (domain, name, desc, reason) in enumerate(datasets):
-    y = Inches(1.5) + i * Inches(1.3)
-    add_rect(sl, Inches(0.4), y, Inches(1.5), Inches(1.1), C_ACCENT)
+    y = Inches(1.5) + i * Inches(1.28)
+    add_rect(sl, Inches(0.4), y, Inches(1.5), Inches(1.08), C_ACCENT)
     add_text(sl, domain, Inches(0.4), y + Pt(12), Inches(1.5), Inches(0.95),
              size=22, bold=True, color=C_BG, align=PP_ALIGN.CENTER)
-    add_rect(sl, Inches(2.05), y, Inches(11.05), Inches(1.1), C_LIGHTBG)
+    add_rect(sl, Inches(2.05), y, Inches(11.05), Inches(1.08), C_LIGHTBG)
     add_text(sl, f"{name}  ─  {desc}",
              Inches(2.15), y + Pt(6), Inches(10.8), Inches(0.45),
              size=20, bold=True, color=C_DARK)
     add_text(sl, f"▸ {reason}",
-             Inches(2.15), y + Pt(36), Inches(10.8), Inches(0.55),
-             size=18, color=C_GRAY)
-
-# 問題数の根拠
-add_rect(sl, Inches(0.4), Inches(6.75), W - Inches(0.8), Inches(0.85), C_ACCENT2)
-add_text(sl,
-         "なぜ 250 問か？ECE（10 ビン）で各ビン最低 25 問を確保するための下限。"
-         "旧計画（25問/ドメイン）では ECE の統計的信頼性がほぼなかった（各ビン 2〜3 問しかない）。",
-         Inches(0.6), Inches(6.78), Inches(12.5), Inches(0.8),
-         size=18, bold=False, color=C_BG)
+             Inches(2.15), y + Pt(34), Inches(10.8), Inches(0.55),
+             size=17, color=C_GRAY)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 15 — 正答判定（COMET正式名称・先行研究比較）
+# Slide 15（新規）— 250問にした根拠
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "進捗③：正答判定方法の確立", 15)
-footer_bar(sl)
+header_bar(sl, "進捗②補足：なぜ 250 問か？", 15)
 
-add_text(sl, "正答判定は「正解/不正解（y=1 or y=0）」の二値ラベルを付ける作業。ECE 計算の起点となる最重要設計。",
+# 統計的根拠
+add_rect(sl, Inches(0.4), Inches(0.92), W - Inches(0.8), Inches(1.35), C_LIGHTBG)
+add_text(sl, "統計的根拠",
+         Inches(0.5), Inches(0.97), Inches(4.0), Inches(0.5),
+         size=22, bold=True, color=C_ACCENT)
+add_text(sl,
+         "ECE（10 ビン）の統計的信頼性を得るには、各ビンに最低 25 サンプルが必要\n"
+         "→  10 ビン × 25 サンプル/ビン  =  250 問 が下限\n"
+         "旧計画（25問/ドメイン）では各ビン 2〜3 問しかなく、ECE の値が不安定になる",
+         Inches(0.5), Inches(1.5), Inches(12.5), Inches(0.72), size=20, color=C_DARK)
+
+# 先行研究との比較
+add_text(sl, "先行研究の問題数との比較",
+         Inches(0.4), Inches(2.42), Inches(8.0), Inches(0.5),
+         size=22, bold=True, color=C_ACCENT)
+
+comp_rows = [
+    ("Tian et al. 2023 [3]", "EMNLP",
+     "CommonsenseQA 1,221問 / GSM8K 1,319問", "英語・大規模"),
+    ("Xiong et al. 2024 [4]", "ICLR",
+     "MMLU 14,042問 / CommonsenseQA 1,221問", "英語・大規模"),
+    ("Xue et al. 2025 [8]", "ACL（MlingConf）",
+     "MGSM 250問/言語 × 10言語", "多言語・本研究と同等 ✅"),
+    ("Yang et al. 2024 [7]", "arXiv",
+     "TriviaQA 500〜11,313問（英語）", "英語・大規模"),
+    ("本研究", "2026",
+     "各 250問 × 4ドメイン = 1,000問", "日本語・MlingConf 方式を踏襲"),
+]
+for i, (paper, venue, count, note) in enumerate(comp_rows):
+    y = Inches(3.0) + i * Inches(0.85)
+    bg = C_ACCENT if paper == "本研究" else (C_LIGHTBG if i % 2 == 0 else C_BG)
+    fc = C_BG if paper == "本研究" else C_DARK
+    add_rect(sl, Inches(0.4), y, W - Inches(0.8), Inches(0.78), bg)
+    add_text(sl, paper,    Inches(0.5),  y + Pt(7), Inches(3.5), Inches(0.7), size=18, bold=(paper=="本研究"), color=fc)
+    add_text(sl, venue,    Inches(4.1),  y + Pt(7), Inches(1.8), Inches(0.7), size=17, color=fc)
+    add_text(sl, count,    Inches(6.1),  y + Pt(7), Inches(4.5), Inches(0.7), size=18, bold=(paper=="本研究"), color=fc)
+    add_text(sl, note,     Inches(10.8), y + Pt(7), Inches(2.35), Inches(0.7), size=16, color=fc, italic=True)
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Slide 16 — 正答判定（具体例付き）
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+sl = prs.slides.add_slide(BLANK)
+header_bar(sl, "進捗③：正答判定方法の確立", 16)
+
+add_text(sl, "正答判定は「正解 y=1 / 不正解 y=0」の二値ラベルを付ける作業。ECE 計算の起点となる最重要設計。",
          Inches(0.4), Inches(0.92), Inches(12.8), Inches(0.5),
          size=19, color=C_GRAY)
 
 judgments = [
-    ("数学\nMGSM",      "正規化完全一致",
-     "正規表現で数値抽出 → 正解値と比較",
-     "先行研究（ConfTuner 2025 等）が GSM8K で採用している標準手法。数値の完全一致なので判定ノイズなし"),
-    ("常識・知識\nJC-QA / JMMLU", "選択肢ラベル一致",
-     "出力ラベル（A/B/C/D など）を正解と比較",
+    ("数学\nMGSM",
+     "正規化完全一致",
+     '例: 正解「42」、AI出力「答えは 42 です。」\n　→ 正規表現で "42" を抽出して比較 → ✅ 正解',
+     "先行研究（ConfTuner 2025 等）が GSM8K で採用する標準手法。数値の完全一致なので判定ノイズなし"),
+    ("常識・知識\nJC-QA / JMMLU",
+     "選択肢ラベル一致",
+     '例: 正解「A」、AI出力「A」→ ✅ 正解　　AI出力「B」→ ✗ 不正解',
      "MC 形式は calibration 研究の 60〜70% が採用する最も信頼性の高い判定方法（Xiong 2024 [4] 等）"),
-    ("翻訳\nFLORES-200",   "COMET スコア閾値",
-     "COMET スコア ≥ θ（人間 50 文で F1 最適化）",
+    ("翻訳\nFLORES-200",
+     "COMET スコア閾値",
+     '例: 参照訳「猫がマットに座った。」、AI訳「ネコがマットの上に座っていた。」\n　→ COMET = 0.87 ≥ θ → ✅ 正解（θ は 50 文で F1 最適化）',
      "BLEU は廃れつつあり COMET が現在の主流。閾値 ±0.05 の感度分析も実施"),
 ]
-for i, (domain, method, how, reason) in enumerate(judgments):
-    y = Inches(1.5) + i * Inches(1.85)
-    add_rect(sl, Inches(0.4), y, Inches(2.2), Inches(1.65), C_ACCENT)
-    add_text(sl, domain, Inches(0.4), y + Pt(14), Inches(2.2), Inches(1.45),
-             size=20, bold=True, color=C_BG, align=PP_ALIGN.CENTER)
-    add_rect(sl, Inches(2.75), y, Inches(10.3), Inches(1.65), C_LIGHTBG)
-    add_text(sl, method, Inches(2.85), y + Pt(6), Inches(10.0), Inches(0.5),
-             size=22, bold=True, color=C_DARK)
-    add_text(sl, f"方法: {how}", Inches(2.85), y + Pt(40), Inches(10.0), Inches(0.45),
-             size=19, color=C_ACCENT2)
-    add_text(sl, f"理由: {reason}", Inches(2.85), y + Pt(68), Inches(10.0), Inches(0.55),
-             size=17, color=C_GRAY)
+for i, (domain, method, example, reason) in enumerate(judgments):
+    y = Inches(1.45) + i * Inches(1.92)
+    add_rect(sl, Inches(0.4), y, Inches(2.0), Inches(1.72), C_ACCENT)
+    add_text(sl, domain, Inches(0.4), y + Pt(14), Inches(2.0), Inches(1.55),
+             size=19, bold=True, color=C_BG, align=PP_ALIGN.CENTER)
+    add_rect(sl, Inches(2.55), y, Inches(10.4), Inches(1.72), C_LIGHTBG)
+    add_text(sl, method, Inches(2.65), y + Pt(5), Inches(10.1), Inches(0.42),
+             size=20, bold=True, color=C_DARK)
+    add_text(sl, example, Inches(2.65), y + Pt(32), Inches(10.1), Inches(0.58),
+             size=17, color=C_ACCENT2)
+    add_text(sl, f"根拠: {reason}", Inches(2.65), y + Pt(78), Inches(10.1), Inches(0.45),
+             size=15, color=C_GRAY)
 
-# COMET 説明
-add_rect(sl, Inches(0.4), Inches(7.1), W - Inches(0.8), Inches(0.47), C_LIGHTBG)
+add_rect(sl, Inches(0.4), Inches(7.2), W - Inches(0.8), Inches(0.42), C_LIGHTBG)
 add_text(sl,
          "※ COMET = Crosslingual Optimized Metric for Evaluation of Translation"
          "（機械翻訳品質評価のニューラルメトリクス。人間評価との相関が BLEU より高い）",
-         Inches(0.6), Inches(7.12), Inches(12.5), Inches(0.43),
-         size=16, color=C_GRAY)
+         Inches(0.6), Inches(7.22), Inches(12.5), Inches(0.38),
+         size=15, color=C_GRAY)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 16 — プロンプト設計概要
+# Slide 17 — プロンプト設計概要
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "進捗④：プロンプト設計の概要", 16)
-footer_bar(sl)
+header_bar(sl, "進捗④：プロンプト設計の概要", 17)
 
 add_text(sl, "確信度の「引き出し方」を変えることでキャリブレーション性能がどう変わるかを比較する",
          Inches(0.4), Inches(0.92), Inches(12.8), Inches(0.5),
@@ -743,19 +817,18 @@ for i, (name, abbr_meaning, desc, ref, color) in enumerate(conds):
              x + Inches(0.1), Inches(4.65), Inches(3.85), Inches(0.42),
              size=16, color=C_ACCENT2)
 
-add_rect(sl, Inches(0.4), Inches(7.1), W - Inches(0.8), Inches(0.47), C_LIGHTBG)
+add_rect(sl, Inches(0.4), Inches(7.18), W - Inches(0.8), Inches(0.42), C_LIGHTBG)
 add_text(sl,
          "注: CoT（Chain-of-Thought）は独立条件としない。正答率自体を変化させるため、確信度設計の効果と分離困難。",
-         Inches(0.6), Inches(7.13), Inches(12.5), Inches(0.43),
+         Inches(0.6), Inches(7.2), Inches(12.5), Inches(0.38),
          size=16, color=C_GRAY)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 17 — プロンプト具体例（旧Appendix B → 本編に移動）
+# Slide 18 — プロンプト具体例（順序: Verb.1S / Ling.1S / Verb.2S）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "プロンプト具体例（数学ドメイン版）", 17)
-footer_bar(sl)
+header_bar(sl, "プロンプト具体例（数学ドメイン版）", 18)
 
 examples = [
     ("Verb.1S", C_ACCENT,
@@ -763,6 +836,11 @@ examples = [
      "確信度は 0.0（自信なし）〜1.0（完全に確信）で表してください。\n"
      "問題: {question}\n"
      "形式: 回答: [数値のみ]　確信度: [0.0〜1.0]"),
+    ("Ling.1S", C_GREEN,
+     "問題: {question}\n"
+     "回答と、確信の度合い（ほぼ確実 / かなり自信がある / どちらともいえない\n"
+     "/ あまり自信がない / ほとんどわからない）を答えてください。\n"
+     "形式: 回答: [数値のみ]　確信度: [上記5つから1つ]"),
     ("Verb.2S  ターン1", C_ACCENT2,
      "以下の問題に回答してください。\n"
      "問題: {question}\n"
@@ -771,11 +849,6 @@ examples = [
      "あなたは先ほど「{answer}」と回答しました。\n"
      "この回答が正しい確率を 0.0〜1.0 で答えてください。\n"
      "形式: 確信度: [0.0〜1.0]"),
-    ("Ling.1S", C_GREEN,
-     "問題: {question}\n"
-     "回答と、確信の度合い（ほぼ確実 / かなり自信がある / どちらともいえない\n"
-     "/ あまり自信がない / ほとんどわからない）を答えてください。\n"
-     "形式: 回答: [数値のみ]　確信度: [上記5つから1つ]"),
 ]
 for i, (label, color, prompt) in enumerate(examples):
     x = Inches(0.4) + (i % 2) * Inches(6.5)
@@ -790,16 +863,15 @@ for i, (label, color, prompt) in enumerate(examples):
              size=17, color=C_DARK)
 
 add_text(sl, "Ling.1S の数値マッピング:  ほぼ確実=0.95 / かなり=0.80 / どちらとも=0.50 / あまり=0.25 / ほとんどわからない=0.05",
-         Inches(0.4), Inches(7.1), W - Inches(0.4), Inches(0.45),
-         size=17, color=C_GRAY)
+         Inches(0.4), Inches(7.35), W - Inches(0.4), Inches(0.35),
+         size=15, color=C_GRAY)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 18 — 着地地点の複数構想
+# Slide 19 — 着地地点の複数構想
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "今後の方向性①：着地地点の複数構想", 18)
-footer_bar(sl)
+header_bar(sl, "今後の方向性①：着地地点の複数構想", 19)
 
 add_text(sl, "先生のご指摘：「ライバルが出てきそうなので着地地点を複数用意すべき」",
          Inches(0.5), Inches(0.92), Inches(12.5), Inches(0.5),
@@ -824,18 +896,16 @@ for i, (name, color, cond, content) in enumerate(plans):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 19 — 予算見積もり（計算式付き）
+# Slide 20 — 予算見積もり（計算式付き）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "今後の方向性②：予算見積もり（確定版）", 19)
-footer_bar(sl)
+header_bar(sl, "今後の方向性②：予算見積もり（確定版）", 20)
 
 add_rect(sl, Inches(0.4), Inches(0.92), W - Inches(0.8), Inches(0.7), C_LIGHTBG)
 add_text(sl, "実験全体の合計：約 $20 USD ≈ 3,000 円（×2倍バッファ込み）　研究室枠 50,000 円の 6%",
          Inches(0.6), Inches(0.95), Inches(12.5), Inches(0.65),
          size=22, bold=True, color=C_ACCENT)
 
-# 料金表
 add_text(sl, "各モデルの料金（2026年6月現在）",
          Inches(0.5), Inches(1.72), Inches(6.5), Inches(0.45),
          size=19, bold=True, color=C_DARK)
@@ -855,7 +925,6 @@ for i, (model, inp, out) in enumerate(models):
 add_text(sl, "モデル             入力$/1M   出力$/1M",
          Inches(0.5), Inches(2.18), Inches(6.0), Inches(0.42), size=16, color=C_GRAY)
 
-# 計算式
 add_rect(sl, Inches(6.8), Inches(1.72), Inches(6.2), Inches(3.15), C_LIGHTBG)
 add_text(sl, "計算式（コール当たりのコスト）",
          Inches(6.9), Inches(1.77), Inches(5.9), Inches(0.45),
@@ -873,16 +942,15 @@ add_text(sl,
          Inches(6.9), Inches(2.25), Inches(5.9), Inches(2.55), size=17, color=C_DARK)
 
 add_text(sl, "OSS モデル（Swallow・ELYZA・Qwen）はローカル実行 → 追加費用なし",
-         Inches(0.5), Inches(7.1), Inches(12.5), Inches(0.45),
+         Inches(0.5), Inches(7.2), Inches(12.5), Inches(0.38),
          size=17, color=C_GRAY)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 20 — 実験環境構築（具体的な内容）
+# Slide 21 — 実験環境構築
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "今後の方向性③：実験環境の構築", 20)
-footer_bar(sl)
+header_bar(sl, "今後の方向性③：実験環境の構築", 21)
 
 steps = [
     ("① Python 環境の整備",
@@ -909,16 +977,15 @@ for i, (title, detail) in enumerate(steps):
              size=18, color=C_DARK)
 
 add_text(sl, "目標: 7月中旬（中間発表前）にパイロット実験（1ドメイン × 1モデル × 1条件）で動作確認完了",
-         Inches(0.4), Inches(7.1), Inches(12.8), Inches(0.45),
+         Inches(0.4), Inches(7.2), Inches(12.8), Inches(0.38),
          size=17, bold=True, color=C_ACCENT2)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 21 — スケジュール
+# Slide 22 — スケジュール
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "今後のスケジュール", 21)
-footer_bar(sl)
+header_bar(sl, "今後のスケジュール", 22)
 
 schedule = [
     ("6月（残り）",     C_ACCENT,   "実験スクリプト実装・パイロット実験（動作確認）"),
@@ -938,49 +1005,47 @@ for i, (period, color, task) in enumerate(schedule):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 22 — 参考文献（スライド番号マッピング付き）
+# Slide 23 — 参考文献
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "参考文献", 22)
-footer_bar(sl)
+header_bar(sl, "参考文献", 23)
 
 refs = [
     ("[1]", "Ji, Z. et al. (2023). Survey of Hallucination in NLG. ACM Computing Surveys.",
      "→ Slide 5（研究背景）"),
     ("[2]", "Guo, C. et al. (2017). On Calibration of Modern Neural Networks. ICML.",
      "→ Slide 10, 11（ECE の出典）"),
-    ("[3]", "Tian, K. et al. (2023). Just Ask for Calibration. EMNLP.",
-     "→ Slide 6, 9, 10, 14, 16（主要先行研究・全体）"),
-    ("[4]", "Xiong, M. et al. (2024). Can LLMs Express Their Uncertainty? ICLR.",
-     "→ Slide 6, 10, 13, 14, 16（先行研究・AUROC）"),
+    ("[3]", "Tian, K., Mitchell, E., Yao, H., Manning, C. D., & Finn, C. (2023). Just Ask for Calibration. EMNLP.",
+     "→ Slide 6, 9, 10, 14, 15, 17（主要先行研究・全体）"),
+    ("[4]", "Xiong, M. et al. (2024). Can LLMs Express Their Uncertainty? An Empirical Evaluation of LLMs. ICLR.",
+     "→ Slide 6, 10, 13, 14, 15, 17（先行研究・AUROC）"),
     ("[5]", "Kadavath, S. et al. (2022). Language Models (Mostly) Know What They Know. arXiv:2207.05221.",
      "→ Slide 5（研究背景）"),
-    ("[6]", "Zheng, L. et al. (2023). Judging LLM-as-a-Judge with MT-Bench. NeurIPS.",
-     "→ Slide 15（翻訳の正答判定）"),
+    ("[6]", "Zheng, L. et al. (2023). Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. NeurIPS.",
+     "→ Slide 16（翻訳の正答判定）"),
     ("[7]", "Yang, D. et al. (2024). On Verbalized Confidence Scores for LLMs. arXiv:2412.14737.",
-     "→ Slide 16（プロンプト設計の根拠）"),
-    ("[8]", "Xue, B. et al. (2025). MlingConf: Multilingual Confidence Estimation. ACL Findings.",
-     "→ Slide 6, 7, 14（多言語キャリブレーション）"),
+     "→ Slide 14, 15, 17（データセット・プロンプト設計の根拠）"),
+    ("[8]", "Xue, B. et al. (2025). MlingConf: Multilingual Confidence Estimation for LLMs. ACL Findings.",
+     "→ Slide 7, 14, 15（多言語キャリブレーション）"),
     ("[9]", "Seo, K. J. et al. (2025). ADVICE: Answer-Dependent Verbalized Confidence. arXiv:2510.10913.",
-     "→ Slide 16（Verb.2S の設計根拠）"),
-    ("[10]", "Li, Y. et al. (2025). ConfTuner: Training LLMs to Express Confidence. arXiv:2508.18847.",
+     "→ Slide 17（Verb.2S の設計根拠）"),
+    ("[10]", "Li, Y., Xiong, M., Wu, E., & Hooi, B. (2025). ConfTuner. arXiv:2508.18847.",
      "→ Slide 10, 14（Brier Score の採用根拠）"),
 ]
 for i, (num, text, slide_ref) in enumerate(refs):
     y = Inches(0.98) + i * Inches(0.63)
     add_text(sl, num, Inches(0.4), y, Inches(0.55), Inches(0.58),
              size=17, bold=True, color=C_ACCENT)
-    add_text(sl, text, Inches(1.0), y, Inches(9.8), Inches(0.58), size=17, color=C_DARK)
+    add_text(sl, text, Inches(1.0), y, Inches(9.8), Inches(0.58), size=16, color=C_DARK)
     add_text(sl, slide_ref, Inches(10.9), y, Inches(2.2), Inches(0.58),
-             size=15, color=C_GRAY, italic=True)
+             size=14, color=C_GRAY, italic=True)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 23 — 実験計画全体像（旧Appendix C → 本編に移動）
+# Slide 24 — 実験計画全体像
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "実験計画の全体像", 23)
-footer_bar(sl)
+header_bar(sl, "実験計画の全体像", 24)
 
 exp_rows = [
     ("実験①\n基本\nキャリブレーション",
@@ -1017,37 +1082,36 @@ for i, (name, cond, purpose, calls) in enumerate(exp_rows):
     add_text(sl, calls, Inches(12.4), y + Pt(25), Inches(0.9), Inches(1.0),
              size=22, bold=True, color=C_ACCENT, align=PP_ALIGN.CENTER)
 
-add_rect(sl, Inches(0.4), Inches(7.1), W - Inches(0.8), Inches(0.47), C_ACCENT)
+add_rect(sl, Inches(0.4), Inches(7.15), W - Inches(0.8), Inches(0.47), C_ACCENT)
 add_text(sl,
          "合計 8,000 コール（×2 倍バッファ含む 16,000 コール）　≈  $20 USD  ≈  3,000 円",
-         Inches(0.6), Inches(7.12), Inches(12.5), Inches(0.43),
+         Inches(0.6), Inches(7.17), Inches(12.5), Inches(0.43),
          size=19, bold=True, color=C_BG)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Slide 24 — Appendix: 採用しなかった指標の計算式
+# Slide 25 — Appendix A：採用しなかった指標の計算式（旧Slide 24）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "Appendix：採用しなかった指標の計算式", 24)
-footer_bar(sl)
+header_bar(sl, "Appendix A：採用しなかった指標の計算式", 25)
 
-add_text(sl, "（値の範囲・採用しなかった理由はスライド 9 参照）",
+add_text(sl, "（値の範囲・採用しなかった理由は Appendix B 参照）",
          Inches(0.4), Inches(0.92), Inches(12.5), Inches(0.45),
          size=17, color=C_GRAY, italic=True)
 
 formulas = [
     ("MCE",
-     "MCE = max_{m=1,...,M} | acc(B_m) − conf(B_m) |",
-     "等幅ビン M=10。重み付き平均の代わりに最大値を取る。"),
+     "MCE  =  max[ m=1..M ]  |acc(Bₘ) − conf(Bₘ)|",
+     "等幅ビン M=10。全ビンの最大値を取る（平均でなく外れ値に着目）。"),
     ("ACE",
-     "ACE = Σ_{m=1}^{M} (1/M) × | acc(B_m) − conf(B_m) |",
-     "等質量ビン（各ビンのサンプル数を均等化）。ECE の 1/M は等質量ビンの場合に成立。"),
+     "ACE  =  (1/M)  ×  Σ  |acc(Bₘ) − conf(Bₘ)|   （等質量ビン、m=1..M）",
+     "等質量ビン：各ビンのサンプル数を均等化。ECE の加重平均と区別することに注意。"),
     ("Log-loss / NLL",
-     "NLL = −(1/N) × Σ_{i=1}^{N} [ y_i·log(p_i) + (1−y_i)·log(1−p_i) ]",
-     "p_i→0 や p_i→1 のとき値が発散。LLM の過信傾向で不安定になりやすい。"),
+     "NLL  =  −(1/N)  ×  Σ  [ yᵢ·log(pᵢ) + (1−yᵢ)·log(1−pᵢ) ]   （i=1..N）",
+     "pᵢ → 0 や pᵢ → 1 のとき値が発散。過信傾向の LLM では数値的に不安定になりやすい。"),
     ("SCE / cw-ECE",
-     "SCE = (1/K) × Σ_{k=1}^{K} Σ_{b=1}^{B} (n_{b,k}/N) × | acc(b,k) − conf(b,k) |",
-     "K はクラス数。本研究は正解/不正解の二値なのでクラス別拡張は不要。"),
+     "SCE  =  (1/K)  ×  Σₖ  Σᵦ  (nᵦₖ / N)  ×  |acc(b,k) − conf(b,k)|",
+     "K はクラス数。本研究は正解/不正解の二値なのでクラス別拡張は追加価値が限定的。"),
 ]
 for i, (name, formula, note) in enumerate(formulas):
     y = Inches(1.45) + i * Inches(1.45)
@@ -1055,10 +1119,50 @@ for i, (name, formula, note) in enumerate(formulas):
     add_text(sl, name, Inches(0.4), y + Pt(16), Inches(2.0), Inches(1.1),
              size=22, bold=True, color=C_BG, align=PP_ALIGN.CENTER)
     add_rect(sl, Inches(2.55), y, Inches(10.5), Inches(1.25), C_LIGHTBG)
-    add_text(sl, formula, Inches(2.65), y + Pt(6), Inches(10.2), Inches(0.55),
+    add_text(sl, formula, Inches(2.65), y + Pt(5), Inches(10.2), Inches(0.6),
              size=18, bold=True, color=C_DARK)
-    add_text(sl, note, Inches(2.65), y + Pt(42), Inches(10.2), Inches(0.55),
+    add_text(sl, note, Inches(2.65), y + Pt(46), Inches(10.2), Inches(0.55),
              size=17, color=C_GRAY)
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Slide 26 — Appendix B：採用しなかった指標の詳細理由（旧Slide 9）
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+sl = prs.slides.add_slide(BLANK)
+header_bar(sl, "Appendix B：採用しなかった評価指標の詳細理由", 26)
+
+add_text(sl, "（計算式は Appendix A 参照）",
+         Inches(8.0), Inches(0.9), Inches(5.0), Inches(0.45),
+         size=16, color=C_GRAY, italic=True)
+
+not_adopted = [
+    ("MCE\n最大キャリブレーション誤差",
+     "最大値（1ビンの外れ値）を見る指標。外れ値に過敏で全体傾向を反映しない。"
+     "高リスク系（医療等）向けであり本研究の RQ には不要。"),
+    ("ACE\n適応的キャリブレーション誤差",
+     "等質量ビンを使いサンプル偏り問題を解決するが、ECE と互換性がなく Tian 2023 との"
+     "直接比較が不能になる。"),
+    ("Log-loss / NLL\n負の対数尤度",
+     "理論的には Proper Scoring Rule だが、確信度が 0 や 1 に極めて近い場合に値が発散して"
+     "数値的に不安定。過信傾向の強い LLM では扱いにくい。"),
+    ("AUPRC\n適合率-再現率曲線下面積",
+     "クラス不均衡が激しい場合に AUROC より優れるが、本研究では正答率 50〜80% 程度と不均衡が"
+     "少なく AUROC で代替可能。"),
+    ("AUARC\n精度-棄却曲線下面積",
+     "「信頼度の低い予測から棄却した際に精度がどう上がるか」を測る指標。"
+     "本研究では棄却操作を実施しないため対象外。"),
+    ("SCE / cw-ECE\nクラス別 ECE",
+     "多クラス分類向け指標。本研究は「正解 or 不正解」の二値問題が基本であり、"
+     "クラス別拡張の追加価値が限定的。"),
+]
+for i, (name, reason) in enumerate(not_adopted):
+    x = Inches(0.4) + (i % 2) * Inches(6.5)
+    y = Inches(1.4) + (i // 2) * Inches(1.85)
+    add_rect(sl, x, y, Inches(6.1), Inches(1.7), C_LIGHTBG)
+    add_text(sl, name, x + Inches(0.1), y + Pt(5), Inches(5.9), Inches(0.6),
+             size=19, bold=True, color=C_ACCENT2)
+    add_text(sl, reason, x + Inches(0.1), y + Pt(38), Inches(5.9), Inches(1.1),
+             size=17, color=C_DARK)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
