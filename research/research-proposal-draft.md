@@ -406,7 +406,7 @@ API コストは予算の約 6% 以内に収まる見込み。詳細: `research/
 8. Dai, Y. (2025). Rescaling Confidence: What Scale Design Reveals About LLM Metacognition. *arXiv:2603.09309*.
 9. Xue, B., et al. (2025). MlingConf: A Comprehensive Study of Multilingual Confidence Estimation on Large Language Models. *Findings of ACL 2025*.
 10. Seo, K. J., et al. (2025). ADVICE: Answer-Dependent Verbalized Confidence Estimation. *arXiv:2510.10913*.
-11. Liu, S., et al. (2025). ConfTuner: Training Large Language Models to Express Their Confidence Verbally. *NeurIPS 2025*.
+11. Li, Y., Xiong, M., Wu, J., & Hooi, B. (2025). ConfTuner: Training Large Language Models to Express Their Confidence Verbally. *arXiv:2508.18847*.
 
 （※ 実際の文献精読後にさらに追加）
 
