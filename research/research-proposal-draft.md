@@ -454,23 +454,40 @@ API コストは予算の約 6% 以内に収まる見込み。詳細: `research/
 - 「日本語タスク」という限定表現を削除（→ 本文 §3 修正済み）
 - 日本語は実験設定として RQ4 で扱う
 
-### 9.3 Murphy 分解の新展開（重要・要調査）
+### 9.3 Murphy 分解の探索的追加（条件付きオプション）
 
 **指摘**: Murphy 分解（BS = REL − RES + UNC）が新たな研究の切り口になるかもしれない。
 
-**方針**:
-1. Murphy 分解の**弱点**を体系的に調査する
-2. 弱点を上回る利点を生み出せる可能性を検討する
-3. **気象分野など他分野で Murphy 分解の問題点を解決した指標・手法が存在しないか調査する**
-4. あれば LLM キャリブレーション評価に持ち込む → 独自の学術貢献になりうる
+> ⚠️ **戻り口の保証**: メインプランは変更しない。Murphy 分解は「採用するかどうか判断するための探索」であり、意味がないと分かった時点でいつでも破棄できる。判断基準を以下に明記する。
 
-**現時点でわかっている Murphy 分解の弱点**:
-- REL は ECE と情報が重複する
-- RES は AUROC より解釈しにくい
-- UNC はデータ固有の定数で制御不能
-- ビン数依存（ECE と同様の問題）
+#### ベースライン（常に有効・変更なし）
 
-**調査対象**:
-- 気象予測分野の calibration 評価指標の最新動向
-- Murphy-Epstein スキルスコア、Brier Skill Score 等の発展形
-- 他分野（医療診断・金融リスク等）での類似課題への対処法
+実験では引き続き ECE + Brier Score + AUROC を主要指標として報告する。
+Murphy 分解を追加しなくても論文・発表として完結する設計を維持する。
+
+#### 探索の内容（2026-06-24 調査済み）
+
+**調査結果**:
+- Bröcker (2009)「Reliability, Sufficiency, and the Decomposition of Proper Scores」により、Murphy 分解は Brier Score 専用ではなく**任意の Proper Scoring Rule に対して成立する普遍的な構造**であることが証明されている
+- Pohle (2020) が「Calibration-Resolution Principle」として統一理論化
+- Tian 2023・Xiong 2024 等の LLM calibration 論文は一切 Murphy 分解を使用していない → 適用すれば初の事例
+
+**LLM への適用可能性**:
+プロンプト設計の効果を REL（キャリブレーション改善）と RES（識別能力改善）に分離できる。
+- 例: Verb.2S が RES だけ改善するなら「自己評価プロセスが識別能力を高めた」と機序を説明できる
+- 実装コストはほぼゼロ（Brier Score 計算の延長）
+
+#### 採用・破棄の判断基準（実験後に照合）
+
+| 条件 | 判断 |
+|---|---|
+| プロンプト条件間で REL と RES が**逆方向に動く**ケースが存在する | ✅ 採用：機序の説明に使える |
+| REL の順位と ECE の順位が**完全に一致する** | ❌ 破棄：ECE と重複しており追加情報なし |
+| RES の順位と AUROC の順位が**完全に一致する** | ❌ 破棄：AUROC と重複しており追加情報なし |
+| 実験結果を見て「Murphy 分解がなくても考察できる」と判断 | ❌ 破棄：メインプランに戻る |
+
+#### 参照文献（調査済み）
+
+- Bröcker, J. (2009). Reliability, Sufficiency, and the Decomposition of Proper Scores. *QJRMS*, 135(643), 1512–1519. [arXiv:0806.0813](https://arxiv.org/abs/0806.0813)
+- Pohle, M.-O. (2020). The Murphy Decomposition and the Calibration-Resolution Principle. [arXiv:2005.01835](https://arxiv.org/abs/2005.01835)
+- Siegert, S. (2017). Simplifying and generalising Murphy's Brier score decomposition. *QJRMS*, 143(703), 1178–1187.
