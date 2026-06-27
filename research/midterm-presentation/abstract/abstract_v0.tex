@@ -1,0 +1,195 @@
+% =====================================================================
+% 卒業研究1 中間発表 概要（2ページ）
+% 提出締切: 2026-07-17 12:00 LETUS
+% 著者: 指田一茶（東京理科大学 創域理工学部 経営システム工学科 秦野研究室）
+% バージョン: v0（AI 下書き 2026-06-27）→ 本人推敲後に v1 とする
+% =====================================================================
+\documentclass[10pt,a4paper,twocolumn]{article}
+
+% --- フォント・日本語 ---
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+% 日本語環境では以下を有効化（upLaTeX / LuaLaTeX 使用時）
+% \usepackage{luatexja}
+
+% --- レイアウト ---
+\usepackage[top=20mm,bottom=20mm,left=15mm,right=15mm,columnsep=8mm]{geometry}
+\usepackage{setspace}
+\setstretch{1.1}
+
+% --- 数式・記号 ---
+\usepackage{amsmath,amssymb}
+
+% --- 参考文献 ---
+\usepackage{cite}
+
+% --- タイトル余白の削減 ---
+\usepackage{titling}
+\setlength{\droptitle}{-2em}
+
+% =====================================================================
+\title{\large\bfseries Murphy 分解を用いた LLM 確信度プロンプト設計の機序解明\\
+{\normalsize --- 日本語タスクにおける Calibration (REL) と Resolution (RES) の分離分析 ---}}
+
+\author{指田 一茶 \quad 秦野研究室\\
+\small 東京理科大学 創域理工学部 経営システム工学科}
+
+\date{\small 2026年7月}
+% =====================================================================
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+% =====================================================================
+\section{研究の背景と動機}
+% =====================================================================
+
+大規模言語モデル（LLM）は教育・業務・日常生活へ急速に普及しているが、
+「ハルシネーション」、すなわち誤情報を自信満々に生成する問題は未解決である~\cite{ji2023survey}。
+問題の本質は、モデルが示す確信度と実際の正答率の乖離にある。
+もし確信度が正答率と整合していれば（well-calibrated）、利用者は確信度を手がかりにリスク判断が可能となる。
+
+先行研究~\cite{tian2023just,xiong2024can}は、
+英語タスクにおいて「言語化された確信度（verbalized confidence）」を
+プロンプトで引き出す方式が内部 softmax 確率より優れた較正精度を達成することを示した。
+しかし，これらの研究は \textbf{なぜ}特定のプロンプト設計が有効かという機序を明らかにしていない。
+
+% =====================================================================
+\section{研究目的とリサーチクエスチョン}
+% =====================================================================
+
+本研究は \textbf{Murphy 分解}~\cite{murphy1973vector}（$\text{BS} = \text{REL} - \text{RES} + \text{UNC}$）を
+LLM 評価に初めて適用し，プロンプト設計の効果が
+\textbf{较正精度（REL: Reliability）の改善}に由来するのか，
+\textbf{識別能力（RES: Resolution）の改善}に由来するのかを定量的に解明することを目的とする。
+
+\textbf{メイン RQ}：
+確信度プロンプト設計の効果は，REL の改善か，RES の改善か，それとも両者の複合か？
+
+\textbf{サブ RQ（RQ1〜RQ4）}：
+モデル間・タスクドメイン間・プロンプト方式間・日英言語間で
+REL・RES の分離パターンにどのような差があるか？
+
+% =====================================================================
+\section{先行研究との差分（新規性）}
+% =====================================================================
+
+既存の LLM キャリブレーション論文は ECE・AUROC を単一数値として報告するにとどまる。
+Murphy 分解を LLM 評価に適用した研究は，著者らの調査した範囲では\textbf{現時点で存在しない}。
+Bröcker~\cite{brocker2009reliability}は Murphy 分解が任意の Proper Scoring Rule に対して成立することを示しており，
+LLM 評価への適用は理論的に正当化される。
+本研究はこのギャップを埋める最初の実証研究である。
+
+% =====================================================================
+\section{研究方法}
+% =====================================================================
+
+\subsection*{実験設計}
+
+\begin{itemize}
+  \item \textbf{モデル}：GPT-4o，Claude Sonnet 4.6，Gemini 2.x，Swallow（4〜6 モデル）
+  \item \textbf{データセット}：4 ドメイン × 250 問 = 計 1,000 問
+        （MGSM・JCommonsenseQA・JMMLU・FLORES-200）
+  \item \textbf{プロンプト方式}（3 方式を比較）：
+        \begin{itemize}
+          \item \textbf{Verb.1S}：回答と確信度（0.0〜1.0）を同時出力
+          \item \textbf{Verb.2S}：Turn1 で回答 → Turn2 で確信度を別途質問
+          \item \textbf{Ling.1S}：言語表現（5 段階）→ 数値マッピング
+        \end{itemize}
+  \item \textbf{確信度の引き出しコスト}：プロンプト設計のみで実現（logits・再学習は不要）
+\end{itemize}
+
+\subsection*{評価指標}
+
+\begin{align}
+  \text{ECE} &= \sum_{m=1}^{M} \frac{|B_m|}{n} \left|\text{acc}(B_m) - \text{conf}(B_m)\right| \\
+  \text{BS} &= \frac{1}{N} \sum_{i=1}^{N} (p_i - y_i)^2
+\end{align}
+
+Murphy 分解：$\text{BS} = \text{REL} - \text{RES} + \text{UNC}$
+
+\begin{align}
+  \text{REL} &= \sum_k \frac{n_k}{n}(\bar{f}_k - \bar{o}_k)^2 \quad \text{（低いほど良）} \\
+  \text{RES} &= \sum_k \frac{n_k}{n}(\bar{o}_k - \bar{o})^2 \quad \text{（高いほど良）}
+\end{align}
+
+補助指標：AUROC（識別能力）・信頼区間（Ferro \& Fricker 分散推定~\cite{ferro2012decomposition}）
+
+\subsection*{正答判定}
+
+数学（MGSM）：正規化完全一致。
+常識・知識（JCommonsenseQA・JMMLU）：選択肢ラベル一致。
+翻訳（FLORES-200）：COMET スコア閾値（50 文の人間判定で F1 最適化）。
+
+% =====================================================================
+\section{現在の進捗}
+% =====================================================================
+
+\begin{itemize}
+  \item 評価指標・データセット・プロンプト設計の確定（2026-06-24 ゼミ承認）
+  \item Murphy 分解の実装完了（calibration.py）
+  \item 3 方式対応実験スクリプト（run\_pilot.py v2）整備済み
+  \item 先行研究 LLM 論文で Murphy 分解の使用例がないことを横断調査で確認
+\end{itemize}
+
+\textbf{未完了}：本実験の API 実行（パイロット実験は 7 月中旬に予定）
+
+% =====================================================================
+\section{今後の計画}
+% =====================================================================
+
+\begin{itemize}
+  \item \textbf{2026年7月中旬}：パイロット実験（Claude × MGSM × 50 問）でスクリプト動作確認
+  \item \textbf{2026年8〜9月}：本実験実施（4 モデル × 3 方式 × 1,000 問），REL/RES 分析
+  \item \textbf{2026年10〜11月}：各章草稿完成（機序解明の考察を中心に）
+  \item \textbf{2026年12月}：最終稿作成
+  \item \textbf{2027年1月}：卒業論文提出
+\end{itemize}
+
+% =====================================================================
+\section*{参考文献}
+% =====================================================================
+
+\begin{thebibliography}{9}
+
+\bibitem{ji2023survey}
+Ji, Z., et al. (2023).
+Survey of Hallucination in Natural Language Generation.
+\textit{ACM Computing Surveys}, 55(12), 1--38.
+
+\bibitem{tian2023just}
+Tian, K., et al. (2023).
+Just Ask for Calibration: Strategies for Eliciting Calibrated Confidence Scores
+from Language Models Fine-Tuned with Human Feedback.
+\textit{Proc. EMNLP 2023}.
+
+\bibitem{xiong2024can}
+Xiong, M., et al. (2024).
+Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence
+Elicitation in LLMs.
+\textit{Proc. ICLR 2024}.
+
+\bibitem{murphy1973vector}
+Murphy, A. H. (1973).
+A New Vector Partition of the Probability Score.
+\textit{J. Applied Meteorology}, 12(4), 595--600.
+
+\bibitem{brocker2009reliability}
+Bröcker, J. (2009).
+Reliability, Sufficiency, and the Decomposition of Proper Scores.
+\textit{QJRMS}, 135(643), 1512--1519.
+
+\bibitem{ferro2012decomposition}
+Ferro, C. A. T., \& Fricker, T. E. (2012).
+A Bias-Corrected Decomposition of the Brier Score.
+\textit{QJRMS}, 138(668), 1954--1960.
+
+\bibitem{guo2017calibration}
+Guo, C., et al. (2017).
+On Calibration of Modern Neural Networks.
+\textit{Proc. ICML 2017}.
+
+\end{thebibliography}
+
+\end{document}
