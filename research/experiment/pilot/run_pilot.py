@@ -38,6 +38,23 @@ from parser import parse_response, judge_correctness
 # API 呼び出し
 # ---------------------------------------------------------------------------
 
+MAX_RETRIES = 5
+BASE_BACKOFF_SECONDS = 2.0
+
+
+def _with_retry(fn, *args, **kwargs):
+    """レート制限・一時的なAPIエラーに対する exponential backoff 付き再試行"""
+    for attempt in range(MAX_RETRIES):
+        try:
+            return fn(*args, **kwargs)
+        except Exception as e:
+            if attempt == MAX_RETRIES - 1:
+                raise
+            wait = BASE_BACKOFF_SECONDS * (2 ** attempt)
+            print(f"  retrying after error ({e}); wait {wait:.1f}s [{attempt+1}/{MAX_RETRIES}]")
+            time.sleep(wait)
+
+
 def call_openai(model: str, messages: list[dict]) -> str:
     try:
         from openai import OpenAI
@@ -55,7 +72,7 @@ def call_anthropic(model: str, messages: list[dict]) -> str:
         raise RuntimeError("pip install anthropic が必要です")
     client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
     resp = client.messages.create(
-        model=model, max_tokens=512,
+        model=model, max_tokens=512, temperature=0.0,
         messages=messages,
     )
     return "".join(b.text for b in resp.content if hasattr(b, "text"))
@@ -70,17 +87,18 @@ def call_gemini(model: str, messages: list[dict]) -> str:
     m = genai.GenerativeModel(model)
     # Gemini は単純な最後の user メッセージを使用
     text = messages[-1]["content"]
-    return m.generate_content(text).text or ""
+    resp = m.generate_content(text, generation_config={"temperature": 0.0})
+    return resp.text or ""
 
 
 def dispatch(model: str, messages: list[dict]) -> str:
-    """モデル名から API を振り分ける"""
+    """モデル名から API を振り分ける（レート制限時は自動的に再試行する）"""
     if model.startswith("gpt-") or model.startswith("o"):
-        return call_openai(model, messages)
+        return _with_retry(call_openai, model, messages)
     elif model.startswith("claude-"):
-        return call_anthropic(model, messages)
+        return _with_retry(call_anthropic, model, messages)
     elif model.startswith("gemini"):
-        return call_gemini(model, messages)
+        return _with_retry(call_gemini, model, messages)
     else:
         raise ValueError(f"Unknown model prefix: {model!r}")
 
