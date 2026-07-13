@@ -132,15 +132,23 @@ think correct, please only include the numerical number]%
 - ScoreText（高/中/低）vs ScoreNumber（0–9）の形式比較
 
 **本研究への示唆**: Verb.2S（二段階）は回答後に確信度を問うため、回答への接地が自然に発生 → calibration 改善が期待できる理論的根拠。
+**注意**: ADVICE 自体は LoRA によるfine-tuningで回答依存性を学習させる手法であり、本研究では採用しない。
+引用するのは「回答非依存性が過信の主因」という診断的知見のみであり、その解決手段（fine-tuning）とプロンプト設計（Verb.2S）は別物である点を明確にする。
 
 ### 1.7 その他の重要知見
 
 | 論文 | 知見 | 本研究への影響 |
 |---|---|---|
 | "Wired for Overconfidence" (2025, arXiv:2604.01457) | 過信はアーキテクチャに内在する機構的問題 | プロンプト設計の限界を認識 |
-| "Verbalized Confidence Triggers Self-Verification" (2025, arXiv:2506.03723) | 確信度言語化が自己検証を誘発 | Verb.2Sの理論的裏付け |
-| ConfTuner (NeurIPS 2025) | Tokenized Brier Score でfine-tuning | black-box APIでは適用不可、比較対象として言及 |
+| ConfTuner (Li et al., arXiv:2508.18847) | Tokenized Brier Score でfine-tuning | black-box APIでは適用不可、比較対象として言及 |
 | "Influences on LLM Calibration" (2025, arXiv:2501.03991) | 応答一致・損失関数・プロンプトスタイルの影響 | プロンプトスタイルの選択根拠 |
+
+**[2026-07-13 修正]** 旧版では「"Verbalized Confidence Triggers Self-Verification" (Jang et al. 2025, arXiv:2506.03723) は Verb.2S の理論的裏付け」としていたが、
+PDF精読の結果これは誤った引用であることが判明したため削除した。
+Jang et al. 2025 は **LoRAによるfine-tuning（CSFT）でCoT推論に自己検証行動を誘発させる手法**であり、
+本研究のVerb.2S（プロンプトのみで別ターンに確信度を尋ねる方式）とは、
+(1) fine-tuningを要する点、(2) 「自己検証」がCoTの再計算・言い直し行動を指し、確信度スコアそのものの較正精度とは別の現象を扱っている点、
+の2点で本質的に異なる。Verb.2Sの理論的根拠は ADVICE（§1.6、回答接地の診断的知見）のみを引用することとする。
 
 ---
 

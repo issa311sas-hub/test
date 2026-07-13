@@ -279,7 +279,7 @@
 
 - Tian, K. et al. (2023). Just Ask for Calibration. *EMNLP 2023*.
 - Xiong, M. et al. (2024). Can LLMs Express Their Uncertainty? *ICLR 2024*.
-- Xue, B. et al. (2025). MlingConf: A Comprehensive Study of Multilingual Confidence Estimation on LLMs. *ACL 2025 Findings*. arXiv:2410.12478.
+- Xue, B. et al. (2025). MlingConf: A Comprehensive Study of Multilingual Confidence Estimation on LLMs. *Findings of ACL 2025*, 2535-2556.（PDF確認済み: research/papers/2025.findings-acl.129.pdf。arXiv番号はPDF本文に記載なく未確認のため、引用時は Findings of ACL 2025 の会議名で統一する）
 - Roelofs, R. et al. (2022). Mitigating Bias in Calibration Error Estimation. *AISTATS 2022*.
 - Zhou, E. et al. (2025). Beyond the Final Layer: Intermediate Representations for Better Multilingual Calibration. arXiv:2510.03136.
 - Huang, J. et al. (2026). Investigating the Multilingual Calibration Effects of Language Model Instruction-Tuning. *EACL 2026*.

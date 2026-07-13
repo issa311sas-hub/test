@@ -56,8 +56,10 @@ GPT・Claude・Gemini のような商用 API は内部 logits やパラメータ
 先行研究\cite{tian2023just,xiong2024can}は，
 英語タスクにおいて「言語化された確信度（verbalized confidence）」を
 プロンプトで引き出す方式が内部 softmax 確率より優れた較正精度を達成することを示した。
-しかし，これらの研究の検証対象は英語タスクが中心であり，
-日本語タスクにおいて同様のプロンプト設計が較正精度を改善するかは十分に検証されていない。
+また Xue ら\cite{xue2025mlingconf}は日本語を含む5言語で verbalized confidence の
+有効性を確認しているが，機械翻訳ベンチマーク上での単一手法の検証に留まり，
+プロンプト方式間（Verb.1S/Verb.2S/Ling.1S）の比較や日本語ネイティブなデータセットでの
+検証は行っていない。
 評価の枠組みとしては，Murphy\cite{murphy1973vector}が Brier Score を
 $\text{BS} = \text{REL} - \text{RES} + \text{UNC}$
 の3成分に分解できることを示し，Bröcker\cite{brocker2009reliability}はこの分解が
@@ -173,6 +175,12 @@ Xiong, M., et al. (2024).
 Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence
 Elicitation in LLMs.
 \textit{Proc. ICLR 2024}.
+
+\bibitem{xue2025mlingconf}
+Xue, B., et al. (2025).
+MlingConf: A Comprehensive Study of Multilingual Confidence Estimation on
+Large Language Models.
+\textit{Findings of ACL 2025}, 2535--2556.
 
 \bibitem{murphy1973vector}
 Murphy, A. H. (1973).

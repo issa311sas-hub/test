@@ -26,9 +26,13 @@
 - **Lin et al. (2022)** "Teaching Models to Express Their Uncertainty in Words": 学習による改善を提案
 - **Xiong et al. (2024)** "Can LLMs Express Their Uncertainty?": 複数のLLMで比較
 
-**日本語での先行研究**: ほぼ存在しない（2025年時点）。国際カンファレンス（NeurIPS, ACL, EMNLP）では活発だが、日本語に関する体系的研究は空白。
+**日本語での先行研究**: 当時（2026年4月）はほぼ存在しないと考えられていたが、
+**[2026-07-13 訂正]** その後 MlingConf (Xue et al. 2025, ACL Findings) が日本語含む5言語で
+verbalized confidence（単一手法）を検証済みであることが判明した。国際カンファレンス（NeurIPS, ACL, EMNLP）
+では活発だが、複数のプロンプト方式（Verb.1S/Verb.2S/Ling.1S）比較・日本語ネイティブデータセットでの
+体系的検証は依然として空白（詳細は `research-proposal-draft.md` §2.3）。
 
-→ **新規性**: 日本語タスクでの体系的な verbalized confidence 研究は学部卒論レベルでも十分貢献可能。
+→ **新規性**: 日本語ネイティブデータセット上での複数プロンプト方式比較という、より限定的だが具体的な軸で貢献する（詳細は `research-proposal-draft.md` §2.3・§4.6）。
 
 ### 具体的な研究方法
 

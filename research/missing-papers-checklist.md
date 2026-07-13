@@ -37,7 +37,9 @@
 - **COMET / BERTScore / GEMBA / GEMBA-MQM**: 翻訳ドメイン（FLORES-200）の正答判定方法の根拠一式。COMETが主判定、BERTScoreは補助、GEMBAはLLM-as-a-Judge検証手段。
 - **Saito 2023 / Ye 2024 / Shi 2025 (Judging the Judges)**: LLM-as-a-Judge使用時のバイアス（冗長性バイアス・位置バイアス）に関する注意喚起。翻訳ドメインでLLM-as-a-Judgeを「検証手段」に留める設計判断の根拠。
 - **Naderi 2025**: 医療ドメインでのプロンプト工学と確信度の関係。ドメインが異なるため直接の先行研究ではないが、プロンプト設計が確信度に影響するという傾向を補強する傍証として使える。
-- **Jang 2025**: Verb.2S（2段階で確信度を聞く方式）が自己検証行動を誘発するという理論的裏付け。仮説H1の根拠として使える。
+- **Jang 2025**: ⚠️**[2026-07-13 訂正]** 当初「Verb.2Sの理論的裏付け」としていたが誤り。この論文はLoRA fine-tuningでCoT推論に自己検証行動（再計算・言い直し）を誘発する手法であり、
+  本研究のVerb.2S（プロンプトのみ・別ターンで確信度を尋ねる）とは対象も手段も異なる。H1の根拠としては使わない（詳細: `prompt-design-analysis.md` §1.7参照）。
+  傍証として使うなら「確信度の言語化がモデル内部で何らかの追加処理を誘発しうる」という一般的傾向の指摘に留める。
 
 `references.bib` に bibkey 付きで登録済み（`brocker2009reliability`, `pohle2020murphy`,
 `rei2020comet`, `zhang2020bertscore`, `kocmi2023gemba`, `kocmi2023gembamqm`,
