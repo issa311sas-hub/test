@@ -219,6 +219,6 @@ LLM-as-a-Judge（Zheng et al., NeurIPS 2023 [6]）は人間評価との一致率
 - Kocmi, T. & Federmann, C. (2023). GEMBA-MQM: Detecting Translation Quality Error Spans with GPT-4. *WMT 2023*. arXiv:2310.13988.
 - Zheng, L. et al. (2023). Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. *NeurIPS 2023*. [6]
 - Saito, K. et al. (2023). Verbosity Bias in Preference Labeling by Large Language Models. arXiv:2310.10076.
-- Shi, J. et al. (2024). Judging the Judges: A Systematic Investigation of Position Bias. arXiv:2406.07791.
+- Shi, L. et al. (2025). Judging the Judges: A Systematic Study of Position Bias in LLM-as-a-Judge. *IJCNLP-AACL 2025*. arXiv:2406.07791.（PDF確認済み: 著者はLin Shi、会議版は2025年発表。内容自体は当初想定通り）
 - Ye, J. et al. (2024). Justice or Prejudice? Quantifying Biases in LLM-as-a-Judge. *NeurIPS SafeGenAI Workshop 2024*. arXiv:2410.02736.
 - Fu, X. & Liu, W. (2025). How Reliable is Multilingual LLM-as-a-Judge? *Findings of EMNLP 2025*.

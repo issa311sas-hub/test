@@ -15,10 +15,10 @@ LLM のキャリブレーション改善手法は大きく **3 カテゴリ** �
 | 手法 | 概要 | 代表論文 |
 |---|---|---|
 | Temperature Scaling | softmax 出力全体を定数 T でスケーリング | Guo et al. (2017, ICML) |
-| Adaptive Temperature Scaling (ATS) | トークンごとに異なる T を予測 | arXiv:2409.19817 (EMNLP 2024) |
+| Adaptive Temperature Scaling (ATS) | トークンごとに異なる T を予測 | Xie et al., "Calibrating Language Models with Adaptive Temperature Scaling" (EMNLP 2024, arXiv:2409.19817) |
 | Platt Scaling | ロジスティック回帰で確率を補正 | — |
 | Isotonic Regression | 単調変換で較正曲線を修正 | — |
-| Prior Adaptation | 事前分布を用いた教師なし較正 | arXiv:2307.06713 |
+| Prior Adaptation | 事前分布を用いた教師なし較正 | Estienne et al., "Unsupervised Calibration through Prior Adaptation for Text Classification using LLMs" (arXiv:2307.06713) |
 
 **根本的制約**: これらは **モデルの内部確率（logits）へのアクセスが前提**。  
 GPT-4o、Claude 3.x/4.x、Gemini 等の商用 API では logits は原則非公開 → **API 利用者には適用不可**。
