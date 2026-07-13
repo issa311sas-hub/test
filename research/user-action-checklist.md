@@ -21,16 +21,17 @@
 
 ### 1-1. LaTeX ファイルの確認
 
-ドラフトは以下に作成済み：
+ドラフトは以下に作成済み（友人の様式・執筆要項に準拠した v1 が最新）：
 ```
-research/midterm-presentation/abstract/abstract_v0.tex
+research/midterm-presentation/abstract/abstract_v1.tex
 ```
 
 **本人がやること：**
 1. ファイルを開いて通読し、自分の言葉でない箇所を書き直す
-2. 特に「研究の背景と動機」「今後の計画」は自分の文章に修正する
+2. 特に「研究背景」「今後の予定」は自分の文章に修正する
 3. 先生に見てもらえる場合は 7/10 までにレビュー依頼（返答がなくても進める）
-4. 修正後に `abstract_v1.tex` として保存
+4. 著者欄の学籍番号（現在プレースホルダー `7423XXX`）を実際の番号に置き換える
+5. 修正後、最終版として `abstract_final.tex`（または上書きした `abstract_v1.tex`）として保存
 
 **コンパイル方法（PDF 生成）：**
 ```bash
@@ -53,7 +54,7 @@ uplatex abstract_v1.tex && dvipdfmx abstract_v1.dvi
 
 1. LETUS にログイン
 2. 「卒業研究1 中間発表概要」の提出フォームを探す
-3. `abstract_final.pdf` をアップロード
+3. コンパイルした PDF をアップロード
 4. **2026-07-17（金）12:00 厳守**
 
 ---
@@ -130,12 +131,16 @@ python run_pilot.py --model claude-sonnet-4-6 --method verb_1s \
 ### 発表スライドについて
 
 現在 `research/presentations/2026-06-24-seminar-slides-PRESENTED.pptx` が最新版。
-中間発表用には内容の追加・更新が必要（Murphy 分解の追加、Q&A 対策の強化）。
+中間発表用には内容の追加・更新が必要（Q&A 対策の強化、仮説の整理）。
+**注意（2026-07-13 方針修正）**: Murphy 分解は研究の主軸ではなく、
+本実験データが十分に得られた場合に夏休み以降（卒研2）で発展させるかもしれない
+補足的な切り口という位置づけに戻った。スライドでも「発展的トピック」程度の扱いに留め、
+中心には据えない。
 
 **必要な追加スライド：**
 1. 「なぜプロンプト設計か」（3 カテゴリ比較の図）← `why-prompt-design-defense.md` をもとに
-2. Murphy 分解の説明（BS = REL − RES + UNC の直感的説明）
-3. 仮説 H1〜H4 の一覧
+2. 仮説 H1〜H4 の一覧（ECE 改善に関する仮説）
+3. （任意・簡潔に）Murphy 分解の紹介 1 枚 ― あくまで補足の発展トピックとして
 
 スライド更新は Claude に頼めます（「中間発表用にスライドを更新して」と依頼）。
 
@@ -145,7 +150,7 @@ python run_pilot.py --model claude-sonnet-4-6 --method verb_1s \
 
 | 質問 | 一言回答 |
 |---|---|
-| Murphy 分解を使う先行研究がないのはなぜ？ | 知られていなかった、というのが本研究の動機 |
+| Murphy 分解とは何か・使うのか？ | 補足的な発展トピック。主軸は日本語タスクでの ECE 改善検証で、Murphy 分解は本実験データが十分なら卒研2以降で検討 |
 | 250 問で統計的に十分か？ | 各ビン 25 問確保。先行研究と同水準 |
 | Post-hoc 法と比べてなぜプロンプト設計？ | 商用 API では logits が非公開。プロンプトのみが唯一の選択肢 |
 | 日本語特化の理由は？ | Tian 2023 が英語のみ。日本語での再現性は未検証 |
@@ -168,12 +173,13 @@ python run_pilot.py --model claude-sonnet-4-6 --method verb_1s \
 
 ```
 research/
-├── research-proposal-draft.md    ← 研究計画書（最新: Murphy 分解確定採用版）
+├── research-proposal-draft.md    ← 研究計画書（最新: 日本語タスク較正性能向上が主軸、Murphy分解は探索的オプション）
 ├── why-prompt-design-defense.md  ← 「なぜプロンプト設計か」防御論理
-├── brier-score-murphy-decomposition-survey.md  ← 横断調査
+├── brier-score-murphy-decomposition-survey.md  ← 横断調査（補足トピック用）
 ├── midterm-presentation/
 │   └── abstract/
-│       └── abstract_v0.tex       ← 概要 2p ドラフト（★本人が推敲する）
+│       ├── abstract_v0.tex       ← AI下書き第1版（参考・非推奨）
+│       └── abstract_v1.tex       ← 執筆要項準拠版（★本人が推敲する）
 └── experiment/pilot/
     ├── calibration.py            ← ECE / Brier / AUROC + Murphy 分解
     ├── prompts.py                ← Verb.1S / Verb.2S / Ling.1S テンプレート
