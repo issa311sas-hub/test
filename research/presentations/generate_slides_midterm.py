@@ -1,5 +1,5 @@
 """
-中間発表スライド生成スクリプト
+中間発表スライド生成スクリプト（v3：先行研究の解説を拡充）
 python generate_slides_midterm.py で .pptx を生成
 
 構成の元ネタ: research/presentations/midterm-presentation-slide-outline.md
@@ -9,9 +9,13 @@ python generate_slides_midterm.py で .pptx を生成
   - "⇔" は使用しない
   - 比較情報は箇条書きではなく表で表現
   - 参考文献はスライド下部に配置
-  - 複数スライドにまたがる項目は (1/n) 表記
+  - 複数スライドにまたがる項目は (n/総数) 表記
   - 箇条書きは3項目までに制限
   - 最上部ギリギリに重要情報を置かない（ヘッダーは十分な余白を確保）
+
+v3の変更点: 「先行研究の話が少ない」という指摘を受け、Tian et al. 2023 と
+Xiong et al. 2024 をそれぞれ独立スライドで詳しく解説する。各スライドは
+「先行研究の内容 → そこに残る研究の余地」という型で統一する。
 """
 
 from pptx import Presentation
@@ -26,6 +30,7 @@ C_ACCENT  = RGBColor(0x1A, 0x56, 0xAA)   # 濃い青
 C_ACCENT2 = RGBColor(0xB0, 0x2A, 0x1E)   # 濃い赤（強調用、プロジェクタでも視認可）
 C_DARK    = RGBColor(0x14, 0x14, 0x1E)   # 本文用の濃い色（グレーではなくほぼ黒）
 C_LIGHTBG = RGBColor(0xEC, 0xF1, 0xF9)   # 表の背景等（文字ではなく面のみに使用）
+C_GAPBG   = RGBColor(0xFB, 0xEC, 0xEA)   # 「研究の余地」ボックスの背景（薄い赤系）
 C_WHITE   = RGBColor(0xFF, 0xFF, 0xFF)
 
 W = Inches(13.33)
@@ -36,7 +41,7 @@ prs.slide_width = W
 prs.slide_height = H
 BLANK = prs.slide_layouts[6]
 
-TOTAL_SLIDES = 17  # 本編のみ（Appendixは別カウント）
+TOTAL_SLIDES = 19  # 本編のみ（Appendixは別カウント）
 
 
 def add_rect(slide, x, y, w, h, color, line=False):
@@ -71,10 +76,10 @@ def add_text(slide, text, x, y, w, h,
     return txBox
 
 
-def bullet_box(slide, lines, x, y, w, h, size=28, color=C_DARK, spacing=10):
+def bullet_box(slide, lines, x, y, w, h, size=28, color=C_DARK, spacing=10, max_items=3):
     """箇条書きは3項目までを推奨（呼び出し側で担保する）"""
     assert size >= 24, "フォントサイズは24pt未満禁止（slide-design-rules.md）"
-    assert len(lines) <= 3, "箇条書きは3項目までにする（slide-design-rules.md）"
+    assert len(lines) <= max_items, "箇条書きは3項目までにする（slide-design-rules.md）"
     txBox = slide.shapes.add_textbox(x, y, w, h)
     tf = txBox.text_frame
     tf.word_wrap = True
@@ -118,7 +123,7 @@ def add_table(slide, headers, rows, x, y, w, h, header_size=24, body_size=24):
 
 
 def header_bar(slide, title_text, slide_no=None, title_size=32):
-    # 最上部ギリギリに情報を置かない：帯は0.12inchのみ、タイトルは0.35inch以降から開始
+    # 最上部ギリギリに情報を置かない：帯は0.12inchのみ、タイトルは0.32inch以降から開始
     add_rect(slide, 0, 0, W, Inches(0.12), C_ACCENT)
     add_text(slide, title_text,
              Inches(0.5), Inches(0.32), Inches(11.3), Inches(0.9),
@@ -135,6 +140,30 @@ def message_footer(slide, message_text):
     add_text(slide, message_text,
               Inches(0.5), Inches(6.9), Inches(12.3), Inches(0.55),
               size=24, italic=True, color=C_ACCENT)
+
+
+def prior_work_slide(title, slide_no, content_lines, gap_lines, message):
+    """先行研究の解説スライド：「内容→残された研究の余地」の型を強制する"""
+    assert len(content_lines) <= 3
+    assert len(gap_lines) <= 2
+    sl = prs.slides.add_slide(BLANK)
+    header_bar(sl, title, slide_no)
+
+    add_text(sl, "先行研究の内容", Inches(0.8), Inches(1.75), Inches(11.7), Inches(0.5),
+             size=26, bold=True, color=C_ACCENT)
+    bullet_box(sl, content_lines, Inches(0.8), Inches(2.2), Inches(11.7), Inches(2.0),
+               size=24, spacing=10)
+
+    add_rect(sl, Inches(0.6), Inches(4.35), Inches(12.1),
+             Inches(0.55 + 0.5 * len(gap_lines)), C_GAPBG)
+    add_text(sl, "残された研究の余地", Inches(0.8), Inches(4.45), Inches(11.7), Inches(0.5),
+             size=26, bold=True, color=C_ACCENT2)
+    bullet_box(sl, gap_lines, Inches(0.8),
+               Inches(4.35 + 0.55), Inches(11.7), Inches(1.3),
+               size=24, spacing=8, max_items=2)
+
+    message_footer(sl, message)
+    return sl
 
 
 # ══════════════════════════════════════════════════════════════
@@ -214,10 +243,46 @@ message_footer(sl, "1メッセージ：社会的な困りごとを技術的な�
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 6 — 背景③：プロンプト設計が唯一実践可能
+# Slide 6 — 背景③：先行研究1 Tian et al. 2023
+# ══════════════════════════════════════════════════════════════
+prior_work_slide(
+    "背景③：先行研究1 — Tian et al. 2023", 6,
+    content_lines=[
+        "RLHF済みモデルは内部確率（logprob）に基づく較正が崩壊してしまう",
+        "しかし「確信度をただ聞くだけ」で内部確率より良い較正が得られると発見",
+        "4方式（logprob/言語表現/0-100の数値/複数候補同時提示）を比較し，数値表現が有効",
+    ],
+    gap_lines=[
+        "検証は英語のQAタスク（TriviaQA・SciQ等）のみ",
+        "日本語モデル・日本語タスクで同じ傾向が出るかは未検証",
+    ],
+    message="1メッセージ：「ただ聞くだけで較正が改善する」という本研究の土台と，その限界",
+)
+
+
+# ══════════════════════════════════════════════════════════════
+# Slide 7 — 背景④：先行研究2 Xiong et al. 2024
+# ══════════════════════════════════════════════════════════════
+prior_work_slide(
+    "背景④：先行研究2 — Xiong et al. 2024", 7,
+    content_lines=[
+        "Black-box確信度推定の体系的フレームワークを提案（プロンプト戦略/サンプリング/集約）",
+        "5種類のデータセット×5モデルで較正精度と失敗予測を評価",
+        "LLMは総じて過信しがちで，どの方式も一貫して他を上回るわけではないと報告",
+    ],
+    gap_lines=[
+        "専門知識を要するタスクでは全手法が苦戦しており，改善の余地が大きいと自ら報告",
+        "検証は英語タスクが中心で，日本語での体系的な方式間比較は行っていない",
+    ],
+    message="1メッセージ：確信度手法比較の先駆けだが，方式間の優劣にはまだ決着がついていない",
+)
+
+
+# ══════════════════════════════════════════════════════════════
+# Slide 8 — 背景⑤：プロンプト設計が唯一実践可能
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "背景③：なぜプロンプト設計なのか", 6)
+header_bar(sl, "背景⑤：なぜプロンプト設計なのか", 8)
 bullet_box(sl, [
     "改善手法は3系統：Post-hoc補正／ファインチューニング／プロンプト設計",
     "商用APIはlogitsやパラメータへのアクセスを提供しない",
@@ -227,10 +292,12 @@ message_footer(sl, "1メッセージ：数ある改善手法の中でプロン�
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 7 — 背景④：先行研究との比較表
+# Slide 9 — 背景⑥：先行研究3 MlingConfとの比較
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "背景④：先行研究との違い", 7)
+header_bar(sl, "背景⑥：先行研究3 — MlingConfとの比較", 9)
+add_text(sl, "MlingConf(Xue et al. 2025)は日本語含む5言語で確信度手法（単一方式）を検証済み",
+         Inches(0.8), Inches(1.65), Inches(11.7), Inches(0.6), size=24, color=C_DARK)
 add_table(sl,
           headers=["", "Tian/Xiong (英語)", "MlingConf (多言語)", "本研究"],
           rows=[
@@ -239,16 +306,16 @@ add_table(sl,
               ["データセット", "英語標準", "英語からの機械翻訳", "日本語ネイティブ＋標準"],
               ["検証モデル", "GPT系(当時)", "GPT-3.5・Llama-3.1", "現行世代モデル"],
           ],
-          x=Inches(0.6), y=Inches(1.9), w=Inches(12.1), h=Inches(3.6),
-          header_size=24, body_size=24)
+          x=Inches(0.6), y=Inches(2.35), w=Inches(12.1), h=Inches(3.2),
+          header_size=22, body_size=22)
 message_footer(sl, "1メッセージ：日本語検証は「十分に研究されていない」だけで皆無ではない")
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 8 — 研究目的
+# Slide 10 — 研究目的
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "研究目的：主目的と付随目的", 8)
+header_bar(sl, "研究目的：主目的と付随目的", 10)
 add_rect(sl, Inches(0.6), Inches(1.85), Inches(12.1), Inches(2.0), C_LIGHTBG)
 add_text(sl, "主たる目的",
          Inches(0.85), Inches(1.95), Inches(11.6), Inches(0.5), size=26, bold=True, color=C_ACCENT)
@@ -267,10 +334,10 @@ message_footer(sl, "1メッセージ：主目的（方式間の差）と付随�
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 9 — 方針①：実験の全体像
+# Slide 11 — 方針①：実験の全体像
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "方針①：実験の全体像", 9)
+header_bar(sl, "方針①：実験の全体像", 11)
 bullet_box(sl, [
     "モデル：GPT-4o／Claude Sonnet 4.6／Gemini 2.x／Swallow（4〜6モデル）",
     "データセット：日本語4ドメイン × 250問 ＝ 計1,000問",
@@ -280,10 +347,10 @@ message_footer(sl, "1メッセージ：何を何で比較するかの全体像")
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 10 — 方針②：3方式
+# Slide 12 — 方針②：3方式
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "方針②：3つのプロンプト方式", 10)
+header_bar(sl, "方針②：3つのプロンプト方式", 12)
 add_table(sl,
           headers=["方式", "内容"],
           rows=[
@@ -297,10 +364,10 @@ message_footer(sl, "1メッセージ：比較対象の3方式がそれぞれ何�
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 11 — 方針③：評価指標の紹介
+# Slide 13 — 方針③：評価指標の紹介
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "方針③：評価指標", 11)
+header_bar(sl, "方針③：評価指標", 13)
 bullet_box(sl, [
     "主指標：ECE（較正誤差）／Brier Score／AUROC",
     "補足的な切り口：Murphy分解（BS = REL − RES + UNC）",
@@ -310,10 +377,10 @@ message_footer(sl, "1メッセージ：何を測るか。Murphy分解はあく�
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 12 — 方針④：ECEの読み方
+# Slide 14 — 方針④：ECEの読み方
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "方針④：ECEの読み方", 12)
+header_bar(sl, "方針④：ECEの読み方", 14)
 add_table(sl,
           headers=["項目", "内容"],
           rows=[
@@ -329,10 +396,10 @@ message_footer(sl, "1メッセージ：ECEの数字が良いか悪いか自力�
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 13 — 検証仮説（自分の予想）
+# Slide 15 — 検証仮説（自分の予想）
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "検証仮説：自分はこう予想している", 13)
+header_bar(sl, "検証仮説：自分はこう予想している", 15)
 bullet_box(sl, [
     "H1：Verb.2Sは回答後に確信度を聞く分，Verb.1SよりECEが改善すると予想",
     "H2：Ling.1Sは情報を圧縮するため，数値表現方式より改善幅が小さいと予想",
@@ -342,10 +409,10 @@ message_footer(sl, "1メッセージ：3つの予想とその理由（H4は質�
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 14 — 現在の進捗
+# Slide 16 — 現在の進捗
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "現在の進捗", 14)
+header_bar(sl, "現在の進捗", 16)
 bullet_box(sl, [
     "プロンプト3方式×4ドメインのテンプレートと確信度の解析処理を実装済み",
     "ECE・Brier Score・AUROCの計算コードを実装し，数値的に検証済み",
@@ -355,10 +422,10 @@ message_footer(sl, "1メッセージ：準備は終わっている，実行は�
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 15 — 今後の予定
+# Slide 17 — 今後の予定
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "今後の予定", 15)
+header_bar(sl, "今後の予定", 17)
 bullet_box(sl, [
     "パイロット実験でスクリプトの動作確認",
     "問題なければ複数モデル×3方式×大規模な問題数で本実験を実施",
@@ -368,10 +435,10 @@ message_footer(sl, "1メッセージ：次に何をするか")
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 16 — 参考文献（下部に配置）
+# Slide 18 — 参考文献（下部に配置）
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "参考文献", 16)
+header_bar(sl, "参考文献", 18)
 refs = [
     "Guo et al. (2017) ICML",
     "Tian et al. (2023) EMNLP",
@@ -386,10 +453,10 @@ add_text(sl, "\n".join(refs),
 
 
 # ══════════════════════════════════════════════════════════════
-# Slide 17 — まとめ（表示したまま終える）
+# Slide 19 — まとめ（表示したまま終える）
 # ══════════════════════════════════════════════════════════════
 sl = prs.slides.add_slide(BLANK)
-header_bar(sl, "まとめ", 17)
+header_bar(sl, "まとめ", 19)
 bullet_box(sl, [
     "研究の問い：日本語タスクでプロンプト方式の違いは較正精度にどう影響するか",
     "現状：設計・実装は完了，実験はこれから",
@@ -400,4 +467,4 @@ message_footer(sl, "質疑応答中もこのスライドを表示したままに
 
 prs.save("research/presentations/midterm-presentation-slides.pptx")
 print("Saved: research/presentations/midterm-presentation-slides.pptx")
-print(f"Total main slides: {len(prs.slides.__iter__.__self__._sldIdLst)}")
+print(f"Total main slides: {len(prs.slides._sldIdLst)}")
