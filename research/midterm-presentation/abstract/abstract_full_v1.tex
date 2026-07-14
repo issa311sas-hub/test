@@ -385,6 +385,23 @@ $\text{acc}(B_m)$・$\text{conf}(B_m)$はそれぞれビン$B_m$内の平均正�
 ECEは等幅ビンM=10（区間[0,1]を0.1刻み）で計算し，Tian 2023・Xiong 2024と同一指標で比較可能とする。
 Brier ScoreはProper Scoring Ruleであり，ビニング不要という利点を持つ。
 
+\subsubsection*{補助指標：AUROC}
+
+正解サンプルの確信度集合を$\text{Pos}$，不正解サンプルの確信度集合を$\text{Neg}$として，
+以下のノンパラメトリックな形（Mann–Whitney U統計量の正規化）で計算する
+（\texttt{research/experiment/pilot/calibration.py} の実装に対応）。
+
+\begin{align}
+  \text{AUROC} = \frac{1}{|\text{Pos}||\text{Neg}|} \sum_{p \in \text{Pos}} \sum_{q \in \text{Neg}}
+  \left( \mathbb{1}[p > q] + \tfrac{1}{2}\mathbb{1}[p = q] \right)
+\end{align}
+
+すなわち，ランダムに選んだ正解サンプルの確信度が，ランダムに選んだ不正解サンプルの確信度を
+上回る確率を表す。0.5がランダムな識別能力（確信度が正誤と無関係），1.0に近いほど
+確信度が正誤を完全に識別できていることを意味する。ECEが「較正（confが実際のaccと一致するか）」
+を測るのに対し，AUROCは「識別能力（confで正誤を区別できるか）」を測る点で性質が異なり，
+両者は独立に評価する必要がある（相関がほぼゼロであることが報告されている）。
+
 \begin{center}
 \begin{tabular}{p{0.2\textwidth}p{0.15\textwidth}p{0.2\textwidth}p{0.35\textwidth}}
 \toprule
