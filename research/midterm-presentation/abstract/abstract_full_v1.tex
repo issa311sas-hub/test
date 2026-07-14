@@ -1,0 +1,686 @@
+% =====================================================================
+% 「フル版」概要（ページ制限なし・省略なし）
+% 位置づけ: LETUS提出用の abstract_v2.tex とは別物。
+%           教授確認用に、行間で省略している内容を全て開示するための文書。
+% 作成日: 2026-07-13
+% =====================================================================
+\documentclass[11pt,a4paper,oneside]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+% \usepackage{luatexja}  % 日本語組版時に有効化
+
+\usepackage[top=20mm,bottom=20mm,left=20mm,right=20mm]{geometry}
+\usepackage{setspace}
+\setstretch{1.15}
+\usepackage{amsmath,amssymb}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{cite}
+\usepackage{hyperref}
+
+\title{\Large\bfseries 確信度プロンプト方式の比較によるLLMキャリブレーション性能の検証\\
+\large --- 日本語ネイティブタスクにおけるVerb.1S/Verb.2S/Ling.1Sの比較と現行モデルでの再現性 ---\\
+\normalsize （フル版：ページ制限なし・省略なし。abstract\_v2.tex の行間を全て開示したもの）}
+
+\author{グループE\quad 秦野研究室\quad 7422048\quad 指田一茶}
+\date{2026年7月（作成: 2026-07-13）}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\vspace{1em}
+
+% =====================================================================
+\section{研究背景}
+% =====================================================================
+
+\subsection{問題意識：ハルシネーションとキャリブレーション}
+
+大規模言語モデル（LLM）は教育・業務・日常生活へ急速に普及しており，
+検索・相談・意思決定支援など，人間の判断に直接影響する場面でも使われ始めている。
+しかし，LLMは「ハルシネーション」，すなわち誤情報を自信満々に生成するという
+根本的な問題を抱えており\cite{ji2023survey}，利用者が誤情報をその場で見抜くことは難しい。
+
+問題の本質は単に「間違えること」ではなく，\textbf{モデルが表明する確信度と実際の正答率の乖離}
+にある。もしモデルの確信度が現実の正答率と整合していれば（well-calibrated），
+利用者は確信度を手がかりとしてリスク判断が可能になる。逆に確信度が正答率と乖離していれば，
+利用者は「自信満々に間違っている」回答をそのまま信じてしまうリスクを負う。
+
+この「確信度と正答率のズレ」を定量化する枠組みが\textbf{キャリブレーション（calibration）}であり，
+ニューラルネットワーク一般での過信傾向は Guo et al. 2017 \cite{guo2017calibration} が
+Expected Calibration Error (ECE) という指標とともに指摘した古典的な問題である。
+
+\subsection{なぜプロンプト設計なのか：手法の全体マップ}
+
+LLMのキャリブレーションを改善する手法は，大別して以下の3系統に分類できる。
+
+\begin{enumerate}
+  \item \textbf{Post-hoc補正}：Temperature Scaling \cite{guo2017calibration}，
+        Adaptive Temperature Scaling \cite{xie2024adaptivetemp}，
+        Prior Adaptation \cite{estienne2023prioradaptation} 等。
+        学習済みモデルの出力確率を事後的に補正する。
+  \item \textbf{ファインチューニング}：Calibration-Aware Fine-Tuning \cite{xiao2025restoringcalibration}，
+        ConfTuner \cite{li2025conftuner} 等。モデルパラメータを再学習し，
+        較正された確信度を出力するよう訓練する。
+  \item \textbf{プロンプト設計}：Verbalized Confidence \cite{tian2023justask,xiong2024llmuncertainty} 等。
+        プロンプトの工夫のみで確信度を引き出す。追加学習・内部情報へのアクセスを要しない。
+\end{enumerate}
+
+Post-hoc補正は内部のlogits（トークンごとの出力確率）へのアクセスを，
+ファインチューニングはモデルパラメータへのアクセスをそれぞれ前提とする。
+しかしGPT-4o・Claude・Geminiのような商用APIは，どちらへのアクセスも提供していない。
+Xie et al. 2024 \cite{xie2024blackboxsurvey} の Black-Box LLM Calibration サーベイは，
+この制約が「black-box較正」という独立した研究領域を要するほど本質的であることを示している。
+したがって，\textbf{一般利用者が商用APIに対して今すぐ適用できる手段はプロンプト設計のみ}であり，
+これが本研究がプロンプト設計を対象に選ぶ最大の理由である。
+
+\subsection{先行研究1：Tian et al. 2023「Just Ask for Calibration」}
+
+Tian et al. 2023 \cite{tian2023justask}（EMNLP 2023）は，本研究の直接の土台となる研究である。
+
+\textbf{研究の問い}：RLHFで微調整されたLLMに対し，プロンプトだけで確信度（verbalized confidence）
+を引き出した場合，それは内部のtoken logprobよりも良いキャリブレーションを示すか。
+またどのような「聞き方」が最も効果的か。
+
+\textbf{方法}：GPT-3.5，GPT-4，LLaMA-2-Chat等を対象に，TriviaQA・SciQ・TruthfulQA等のQAタスクで，
+以下の4方式を比較した。
+\begin{itemize}
+  \item \texttt{logprob}：生成されたanswerトークンの対数確率をそのまま使う（従来手法）
+  \item \texttt{linguistic}：「どれくらい自信がありますか」と言葉で尋ねる
+  \item \texttt{verbal numeric}：「0から100の数値で確信度を答えて」と尋ねる
+  \item \texttt{top-k}：複数の答え候補とそれぞれの確率を同時に列挙させる
+\end{itemize}
+
+\textbf{結果}：(1) RLHF済みモデルではlogprobベースのキャリブレーションは崩壊している
+（RLHFがsoftmax分布を歪めるため）。(2) verbalized confidenceはlogprobよりキャリブレーションが良好で，
+特に「0-100の整数」方式が強い。(3) top-k方式（複数候補同時列挙）はさらに良好な結果を示す。
+(4) プロンプトの工夫の効果はGPT-4で特に顕著。
+
+\textbf{結論}：「単に確信度を問う」だけで，追加のfine-tuningもpost-hoc補正も不要なレベルで
+較正された確信度が得られる。これはRLHFがsoftmax確率を破壊する一方，
+モデルの「自己評価能力」自体は生きていることを示唆する。
+
+\textbf{研究の限界（本研究が埋める余地）}：検証は英語のQAタスクのみであり，日本語モデル・
+日本語タスクで同じ傾向が出るかは検証されていない。また，top-k方式は複数回の出力を要し
+API呼び出しコストが増大するため，本研究では採用しない（コスト・実装難度・
+他方式とのサンプリング回数の公平性の観点から）。
+
+\subsection{先行研究2：Xiong et al. 2024「Can LLMs Express Their Uncertainty?」}
+
+Xiong et al. 2024 \cite{xiong2024llmuncertainty}（ICLR 2024）は，
+Tian et al. 2023の知見を複数モデル・複数タスクで体系的に検証した研究である。
+
+\textbf{方法}：Black-box（内部情報にアクセスしない）確信度推定を，
+(1) プロンプト戦略，(2) サンプリング方法（複数回応答生成），
+(3) 集約手法（一貫性の計算）の3要素からなる体系的フレームワークとして定式化。
+5種類のデータセット（常識推論・算術推論等）× GPT-4・LLaMA-2 Chat等5モデルで，
+キャリブレーションと失敗予測（failure prediction）の2タスクを評価した。
+
+\textbf{主な発見}：(1) LLMは確信度を言語化する際，人間の確信度表現パターンを模倣するためか，
+総じて過信する傾向がある。(2) モデルの能力が高いほどキャリブレーション・失敗予測性能は
+改善するが，理想的な性能にはまだ遠い。(3) 人間に着想を得たプロンプト，複数応答間の一貫性，
+より良い集約戦略の併用で過信をある程度緩和できる。(4) white-box手法との比較では，
+white-box手法の方が優れるが差はわずか（AUROCで0.522から0.605程度）。
+(5) \textbf{どの手法も一貫して他の手法を上回るわけではなく}，専門知識を要するタスクでは
+すべての手法が苦戦する，と著者ら自身が「大きな改善の余地がある」と結論している。
+
+\textbf{研究の限界（本研究が埋める余地）}：検証は英語タスクが中心であり，
+日本語での体系的な方式間比較は行われていない。また，本研究が対象とする
+Verb.1S/Verb.2S/Ling.1Sという3方式の直接比較には踏み込んでいない。
+
+\subsection{先行研究3：MlingConf（多言語での確信度推定）}
+
+Xue et al. 2025 \cite{xue2025mlingconf}（Findings of ACL 2025）のMlingConfは，
+英語・日本語・中国語・フランス語・タイ語の5言語でLLMの確信度推定を検証した研究であり，
+「日本語での確信度手法の検証が全く存在しない」という主張を成立させなくする，
+本研究にとって最も重要な参照点である。
+
+\textbf{方法}：確信度推定手法を Prob.（トークン確率），p(True)（「これは正しいか」と問う），
+Verb.（0-100の数値で確信度を問う，単一手法）の3種に分類し，
+Language-Agnostic（LA，言語に依らない一般知識タスク：TriviaQA・GSM8K・CommonsenseQA・SciQ）と
+Language-Specific（LS，言語固有の社会・文化的知識タスク：LSQA，GPT-4に生成させた
+言語固有の200問）の2種のタスクで比較した。データセットは英語から機械翻訳して作成し，
+50サンプルの人手評価で翻訳品質を確認している（日本語の翻訳正解率は96〜98\%）。
+
+\textbf{主な発見}：(1) GPT-3.5ではp(True)とVerb.がProb.より優れる一方，Llama-3.1では逆に
+Prob.が安定して優れており，モデルの指示追従能力によって最適な手法が変わる。
+(2) 言語間で確信度推定の性能に差があり，「言語的優位性（linguistic dominance）」，
+特に英語が有利な傾向が見られる。日本語では，例えばTriviaQA・GPT-3.5条件でのVerb.手法の
+ECEが英語16.52に対し日本語34.49と大きく悪化するなど，複数のLA タスクで日本語のECEが
+英語より悪化する傾向が観測された。(3) 言語固有タスク（LSQA）では，質問と同じ言語で
+プロンプトすると精度が上がる「Native-Tone Prompting（NTP）」戦略を提案し，
+単一言語プロンプトより有意に改善することを示した。
+
+\textbf{研究の限界（本研究が埋める余地）}：
+\begin{enumerate}
+  \item \textbf{方式間比較の欠如}：確信度の引き出し方は単一のVerb.手法（0-100の数値，1段階）
+        のみであり，本研究が扱うVerb.1S/Verb.2S/Ling.1Sという\textbf{方式間の比較軸}は存在しない。
+  \item \textbf{機械翻訳データセット}：日本語データはすべて英語から機械翻訳したものであり，
+        JCommonsenseQA・JMMLUのような\textbf{日本語ネイティブに構築されたデータセット}ではない。
+  \item \textbf{旧世代モデル}：検証モデルはGPT-3.5とLlama-3.1のみであり，
+        GPT-4o・Claude Sonnet 4.6・Gemini 2.x等の\textbf{現行世代モデルでの再現性}は未検証。
+\end{enumerate}
+
+したがって，本研究の新規性の主張は「日本語での検証が存在しない」という強い主張ではなく，
+「MlingConfが示した限定的な知見を，方式間比較・日本語ネイティブデータセット・現行モデルの
+3点で精緻化する」という具体的で反証可能な主張として組み立てる。
+
+\subsection{先行研究間の比較表}
+
+\begin{center}
+\begin{tabular}{lllll}
+\toprule
+ & Tian 2023 / Xiong 2024 & MlingConf (Xue 2025) & 本研究 \\
+\midrule
+対象言語 & 英語のみ & 日本語含む5言語 & 日本語 \\
+方式間の比較 & なし（単一/複数手法だが比較なし） & なし（単一手法） & あり（3方式） \\
+データセット & 英語標準ベンチマーク & 英語からの機械翻訳 & 日本語ネイティブ＋標準 \\
+検証モデル & GPT系（当時），LLaMA-2 & GPT-3.5・Llama-3.1 & 現行世代（GPT-4o等） \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{研究の論理的な繋がり（一歩ずつの接続）}
+
+指導教員・審査委員に「なぜこの研究がこの形になっているか」を一歩ずつ説明できるよう，
+先行研究から本研究までの論理の連鎖を以下に示す。
+
+\begin{longtable}{p{0.28\textwidth}p{0.48\textwidth}p{0.2\textwidth}}
+\toprule
+ステップ & 内容 & 根拠文献 \\
+\midrule
+\endhead
+① 較正の基礎指標を定める & ECE（正答率と確信度のズレ）がLLMの信頼性を測る標準指標として確立している & Guo et al. 2017 \\
+② LLMは自分の正誤をある程度知っている & LLMは内部的に「知っているかどうか」の情報を持つ & Kadavath et al. 2022 \\
+③ その情報を言語化させる方法がある & 確信度を自然言語・数値でプロンプトから引き出す方式が定義された & Lin et al. 2022 \\
+④ 言語化プロンプトが実際に較正精度を改善する（英語） & ただ確信度を聞くだけで内部確率より良いcalibrationを達成（ECE約50\%改善） & Tian et al. 2023; Xiong et al. 2024 \\
+⑤ 多言語でも一定の効果が確認されている（ただし粗い検証） & 日本語含む5言語でverbalized confidence（単一手法）を検証，有効性を確認。ただし機械翻訳データセット・単一手法のみ & Xue et al. 2025 (MlingConf) \\
+⑥ 効果はプロンプトの「聞き方」に依存する & プロンプトスタイル（応答一致・損失関数等）が較正結果に影響することが示されている & Xia et al. 2025 \\
+⑦ 具体的な数値表現の設計にも注意が必要 & 0-100スケールは回答が丸め値に偏り，0-20の方がメタ認知的に精度が良い & Dai 2025 \\
+⑧ 確信度を答えの後に聞くと過信が減る可能性 & 確信度の「回答非依存性」が過信の主因，回答に接地させると改善（診断的知見。ADVICE自体はfine-tuning手法であり，本研究はこの診断的知見のみを引用する） & Seo et al. 2025 (ADVICE) \\
+⑨ 商用APIではPost-hoc/Fine-tuningが使えない & logits非公開・パラメータ非公開のためプロンプト設計のみが実行可能な手段 & Xie et al. 2024 (Black-Box Survey) \\
+\textbf{⑩ 本研究の位置} & 上記①〜⑨を踏まえ，日本語ネイティブなデータセット上で，Verb.1S/Verb.2S/Ling.1Sという3つのプロンプト方式の\textbf{方式間の差}を明らかにし，その効果が現行世代モデルでも\textbf{再現されるか}を検証する & 本研究のRQ0〜RQ4 \\
+（オプション）⑪ 効果の内訳を分離する視点もある & Brier Scoreは較正誤差(REL)と識別能力(RES)に分解できる。本実験データが十分なら発展させる & Bröcker 2009; Pohle 2020（探索的オプション，§3.7参照） \\
+\bottomrule
+\end{longtable}
+
+% =====================================================================
+\section{研究目的}
+% =====================================================================
+
+\subsection{主たる目的とメインRQ}
+
+本研究の主目的は，\textbf{日本語ネイティブなタスクにおいて確信度プロンプト方式
+（Verb.1S / Verb.2S / Ling.1S）の違いがキャリブレーション性能にどのような差をもたらすか}
+を実証的に検証することである。
+
+\textbf{メインRQ}：日本語ネイティブなタスクにおいて，確信度プロンプト方式の違いは
+LLMの較正精度（ECE・Brier Score）にどのような差をもたらすか？
+
+このRQは，実験結果から\textbf{YES/NOで判定可能な形}になっている点が重要である。
+「方式間に統計的に有意な差がある」か「ない」かのいずれの結果が出ても，
+それ自体が報告可能な学術的知見になる設計とした。
+
+\subsection{付随して明らかになること（派生的目的）}
+
+主目的の実験を複数モデルで横展開することにより，追加の実装なしに以下も明らかになる。
+
+\textbf{付随目的}：その効果は現行世代の商用LLM（GPT-4o・Claude Sonnet 4.6・Gemini 2.x等）でも
+再現されるか？
+
+主目的と付随目的を区別する理由は，発表・論文において「何が本研究の核心的な貢献か」を
+明確にするためである。付随目的はあくまで主目的の実験を横展開した結果であり，
+本研究が新たに実装・設計したものではない。
+
+\subsection{サブRQ}
+
+\begin{itemize}
+  \item \textbf{RQ1}：モデル間でキャリブレーション性能・改善パターンに差はあるか？
+        （比較軸：GPT / Claude / Gemini / Swallow）
+  \item \textbf{RQ2}：タスクドメインによって改善幅は変化するか？
+        （比較軸：数学 / 常識 / 知識 / 翻訳）
+  \item \textbf{RQ3}：どのプロンプト方式が最も改善するか？（メインRQの中心的な比較軸）
+        （比較軸：Verb.1S / Verb.2S / Ling.1S）
+  \item \textbf{RQ4}：日本語と英語で改善幅に差はあるか？
+        （比較軸：日本語 vs 英語。ただし英語側の数値は本研究内で再実験するのではなく，
+        既存文献\cite{tian2023justask,xiong2024llmuncertainty,xue2025mlingconf}が
+        報告する数値と比較する。したがって言語による差とモデル世代による差を
+        厳密に分離できない点は本研究の限界として明記する）
+\end{itemize}
+
+\subsection{演習2との違い}
+
+これまでの取り組み（演習2）では英語中心・少数プロンプトでの予備的なECE比較にとどまっていた。
+本研究は日本語4ドメイン・3方式・複数モデルでの体系的な検証へと発展させるものであり，
+演習2の焼き直しではなく，今後行う本実験・考察へ直結する内容として位置づけている。
+
+% =====================================================================
+\section{研究の方針}
+% =====================================================================
+
+\subsection{実験の全体像}
+
+以下の3つの実験を順次行う。
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+実験 & 目的 & 扱う変数 \\
+\midrule
+実験1 & 基本キャリブレーションの測定 & モデル × ドメイン \\
+実験2 & プロンプト方式の影響 & プロンプトフォーマット \\
+実験3 & 言語の影響（先行研究数値との比較） & 日本語 vs 英語 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{使用モデル}
+
+商用：GPT-4o / GPT-5，Claude Sonnet 4.6，Gemini 2.x。
+オープン：Swallow，ELYZA-japanese-Llama，Qwen（バックアップ候補）。
+合計4〜6モデルを予定。モデルの正確なバージョン・取得日時は実験実施時に必ず記録し，
+再現性を担保する。オープンソースモデルはローカル実行またはHugging Face無料枠を使用し，
+追加コストは発生しない。
+
+\subsection{データセット}
+
+各ドメイン250問，合計1,000問を使用する。
+
+\begin{center}
+\begin{tabular}{lllll}
+\toprule
+ドメイン & データセット & 問数 & 形式 & 正答判定 \\
+\midrule
+数学 & MGSM（日本語版GSM8K） & 250 & 自由回答（数値） & 完全一致 \\
+常識 & JCommonsenseQA & 250 & 5択MC & 選択肢一致 \\
+知識 & JMMLU（日本史中心4科目） & 250 & 4択MC & 選択肢一致 \\
+翻訳 & FLORES-200（日英ペア） & 250 & 対訳文 & COMET + LLM-as-a-Judge \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+このうちJCommonsenseQA・JMMLUは日本語話者向けに作成されたデータセットであり，
+MGSM（GSM8Kの多言語展開）・FLORES-200（多言語対訳コーパス）は多言語比較で標準的に
+用いられるベンチマークである。この2種類を組み合わせることで，日本語特有の知識・言語表現を
+問うタスクと，多言語間で比較可能なタスクの両方をカバーする。
+
+\textbf{サンプルサイズの根拠}：ECE（10ビン）で各ビン平均25問を確保するため，
+1条件あたり最低250問が必要である（Roelofs et al. 2022の指摘に基づく）。
+条件プール型ECE（比較しない軸でプール）により，RQ単位では3,000〜4,000問で分析可能。
+
+\textbf{RQ4（日英比較）用の英語対応データセット}：MGSM↔GSM8K（同一問題の翻訳ペア），
+JCommonsenseQA↔CommonsenseQA（類似タスク），JMMLU↔MMLU（翻訳部分で同一問題比較可能），
+FLORES-200日→英↔英→日（同一ベンチマーク内で方向変更）。
+
+\subsection{プロンプト方式}
+
+Tian et al. 2023の知見を日本語に適用し，以下の3方式を比較する。
+いずれもプロンプト設計のみで実現し，logits・再学習は不要である。
+
+\subsubsection*{Verb.1S（回答と確信度を同時出力）}
+Xiong 2024のVanilla方式に対応。数学ドメインでの実際のプロンプトは以下の通り：
+\begin{quote}\ttfamily\small
+以下の数学の問題を読み，回答と，その回答が正しいと思う確率（確信度）を答えてください。
+確信度は0.0（まったく自信がない）から1.0（完全に確信している）の数値で表してください。\\
+問題: \{question\}\\
+以下の形式で回答してください。形式以外の出力はしないでください。\\
+回答: [数値のみ]\\
+確信度: [0.0〜1.0の数値]
+\end{quote}
+常識QA・知識QA・翻訳ドメインでは，回答形式指示部分のみドメイン固有の内容に置換する
+（詳細は\texttt{research/prompt-design-analysis.md}参照）。
+
+\subsubsection*{Verb.2S（別ターンで確信度を質問）}
+Xiong 2024のSelf-Probing／Tian 2023のTwo-Stageに対応。Turn 1で回答のみを取得し，
+同一セッション内のTurn 2で確信度を尋ねる。
+\begin{quote}\ttfamily\small
+[Turn 1] 以下の数学の問題に回答してください。\\
+問題: \{question\}\\
+回答: [数値のみ]\\[0.5em]
+[Turn 2] あなたは先ほどの問題に対して「\{answer\}」と回答しました。
+この回答が正しい確率を0.0から1.0の数値で答えてください。\\
+確信度: [0.0〜1.0の数値]
+\end{quote}
+回答と確信度評価を分離することで回答依存型の確信度を誘発する設計とした
+（ADVICE 2025の診断的知見：回答非依存性が過信の主因，という指摘を踏まえた設計判断であり，
+ADVICE自体のfine-tuning手法を採用するものではない）。
+
+\subsubsection*{Ling.1S（言語表現で確信度を表現）}
+Tian 2023のLinguistic方式に対応。
+\begin{quote}\ttfamily\small
+以下の数学の問題を読み，回答と，その回答に対する自信の度合いを答えてください。
+自信の度合いは以下の5つの表現から最も当てはまるものを1つ選んでください。\\
+・ほぼ確実　・かなり自信がある　・どちらともいえない　・あまり自信がない　・ほとんどわからない\\
+問題: \{question\}\\
+回答: [数値のみ]\\
+確信度: [上記5つの表現から1つ]
+\end{quote}
+
+数値マッピング：ほぼ確実=0.95／かなり自信がある=0.80／どちらともいえない=0.50／
+あまり自信がない=0.25／ほとんどわからない=0.05。
+このマッピングはTian et al. 2023のアンカーを踏襲するが，対応表の設定自体が
+キャリブレーション精度に影響しうるため，マッピング値±0.05の感度分析をECEと併せて報告する。
+
+\subsubsection*{CoTを独立条件にしない理由}
+Chain-of-ThoughtはXiong 2024で評価されているが，本研究では採用しない。理由は
+(1) 推論の一貫性向上が過信助長につながる場合がある，(2) 正答率自体を変化させるため
+確信度設計の効果と分離困難，(3) 条件数倍増によるコスト増大，の3点。将来の拡張として
+位置づける。
+
+\subsection{評価指標}
+
+\subsubsection*{主指標}
+
+\begin{align}
+  \text{ECE} &= \sum_{m=1}^{M} \frac{|B_m|}{n} \left|\text{acc}(B_m) - \text{conf}(B_m)\right| \\
+  \text{BS (Brier Score)} &= \frac{1}{N} \sum_{i=1}^{N} (p_i - y_i)^2
+\end{align}
+
+ECEは等幅ビンM=10（区間[0,1]を0.1刻み）で計算し，Tian 2023・Xiong 2024と同一指標で比較可能とする。
+Brier ScoreはProper Scoring Ruleであり，ビニング不要という利点を持つ。
+
+\begin{center}
+\begin{tabular}{p{0.2\textwidth}p{0.15\textwidth}p{0.2\textwidth}p{0.35\textwidth}}
+\toprule
+指標 & 値の範囲 & 大小の意味 & 似た指標との違い \\
+\midrule
+ECE & 0以上（0〜1） & 0に近いほど良い & ビン分割が必要，先行研究との直接比較に使う \\
+Brier Score & 0以上（0〜1） & 0に近いほど良い & ビン分割不要，Proper Scoring Ruleとして理論的保証あり \\
+AUROC & 0〜1 & 1に近いほど識別能力が高い & 較正ではなく識別能力（正誤の見分けやすさ）を測る，ECEと直交する性質 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{補足指標：Murphy分解（探索的オプション）}
+
+Brier Scoreは以下のように3成分へ加法的に分解できる（Murphy 1973 \cite{murphy1973vector}，
+Bröcker 2009 \cite{brocker2009reliability} により任意のProper Scoring Ruleへ一般化済み，
+Pohle 2020 \cite{pohle2020murphy} によりCalibration-Resolution Principleとして統一理論化）。
+
+\begin{align}
+  \text{BS} &= \text{REL} - \text{RES} + \text{UNC} \\
+  \text{REL} &= \sum_k \frac{n_k}{n}(\bar{f}_k - \bar{o}_k)^2 \quad \text{（低いほど良：キャリブレーション誤差）} \\
+  \text{RES} &= \sum_k \frac{n_k}{n}(\bar{o}_k - \bar{o})^2 \quad \text{（高いほど良：識別能力）} \\
+  \text{UNC} &= \bar{o}(1-\bar{o}) \quad \text{（データ固有の定数，制御不能）}
+\end{align}
+
+著者らが調査した範囲では，LLMの確信度評価にMurphy分解を適用した研究は現時点で存在しない
+（\texttt{research/brier-score-murphy-decomposition-survey.md}参照）。ただし，これは
+本研究の\textbf{主軸ではなく}，補足的な探索的オプションと位置づける。統計的有意性には
+Ferro \& Fricker 2012 \cite{ferro2012decomposition} の分散推定による信頼区間を用い，
+感度分析としてビン数M=5,10,15での順位安定性を確認する。
+
+\textbf{採用・破棄の判断基準}（実験後に照合）：
+
+\begin{center}
+\begin{tabular}{p{0.55\textwidth}p{0.35\textwidth}}
+\toprule
+条件 & 判断 \\
+\midrule
+プロンプト条件間でRELとRESが逆方向に動くケースが存在する & 採用：機序の説明に使える \\
+RELの順位とECEの順位が完全に一致する & 破棄：ECEと重複しており追加情報なし \\
+RESの順位とAUROCの順位が完全に一致する & 破棄：AUROCと重複しており追加情報なし \\
+実験結果を見て「Murphy分解がなくても考察できる」と判断 & 破棄：メインプランに戻る \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+実装は完了済み（\texttt{research/experiment/pilot/calibration.py}）で，完全較正な合成データ
+（n=1000）を用いた数値検証では REL=0.0069，RES=0.0901，UNC=0.2480が得られ，
+直接計算したBrier Score（0.1650）とREL−RES+UNC（0.1648）の差は0.000190であり，
+分位点分割に起因する既知の誤差範囲内であることを確認した。
+
+\subsection{正答判定方法}
+
+数学（MGSM）：正規化完全一致（抽出数値 == 正解数値）。
+常識・知識（JCommonsenseQA・JMMLU）：選択肢ラベル一致。
+翻訳（FLORES-200）：COMETスコア閾値（50文の人間二値判定でF1最適化して決定）を主判定とし，
+LLM-as-a-Judge \cite{zheng2023judging} は境界サンプルの検証手段として使用する
+（バイアス・再現性の問題を回避するため，主判定には用いない）。
+翻訳ドメインでは閾値±0.05の感度分析をECEと併せて報告する。
+
+\subsection{実験統制}
+
+temperature=0で全モデルへの問い合わせを行い，同一問題への確信度ばらつきを排除する。
+システムプロンプトは使用せず，モデルデフォルト動作への影響を排除する。
+大量のAPI呼び出しに伴い，モデルが指定形式に従わず確信度を解析できないケースが
+一定割合で発生することが見込まれるため，解析に失敗した回答は分母から除外して集計し，
+失敗率自体もモデル・方式ごとに報告する。またAPIのレート制限に対しては
+exponential backoffによる自動再試行を実装し（\texttt{run\_pilot.py}に実装済み），
+安定した実行を確保する。
+
+\subsection{検証仮説}
+
+\begin{center}
+\begin{tabular}{p{0.08\textwidth}p{0.45\textwidth}p{0.4\textwidth}}
+\toprule
+仮説 & 内容 & 根拠・予想の理由 \\
+\midrule
+H1 & Verb.2SはVerb.1SよりECEを改善する & 2段階の自己参照が確信度スケールを較正する。回答後に確信度を聞くことで回答への接地が生じる（ADVICE 2025の診断的知見） \\
+H2 & Ling.1Sは数値表現方式より改善幅が小さい & 離散的な言語→数値マッピングが情報を圧縮するため \\
+H3 & 改善幅はタスクドメインにより異なる & ドメインごとの正答率分布・難易度の違いによる \\
+H4 & 日本語での改善幅は英語より小さい & MlingConf 2025の実測でも，Verb.手法のECEは英語より日本語で悪化する傾向が複数タスクで観測されている（例：TriviaQA・GPT-3.5条件で英語ECE=16.52 vs 日本語ECE=34.49） \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{想定される結果パターンと考察方針}
+
+本実験で得られる結果のパターンとして，主に次の3通りを想定する（モデル×方式の結果空間に
+対して排他的・網羅的に分類できることを確認済み）。
+
+\begin{enumerate}
+  \item[(a)] プロンプト方式間で較正性能に明確な差が見られる場合：統計検定（Friedman検定
+        またはWilcoxon検定）によりその差の有意性を確認したうえで，どのような設計上の
+        違いがその差を生んでいるかを考察する。
+  \item[(b)] 方式間に有意な差が見られない場合：「聞き方の違いは較正性能に大きく影響しない」
+        という知見自体を報告し，先行研究（MlingConf等）の結果と突き合わせて解釈する。
+  \item[(c)] モデルによって効果の出方が異なる場合（例えば一部のモデルでのみ改善が見られる
+        場合）：モデルの指示追従能力や学習データの違いとの関連を考察する。
+\end{enumerate}
+
+いずれの結果になっても，何らかの形で報告可能な知見として整理する方針である。
+
+\subsection{実験手順}
+
+\begin{enumerate}
+  \item 問題1,000問（4ドメイン×250問）をスプレッドシートに整備（正解ラベル付き）
+  \item Pythonスクリプトで各モデルに一括問い合わせ
+  \item 回答と確信度をCSVに保存
+  \item 正誤判定を自動＋人手で確認
+  \item 指標を計算・可視化（Reliability Diagramを含む）
+  \item 統計検定を行う
+\end{enumerate}
+
+% =====================================================================
+\section{現在の進捗}
+% =====================================================================
+
+現時点までに，以下の準備を完了している。
+
+\subsection{データセット・正答判定方法の設計}
+
+4ドメイン（数学・常識・知識・翻訳）それぞれについて使用するデータセットを決定し，
+各ドメインの正答判定基準（数値の完全一致，選択肢ラベル一致，翻訳品質スコアの閾値等）を
+先行研究の手法と比較したうえで確定した（\texttt{research/dataset-selection-analysis.md}，
+\texttt{research/answer-judgment-analysis.md}）。
+
+\subsection{プロンプトテンプレートの実装}
+
+3方式（Verb.1S/Verb.2S/Ling.1S）それぞれについて，4ドメイン分のプロンプトテンプレートを
+作成した（\texttt{research/experiment/pilot/prompts.py}）。Verb.2Sは2ターン構成となるため，
+会話履歴を保持したまま2回目の問い合わせを行う処理を実装している。また，モデルの出力から
+回答と確信度を自動的に取り出す解析処理，および言語表現を数値に変換する対応表も実装済みである。
+
+\subsection{評価指標コードの実装と数値検証}
+
+ECE・Brier Score・AUROCを計算するプログラムを実装し（\texttt{research/experiment/pilot/calibration.py}），
+既知の性質を持つ人工データを用いて計算結果が理論値と一致することを数値的に確認した。
+補足的な切り口として検討しているMurphy分解についても同様に実装・検証済みである
+（\S3.6参照）。
+
+\subsection{実験実行スクリプトの整備}
+
+3方式対応の実験実行スクリプト（\texttt{research/experiment/pilot/run\_pilot.py}）を整備した。
+OpenAI/Anthropic/Geminiの各APIへの呼び出し，確信度の正規化（0.0〜1.0への統一），
+Verb.2Sの2ターン会話フロー，exponential backoffによるレート制限対策，
+パース失敗の記録とJSON形式でのサマリー出力（ECE/Brier/AUROC/Murphy分解を含む）までを実装済み。
+
+\subsection{先行研究の再調査}
+
+先行研究の再調査を行い，MlingConf \cite{xue2025mlingconf} が日本語を含む多言語で
+確信度手法の検証を既に行っていることを確認した。この結果を踏まえ，本研究の新規性の主張を
+「方式間比較・日本語ネイティブデータセット・現行世代モデル」の3点に絞り込んで精緻化した
+(\S1.6参照)。また，Jang et al. 2025「Verbalized Confidence Triggers Self-Verification」を
+Verb.2Sの理論的裏付けとして引用していた誤りを発見し訂正した：同論文はLoRAによる
+fine-tuningでCoT推論に自己検証行動を誘発する手法であり，本研究のプロンプトのみのVerb.2Sとは
+本質的に異なるため，引用から除外した。
+
+\subsection{未完了事項}
+
+実際のAPIを用いた本実験・パイロット実験は未実施であり，日本語タスクでの実測に基づく
+較正性能の結果はまだ得られていない。
+
+% =====================================================================
+\section{今後の予定}
+% =====================================================================
+
+\subsection{直近のスケジュール}
+
+\begin{itemize}
+  \item \textbf{2026年7月中旬}：パイロット実験（少数モデル・少数問題）でスクリプトの動作確認。
+        出力形式の解析に問題が見つかった場合は，プロンプトの指示文や出力形式の指定を
+        修正したうえで再度確認する。
+  \item \textbf{2026年7月17日}：中間発表概要2ページをLETUSに提出（12:00締切）
+  \item \textbf{2026年7月20〜27日}：中間発表会（6分＋質疑3分）
+  \item \textbf{2026年8月5日}：再発表日（必要な場合）
+  \item \textbf{2026年8〜9月}：本実験実施（4〜6モデル×3方式×1,000問），
+        確信度プロンプト方式間の差と現行モデルでの再現性を検証
+  \item \textbf{2026年10〜11月}：結果分析・統計検定・各章の草稿完成。実験データが十分に
+        得られた場合は，Murphy分解によるREL/RES分離分析を補足的な考察として追加する
+  \item \textbf{2026年12月}：最終稿作成
+  \item \textbf{2027年1月}：卒業論文提出
+\end{itemize}
+
+\subsection{スコープ縮小のトリガー}
+
+進捗が遅れた場合，段階的にスコープを縮小する。
+\begin{itemize}
+  \item \textbf{レベル1}（7月末50\%未達）：3モデル×3プロンプト方式に縮小
+  \item \textbf{レベル2}（9月末40\%未達）：2モデル×2ドメイン×2プロンプト方式
+  \item \textbf{レベル3}（11月末30\%未達）：Claude単独×2ドメイン×50問（論文成立最低ライン）
+\end{itemize}
+
+\subsection{予想される成果}
+
+\begin{itemize}
+  \item 日本語タスクにおける複数モデルのキャリブレーション性能の定量的評価
+  \item プロンプト方式（Verb.1S/Verb.2S/Ling.1S）による性能差の特定と最適方式の提案
+  \item ドメイン依存性の可視化（数学 vs 常識 vs 知識 vs 翻訳での差異）
+  \item 日本語vs英語でのキャリブレーション性能差に関する知見
+  \item 日本語ユーザー向けの「効果的な確信度引き出しプロンプト」の実務的指針
+\end{itemize}
+
+\subsection{必要なリソースとコスト}
+
+API使用料は全実験・4〜6モデル合計で約9,000〜12,000コール（バッファ込み）を見込み，
+概算コストは約1,500〜3,000円（研究室予算50,000円の約6\%以内）。
+オープンソースモデル（Swallow・ELYZA・Qwen）はローカル実行またはHugging Face無料枠のため
+追加コストは発生しない。計算機・ソフトウェア・執筆環境（LaTeX）はいずれも既存のものを使用。
+
+\subsection{リスクと対応策}
+
+\begin{center}
+\begin{tabular}{p{0.3\textwidth}p{0.1\textwidth}p{0.5\textwidth}}
+\toprule
+リスク & 影響 & 対応策 \\
+\midrule
+API費用の超過 & 中 & 問題数を減らす，無料枠活用 \\
+モデルバージョン変更 & 中 & 使用日時を記録，再現不能を明示 \\
+データセットの正解精度 & 高 & 複数ソース，人手での再確認 \\
+思ったほど差が出ない & 中 & 「差がない」ことも成果として報告（\S3.8参照） \\
+時間超過 & 中 & 実験3（日英比較）を省略可能と位置づけ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{倫理的配慮}
+
+人を対象とする実験は行わないため，倫理審査は不要と考えられる（指導教員に確認予定）。
+各モデルの利用規約を遵守し，生成された出力の著作権・引用ルールに従う。
+
+% =====================================================================
+\section{参考文献}
+% =====================================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{ji2023survey} Ji, Z., et al. (2023). Survey of Hallucination in Natural Language Generation. \textit{ACM Computing Surveys}, 55(12), 1--38.
+
+\bibitem{guo2017calibration} Guo, C., Pleiss, G., Sun, Y., \& Weinberger, K. Q. (2017). On Calibration of Modern Neural Networks. \textit{ICML 2017}.
+
+\bibitem{kadavath2022} Kadavath, S., et al. (2022). Language Models (Mostly) Know What They Know. \textit{arXiv:2207.05221}.
+
+\bibitem{lin2022} Lin, S., Hilton, J., \& Evans, O. (2022). Teaching Models to Express Their Uncertainty in Words. \textit{TMLR}.
+
+\bibitem{tian2023justask} Tian, K., Mitchell, E., Zhou, A., et al. (2023). Just Ask for Calibration: Strategies for Eliciting Calibrated Confidence Scores from Language Models Fine-Tuned with Human Feedback. \textit{EMNLP 2023}.
+
+\bibitem{xiong2024llmuncertainty} Xiong, M., Hu, Z., Lu, X., et al. (2024). Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in LLMs. \textit{ICLR 2024}.
+
+\bibitem{zheng2023judging} Zheng, L., Chiang, W.-L., Sheng, Y., et al. (2023). Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. \textit{NeurIPS 2023}.
+
+\bibitem{yang2024verbalizedscores} Yang, D., Tsai, Y.-H. H., \& Yamada, M. (2024). On Verbalized Confidence Scores for LLMs. \textit{arXiv:2412.14737}.
+
+\bibitem{dai2025rescaling} Dai, Y., Wang, Y. (2025). Rescaling Confidence: What Scale Design Reveals About LLM Metacognition. \textit{arXiv:2603.09309}.
+
+\bibitem{xue2025mlingconf} Xue, B., Wang, H., Wang, R., et al. (2025). MlingConf: A Comprehensive Study of Multilingual Confidence Estimation on Large Language Models. \textit{Findings of ACL 2025}, 2535--2556.
+
+\bibitem{seo2025advice} Seo, K. J., Lim, S., Kim, T. (2025). ADVICE: Answer-Dependent Verbalized Confidence Estimation. \textit{arXiv:2510.10913}.
+
+\bibitem{li2025conftuner} Li, Y., Xiong, M., Wu, J., \& Hooi, B. (2025). ConfTuner: Training Large Language Models to Express Their Confidence Verbally. \textit{arXiv:2508.18847}.
+
+\bibitem{xie2024blackboxsurvey} Xie, L., Liu, H., Zeng, J., et al. (2024). A Survey of Calibration Process for Black-Box LLMs. \textit{arXiv:2412.12767}.
+
+\bibitem{xie2024adaptivetemp} Xie, J., Chen, A. S., Lee, Y., et al. (2024). Calibrating Language Models with Adaptive Temperature Scaling. \textit{EMNLP 2024}.
+
+\bibitem{estienne2023prioradaptation} Estienne, L., Ferrer, L., Vera, M., \& Piantanida, P. (2023). Unsupervised Calibration through Prior Adaptation for Text Classification using Large Language Models. \textit{arXiv:2307.06713}.
+
+\bibitem{xiao2025restoringcalibration} Xiao, J., Hou, B., Wang, Z., et al. (2025). Restoring Calibration for Aligned Large Language Models: A Calibration-Aware Fine-Tuning Approach. \textit{arXiv:2505.01997}.
+
+\bibitem{xia2025influences} Xia, Y., Luz de Araujo, P. H., Zaporojets, K., \& Roth, B. (2025). Influences on LLM Calibration: A Study of Response Agreement, Loss Functions, and Prompt Styles. \textit{ACL 2025}.
+
+\bibitem{naderi2025medicalprompt} Naderi, N., Atf, Z., Lewis, P. R., et al. (2025). Evaluating Prompt Engineering Techniques for Accuracy and Confidence Elicitation in Medical LLMs. \textit{arXiv:2506.00072}.
+
+\bibitem{murphy1973vector} Murphy, A. H. (1973). A New Vector Partition of the Probability Score. \textit{J. Applied Meteorology}, 12(4), 595--600.
+
+\bibitem{brocker2009reliability} Bröcker, J. (2009). Reliability, Sufficiency, and the Decomposition of Proper Scores. \textit{QJRMS}, 135(643), 1512--1519.
+
+\bibitem{pohle2020murphy} Pohle, M.-O. (2020). The Murphy Decomposition and the Calibration-Resolution Principle: A New Perspective on Forecast Evaluation. \textit{arXiv:2005.01835}.
+
+\bibitem{ferro2012decomposition} Ferro, C. A. T., \& Fricker, T. E. (2012). A Bias-Corrected Decomposition of the Brier Score. \textit{QJRMS}, 138(668), 1954--1960.
+
+\bibitem{rei2020comet} Rei, R., Stewart, C., Farinha, A. C., \& Lavie, A. (2020). COMET: A Neural Framework for MT Evaluation. \textit{EMNLP 2020}.
+
+\bibitem{zhang2020bertscore} Zhang, T., Kishore, V., Wu, F., Weinberger, K. Q., \& Artzi, Y. (2020). BERTScore: Evaluating Text Generation with BERT. \textit{ICLR 2020}.
+
+\bibitem{kocmi2023gemba} Kocmi, T., \& Federmann, C. (2023). Large Language Models Are State-of-the-Art Evaluators of Translation Quality. \textit{EAMT 2023}.
+
+\bibitem{kocmi2023gembamqm} Kocmi, T., \& Federmann, C. (2023). GEMBA-MQM: Detecting Translation Quality Error Spans with GPT-4. \textit{WMT 2023}.
+
+\bibitem{saito2023verbosity} Saito, K., Wachi, A., Wataoka, K., \& Akimoto, Y. (2023). Verbosity Bias in Preference Labeling by Large Language Models. \textit{arXiv:2310.10076}.
+
+\bibitem{shi2025judgingjudges} Shi, L., Ma, C., Liang, W., et al. (2025). Judging the Judges: A Systematic Study of Position Bias in LLM-as-a-Judge. \textit{IJCNLP-AACL 2025}.
+
+\bibitem{ye2024justiceprejudice} Ye, J., Wang, Y., Huang, Y., et al. (2024). Justice or Prejudice? Quantifying Biases in LLM-as-a-Judge. \textit{arXiv:2410.02736}.
+
+\bibitem{hendrycks2021mmlu} Hendrycks, D., et al. (2021). Measuring Massive Multitask Language Understanding. \textit{ICLR 2021}.
+
+\bibitem{cobbe2021gsm8k} Cobbe, K., et al. (2021). Training Verifiers to Solve Math Word Problems. \textit{arXiv:2110.14168}.
+
+\bibitem{shi2023mgsm} Shi, F., Suzgun, M., Freitag, M., et al. (2023). Language Models are Multilingual Chain-of-Thought Reasoners. \textit{ICLR 2023}.
+
+\end{thebibliography}
+
+\end{document}
