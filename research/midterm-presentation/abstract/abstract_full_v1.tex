@@ -202,7 +202,7 @@ ECEが英語16.52に対し日本語34.49と大きく悪化するなど，複数�
 ⑧ 確信度を答えの後に聞くと過信が減る可能性 & 確信度の「回答非依存性」が過信の主因，回答に接地させると改善（診断的知見。ADVICE自体はfine-tuning手法であり，本研究はこの診断的知見のみを引用する） & Seo et al. 2025 (ADVICE) \\
 ⑨ 商用APIではPost-hoc/Fine-tuningが使えない & logits非公開・パラメータ非公開のためプロンプト設計のみが実行可能な手段 & Xie et al. 2024 (Black-Box Survey) \\
 \textbf{⑩ 本研究の位置} & 上記①〜⑨を踏まえ，日本語ネイティブなデータセット上で，Verb.1S/Verb.2S/Ling.1Sという3つのプロンプト方式の\textbf{方式間の差}を明らかにし，その効果が現行世代モデルでも\textbf{再現されるか}を検証する & 本研究のRQ0〜RQ4 \\
-（オプション）⑪ 効果の内訳を分離する視点もある & Brier Scoreは較正誤差(REL)と識別能力(RES)に分解できる。本実験データが十分なら発展させる & Bröcker 2009; Pohle 2020（探索的オプション，§3.7参照） \\
+（オプション）⑪ 効果の内訳を分離する視点もある & Brier Scoreは較正誤差(REL)と識別能力(RES)に分解できる。本実験データが十分なら発展させる & Bröcker 2009; Pohle 2020（探索的オプション，§5.2参照） \\
 \bottomrule
 \end{longtable}
 
@@ -414,45 +414,6 @@ AUROC & 0〜1 & 1に近いほど識別能力が高い & 較正ではなく識別
 \end{tabular}
 \end{center}
 
-\subsubsection*{補足指標：Murphy分解（探索的オプション）}
-
-Brier Scoreは以下のように3成分へ加法的に分解できる（Murphy 1973 \cite{murphy1973vector}，
-Bröcker 2009 \cite{brocker2009reliability} により任意のProper Scoring Ruleへ一般化済み，
-Pohle 2020 \cite{pohle2020murphy} によりCalibration-Resolution Principleとして統一理論化）。
-
-\begin{align}
-  \text{BS} &= \text{REL} - \text{RES} + \text{UNC} \\
-  \text{REL} &= \sum_k \frac{n_k}{n}(\bar{f}_k - \bar{o}_k)^2 \quad \text{（低いほど良：キャリブレーション誤差）} \\
-  \text{RES} &= \sum_k \frac{n_k}{n}(\bar{o}_k - \bar{o})^2 \quad \text{（高いほど良：識別能力）} \\
-  \text{UNC} &= \bar{o}(1-\bar{o}) \quad \text{（データ固有の定数，制御不能）}
-\end{align}
-
-著者らが調査した範囲では，LLMの確信度評価にMurphy分解を適用した研究は現時点で存在しない
-（\texttt{research/brier-score-murphy-decomposition-survey.md}参照）。ただし，これは
-本研究の\textbf{主軸ではなく}，補足的な探索的オプションと位置づける。統計的有意性には
-Ferro \& Fricker 2012 \cite{ferro2012decomposition} の分散推定による信頼区間を用い，
-感度分析としてビン数M=5,10,15での順位安定性を確認する。
-
-\textbf{採用・破棄の判断基準}（実験後に照合）：
-
-\begin{center}
-\begin{tabular}{p{0.55\textwidth}p{0.35\textwidth}}
-\toprule
-条件 & 判断 \\
-\midrule
-プロンプト条件間でRELとRESが逆方向に動くケースが存在する & 採用：機序の説明に使える \\
-RELの順位とECEの順位が完全に一致する & 破棄：ECEと重複しており追加情報なし \\
-RESの順位とAUROCの順位が完全に一致する & 破棄：AUROCと重複しており追加情報なし \\
-実験結果を見て「Murphy分解がなくても考察できる」と判断 & 破棄：メインプランに戻る \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-実装は完了済み（\texttt{research/experiment/pilot/calibration.py}）で，完全較正な合成データ
-（n=1000）を用いた数値検証では REL=0.0069，RES=0.0901，UNC=0.2480が得られ，
-直接計算したBrier Score（0.1650）とREL−RES+UNC（0.1648）の差は0.000190であり，
-分位点分割に起因する既知の誤差範囲内であることを確認した。
-
 \subsection{正答判定方法}
 
 数学（MGSM）：正規化完全一致（抽出数値 == 正解数値）。
@@ -539,15 +500,18 @@ H4 & 日本語での改善幅は英語より小さい & MlingConf 2025の実測�
 
 ECE・Brier Score・AUROCを計算するプログラムを実装し（\texttt{research/experiment/pilot/calibration.py}），
 既知の性質を持つ人工データを用いて計算結果が理論値と一致することを数値的に確認した。
-補足的な切り口として検討しているMurphy分解についても同様に実装・検証済みである
-（\S3.6参照）。
+採用を確定していない補足的なオプションであるMurphy分解（\S5.2参照）についても，
+同じコード内に実装済みであり，完全較正な合成データ（n=1000）を用いた数値検証では
+REL=0.0069，RES=0.0901，UNC=0.2480が得られ，直接計算したBrier Score（0.1650）と
+REL−RES+UNC（0.1648）の差は0.000190であり，分位点分割に起因する既知の誤差範囲内で
+あることを確認した。
 
 \subsection{実験実行スクリプトの整備}
 
 3方式対応の実験実行スクリプト（\texttt{research/experiment/pilot/run\_pilot.py}）を整備した。
 OpenAI/Anthropic/Geminiの各APIへの呼び出し，確信度の正規化（0.0〜1.0への統一），
 Verb.2Sの2ターン会話フロー，exponential backoffによるレート制限対策，
-パース失敗の記録とJSON形式でのサマリー出力（ECE/Brier/AUROC/Murphy分解を含む）までを実装済み。
+パース失敗の記録とJSON形式でのサマリー出力（ECE/Brier/AUROC，および採否未確定のMurphy分解を含む）までを実装済み。
 
 \subsection{先行研究の再調査}
 
@@ -584,6 +548,27 @@ fine-tuningでCoT推論に自己検証行動を誘発する手法であり，本
   \item \textbf{2026年12月}：最終稿作成
   \item \textbf{2027年1月}：卒業論文提出
 \end{itemize}
+
+\subsection{Murphy分解（探索的オプション）の扱い}
+
+研究の方針の主軸はあくまでECE・Brier Score・AUROCの3指標であり，Murphy分解の採用は
+現時点で確定していない。本実験のデータが十分に得られた場合にのみ，補足的な考察として
+以下の分解を検討する。
+
+\begin{align}
+  \text{BS} &= \text{REL} - \text{RES} + \text{UNC}
+\end{align}
+
+ここで$\text{REL} = \sum_k \frac{n_k}{n}(\bar{f}_k - \bar{o}_k)^2$（較正誤差，低いほど良い），
+$\text{RES} = \sum_k \frac{n_k}{n}(\bar{o}_k - \bar{o})^2$（識別能力，高いほど良い），
+$\text{UNC} = \bar{o}(1-\bar{o})$（データ固有の定数）であり，$n_k$はビン$k$のサンプル数，
+$\bar{f}_k$・$\bar{o}_k$はビン$k$内の平均確信度・平均正答率，$\bar{o}$は全体の平均正答率を表す
+（Murphy 1973 \cite{murphy1973vector}，Bröcker 2009 \cite{brocker2009reliability} により
+任意のProper Scoring Ruleへ一般化済み）。
+
+採否は実験後に以下の基準で判断する：プロンプト条件間でRELとRESが逆方向に動くケースが
+あれば採用（機序の説明に使える），RELの順位がECEの順位と完全に一致する，または
+RESの順位がAUROCの順位と完全に一致する場合は破棄（既存指標と重複し追加情報がないため）。
 
 \subsection{スコープ縮小のトリガー}
 
