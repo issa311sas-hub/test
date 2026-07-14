@@ -127,7 +127,7 @@ $\text{acc}(B_m)$・$\text{conf}(B_m)$はそれぞれビン$B_m$内の平均正�
 $\text{Neg}$として，以下のノンパラメトリックな形（Mann–Whitney U統計量の正規化）で計算する．
 \begin{align}
   \text{AUROC} = \frac{1}{|\text{Pos}||\text{Neg}|} \sum_{p \in \text{Pos}} \sum_{q \in \text{Neg}}
-  \left( \mathbb{1}[p > q] + \tfrac{1}{2}\mathbb{1}[p = q] \right)
+  \left( \mathbf{1}[p > q] + \tfrac{1}{2}\mathbf{1}[p = q] \right)
 \end{align}
 すなわち，正解サンプルの確信度が不正解サンプルの確信度を上回る割合を表し，
 確信度が正誤をどれだけ識別できているか（識別能力）を測る．

@@ -393,7 +393,7 @@ Brier ScoreはProper Scoring Ruleであり，ビニング不要という利点�
 
 \begin{align}
   \text{AUROC} = \frac{1}{|\text{Pos}||\text{Neg}|} \sum_{p \in \text{Pos}} \sum_{q \in \text{Neg}}
-  \left( \mathbb{1}[p > q] + \tfrac{1}{2}\mathbb{1}[p = q] \right)
+  \left( \mathbf{1}[p > q] + \tfrac{1}{2}\mathbf{1}[p = q] \right)
 \end{align}
 
 すなわち，ランダムに選んだ正解サンプルの確信度が，ランダムに選んだ不正解サンプルの確信度を
