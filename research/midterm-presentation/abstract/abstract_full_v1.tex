@@ -378,6 +378,10 @@ Chain-of-ThoughtはXiong 2024で評価されているが，本研究では採用
   \text{BS (Brier Score)} &= \frac{1}{N} \sum_{i=1}^{N} (p_i - y_i)^2
 \end{align}
 
+ここで$M$はビン数，$B_m$は確信度を$m$番目のビンに分割した際の集合，$n$はサンプル総数，
+$\text{acc}(B_m)$・$\text{conf}(B_m)$はそれぞれビン$B_m$内の平均正答率・平均確信度である。
+また$N$は問題数，$p_i$は$i$番目の問題への予測確信度，$y_i$は正誤（正解なら1，不正解なら0）を表す。
+
 ECEは等幅ビンM=10（区間[0,1]を0.1刻み）で計算し，Tian 2023・Xiong 2024と同一指標で比較可能とする。
 Brier ScoreはProper Scoring Ruleであり，ビニング不要という利点を持つ。
 

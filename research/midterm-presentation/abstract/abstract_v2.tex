@@ -119,6 +119,9 @@ Ling.1S の言語表現から数値への対応表は Tian ら\cite{tian2023just
   \text{ECE} &= \sum_{m=1}^{M} \frac{|B_m|}{n} \left|\text{acc}(B_m) - \text{conf}(B_m)\right| \\
   \text{BS} &= \frac{1}{N} \sum_{i=1}^{N} (p_i - y_i)^2
 \end{align}
+ここで$M$はビン数，$B_m$は確信度を$m$番目のビンに分割した際の集合，$n$はサンプル総数，
+$\text{acc}(B_m)$・$\text{conf}(B_m)$はそれぞれビン$B_m$内の平均正答率・平均確信度である．
+また$N$は問題数，$p_i$は$i$番目の問題への予測確信度，$y_i$は正誤（正解なら1，不正解なら0）を表す．
 
 主指標は ECE・Brier Score・AUROC とする．補足的な切り口として，
 Murphy 分解\cite{murphy1973vector}（$\text{BS} = \text{REL} - \text{RES} + \text{UNC}$，
