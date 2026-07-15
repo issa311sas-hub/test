@@ -1,0 +1,304 @@
+% =====================================================================
+% 中間発表 Beamer スライド
+% 元ネタ: ユーザー最終調整版アブストラクト（0715ver_E_7422048_resume.pdf）
+% デザイン方針: research/presentations/slide-design-rules.md を適用
+%   - 1スライド1メッセージ、比較は表、参考文献は下部、⇔不使用、
+%     グレー文字不使用、フォントは可読性重視、まとめスライドを最後に配置
+% =====================================================================
+\documentclass[11pt,aspectratio=169]{beamer}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+% \usepackage{luatexja} % 日本語組版時（LuaLaTeXでコンパイルする場合）に有効化
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+
+\usetheme{default}
+\beamertemplatenavigationsymbolsempty
+
+% --- 配色（グレー・薄色文字は使わない） ---
+\definecolor{cAccent}{RGB}{26,86,170}
+\definecolor{cAccent2}{RGB}{176,42,30}
+\definecolor{cDark}{RGB}{20,20,30}
+\definecolor{cLightBg}{RGB}{236,241,249}
+\definecolor{cGapBg}{RGB}{251,236,234}
+
+\setbeamercolor{title}{fg=white,bg=cAccent}
+\setbeamercolor{frametitle}{fg=cDark,bg=white}
+\setbeamercolor{normal text}{fg=cDark}
+\setbeamercolor{item}{fg=cAccent}
+\setbeamercolor{block title}{fg=white,bg=cAccent}
+\setbeamercolor{block body}{fg=cDark,bg=cLightBg}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamertemplate{itemize items}[circle]
+
+% ページ番号を n/総数 の形式でフッターに表示
+\setbeamertemplate{footline}{%
+  \hfill\raisebox{2pt}{\color{cAccent}\scriptsize\insertframenumber/\inserttotalframenumber}\hspace{4pt}\vspace{4pt}
+}
+
+\title{\textbf{確信度プロンプト方式の比較による\\LLMキャリブレーション性能の検証}}
+\author{グループE\quad 秦野研究室\quad 7422048\quad 指田一茶}
+\date{}
+
+\begin{document}
+
+% =====================================================================
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+% =====================================================================
+\begin{frame}{本日伝えたいこと}
+\begin{block}{}
+\centering\large
+日本語タスクにおいて確信度プロンプト方式の違いがキャリブレーション性能に
+どのような差をもたらすか，現行世代の商用LLMで実証的に検証する
+\end{block}
+\vspace{1em}
+研究設計・実装は完了，実験の実行はこれから
+\end{frame}
+
+% =====================================================================
+\begin{frame}{目次}
+\begin{enumerate}
+  \item 研究背景
+  \item 研究目的
+  \item 研究の方針
+  \item 現在の進捗
+  \item 今後の予定
+\end{enumerate}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{背景①：ハルシネーションとキャリブレーション}
+\begin{itemize}
+  \item LLMは教育・業務・日常生活へ急速に普及しているが，
+        ハルシネーション（誤情報を正しい情報かのように生成する問題）が残っている\cite{ji2023}
+  \item 問題点は，モデルが示す確信度と実際の正答率の乖離にある
+  \item 確信度が正答率と整合していれば，利用者はそれをリスク判断の手がかりにできる
+  \item この性質を\textbf{キャリブレーション}と呼び，ズレの大きさはECE等の指標で
+        定量化される\cite{guo2017}
+\end{itemize}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{背景②：なぜプロンプト設計なのか}
+\begin{itemize}
+  \item キャリブレーションの改善手法にはPost-hoc補正，ファインチューニング，
+        プロンプト設計などがある\cite{guo2017}
+  \item GPT，Claude，Geminiなどの商用LLMは内部関数の計算値やパラメータへの
+        アクセスを提供しない
+  \item $\Rightarrow$ モデルを問わずに実行可能な手段はプロンプト設計となる
+\end{itemize}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{背景③：先行研究は英語タスクで有効性を示した}
+\begin{itemize}
+  \item Tian et al. 2023\cite{tian2023}／Xiong et al. 2024\cite{xiong2024}は，
+        英語タスクにおいてプロンプト設計により確信度を言語で出力させる方式が
+        内部softmax確率より優れたキャリブレーション精度を達成することを示した
+  \item ECEを約50\%削減
+\end{itemize}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{背景④：MlingConfとの違い（新規性の精緻化）}
+Xue et al. 2025\cite{xue2025}（MlingConf）は日本語を含む5言語で同様の方式の
+有効性を確認しているが，以下の3点の限界がある。
+\begin{enumerate}
+  \item 確信度の聞き出し方が1手法のみで方式間の比較がない
+  \item 英語の問題を機械翻訳したデータセットのみを使用
+  \item 検証モデルがGPT-3.5，Llama-3.1という旧世代に限られる
+\end{enumerate}
+\begin{block}{}
+日本語ネイティブなタスク上での方式間比較や現行世代モデルでの再現性検証は
+行われていない。
+\end{block}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{研究目的}
+\begin{block}{本研究の目的}
+日本語タスクにおいて確信度プロンプト方式の違いがキャリブレーション性能の
+評価指標にどのような差をもたらすか，またその効果が実験時点での現行世代の
+商用LLMでも再現されるかを実証的に検証する
+\end{block}
+\vspace{0.5em}
+あわせて，モデル間・タスクドメイン間・日英言語間でキャリブレーション性能の
+改善パターンにどのような差があるかについても分析する。
+\end{frame}
+
+% =====================================================================
+\begin{frame}{方針①：実験の全体像}
+複数の商用LLMに対して日本語タスク上で3種類の確信度プロンプト方式を適用し，
+キャリブレーション精度を比較する実験を計画している。
+\begin{itemize}
+  \item \textbf{モデル}：GPT-4o，Claude Sonnet 4.6，Gemini 2.x，Swallow 等複数モデル
+  \item \textbf{データセット}：MGSM（数学），JCommonsenseQA（常識），
+        JMMLU（知識），FLORES-200（翻訳）
+  \item \textbf{プロンプト方式}：3種類を比較（次スライド）
+\end{itemize}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{方針②：3つのプロンプト方式}
+\begin{table}
+\begin{tabular}{ll}
+\toprule
+方式 & 内容 \\
+\midrule
+Verb.1S & 回答と確信度を同時出力 \\
+Verb.2S & Turn1で回答，Turn2で確信度を別途質問 \\
+Ling.1S & 言語表現で確信度を表現 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{方針③：評価指標 ECE}
+\[
+\text{ECE} = \sum_{m=1}^{M} \frac{|B_m|}{n} \left|\text{acc}(B_m) - \text{conf}(B_m)\right|
+\]
+\begin{table}
+\small
+\begin{tabular}{ll}
+\toprule
+記号 & 意味 \\
+\midrule
+$M$ & ビン数 \\
+$B_m$ & 確信度を$m$番目のビンに分割した際の集合 \\
+$n$ & サンプル総数 \\
+$\text{acc}(B_m)$，$\text{conf}(B_m)$ & ビン$B_m$内の平均正答率・平均確信度 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{方針④：評価指標 Brier Score}
+\[
+\text{Brier Score} = \frac{1}{N} \sum_{i=1}^{N} (p_i - y_i)^2
+\]
+\begin{table}
+\small
+\begin{tabular}{ll}
+\toprule
+記号 & 意味 \\
+\midrule
+$N$ & 問題数 \\
+$p_i$ & $i$番目の問題への予測確信度 \\
+$y_i$ & 正誤（正解なら1，不正解なら0） \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{方針⑤：評価指標 AUROC}
+\[
+\text{AUROC} = \frac{1}{|\text{Pos}||\text{Neg}|} \sum_{p \in \text{Pos}} \sum_{q \in \text{Neg}}
+\left( \mathbf{1}[p > q] + \tfrac{1}{2}\mathbf{1}[p = q] \right)
+\]
+\begin{itemize}
+  \item $\text{Pos}$：正解サンプルの確信度集合，$\text{Neg}$：不正解サンプルの確信度集合
+  \item 正解サンプルの確信度が不正解サンプルの確信度を上回る割合を表し，
+        確信度が正誤をどれだけ識別できているかを測る
+\end{itemize}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{方針⑥：正答判定}
+\begin{table}
+\small
+\begin{tabular}{ll}
+\toprule
+ドメイン & 正答判定 \\
+\midrule
+MGSM（数学） & 正規化完全一致 \\
+JCommonsenseQA・JMMLU（常識・知識） & 選択肢ラベル一致 \\
+FLORES-200（翻訳） & COMETスコア閾値 \\
+\bottomrule
+\end{tabular}
+\end{table}
+COMETスコア閾値は，50文の翻訳タスクを人間が二値判定し，F1スコアが
+最大となる値として決定する。
+\end{frame}
+
+% =====================================================================
+\begin{frame}{現在の進捗}
+前期では先行研究の調査を中心に行い，以下の準備を完了した。
+\begin{itemize}
+  \item データセットの選定と正答判定方法の設計（4ドメイン，先行研究と比較のうえ決定）
+  \item 3方式×4ドメイン分の日本語プロンプトと実行用プログラムの作成
+        （Verb.2Sの2ターン会話処理を含む）
+  \item ECE・Brier Score・AUROCを計算するプログラムの作成
+\end{itemize}
+\vspace{0.5em}
+一方で，実際のAPIを用いた実験は未実施であり，実測データはまだ得られていない。
+\end{frame}
+
+% =====================================================================
+\begin{frame}{今後の予定①：パイロット実験から本実験へ}
+\begin{itemize}
+  \item まず単一モデル・少数データでパイロット実験を実施し，プロンプト出力や
+        API呼び出しの安定性などスクリプトの動作確認を行う
+  \item 出力形式に問題が見つかった場合は，プロンプトの指示文や出力形式の
+        指定を修正し再度確認する
+  \item 動作確認後，複数モデル×3方式×大規模な問題数で本実験を実施し，
+        確信度プロンプト方式間の差と現行モデルでの再現性を検証する
+\end{itemize}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{今後の予定②：想定される結果パターン}
+\begin{enumerate}
+  \item[(a)] 方式間に明確な差 $\rightarrow$ 統計検定で有意性を確認し，
+        設計上の違いを考察
+  \item[(b)] 方式間に有意差なし $\rightarrow$ 「聞き方の違いは性能に大きく
+        影響しない」という知見を報告し，先行研究と合わせて解釈
+  \item[(c)] モデルにより効果が異なる $\rightarrow$ 指示追従能力や学習データの
+        違いとの関連を考察
+\end{enumerate}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{今後の予定③：Murphy分解（調査中の追加実験）}
+\begin{itemize}
+  \item 実験データが十分に得られた場合，Brier ScoreのMurphy分解による
+        キャリブレーション精度と識別能力の分解について追加実験を検討する
+  \item Murphy分解はBrier Scoreを信頼度・分離度・不確実性の各要素に
+        分解する統計手法であり，気象分野などで用いられる
+  \item LLM分野でMurphy分解自体に焦点を当てた研究は少なく，同分野での
+        利用可能性または利用されない背景の調査を検討する
+\end{itemize}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{参考文献}
+\footnotesize
+\begin{thebibliography}{9}
+\bibitem{ji2023} Ji, Z., et al. (2023). Survey of Hallucination in Natural Language Generation. \textit{ACM Computing Surveys}, 55(12), 1--38.
+\bibitem{guo2017} Guo, C., et al. (2017). On Calibration of Modern Neural Networks. \textit{Proc. ICML 2017}.
+\bibitem{tian2023} Tian, K., et al. (2023). Just Ask for Calibration. \textit{Proc. EMNLP 2023}.
+\bibitem{xiong2024} Xiong, M., et al. (2024). Can LLMs Express Their Uncertainty? \textit{Proc. ICLR 2024}.
+\bibitem{xue2025} Xue, B., et al. (2025). MlingConf: A Comprehensive Study of Multilingual Confidence Estimation on LLMs. \textit{Findings of ACL 2025}, 2535--2556.
+\end{thebibliography}
+\end{frame}
+
+% =====================================================================
+\begin{frame}{まとめ}
+\begin{itemize}
+  \item 研究の問い：日本語タスクでプロンプト方式の違いはキャリブレーション性能に
+        どう影響するか，現行モデルで再現されるか
+  \item 現状：設計・実装は完了，実験はこれから
+  \item 今後：パイロット実験 $\rightarrow$ 本実験 $\rightarrow$ 分析 $\rightarrow$ 執筆
+\end{itemize}
+\vspace{1em}
+\centering\large\textbf{ご清聴ありがとうございました}
+\end{frame}
+
+\end{document}
