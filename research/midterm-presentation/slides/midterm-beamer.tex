@@ -254,13 +254,19 @@ FLORES-200（翻訳） & COMETスコア閾値 \\ \hline
 \begin{itemize}
 	\item 実験データが十分に得られた場合，Brier ScoreのMurphy分解による
 	      キャリブレーション精度と識別能力の分解を追加実験として検討
+\end{itemize}
+\begin{block}{Murphy分解}
+\[
+\mathrm{BS} = \mathrm{REL} - \mathrm{RES} + \mathrm{UNC}
+\]
+\end{block}
+\begin{itemize}
+	\item $\mathrm{REL}$：信頼度（キャリブレーション誤差，低いほど良い）
+	\item $\mathrm{RES}$：分離度（識別能力，高いほど良い）
+	\item $\mathrm{UNC}$：不確実性（データ固有の定数）
 	\vspace{10pt}
-	\item Murphy分解＝Brier Scoreを信頼度・分離度・不確実性に分解する統計手法
-	\begin{itemize}
-		\item 気象分野などで用いられる
-	\end{itemize}
-	\vspace{10pt}
-	\item LLM分野でMurphy分解自体に焦点を当てた研究は少ない
+	\item 気象分野などで用いられる統計手法。LLM分野でMurphy分解自体に
+	      焦点を当てた研究は少ない
 	\\⇒ \textcolor{red}{同分野での利用可能性または利用されない背景を調査検討}
 \end{itemize}
 \end{frame}
