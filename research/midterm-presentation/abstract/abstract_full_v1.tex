@@ -295,7 +295,7 @@ LLMの較正精度（ECE・Brier Score）にどのような差をもたらすか
 \midrule
 数学 & MGSM（日本語版GSM8K） & 250 & 自由回答（数値） & 完全一致 \\
 常識 & JCommonsenseQA & 250 & 5択MC & 選択肢一致 \\
-知識 & JMMLU（日本史中心4科目） & 250 & 4択MC & 選択肢一致 \\
+知識 & JMMLU（公民・地理・慣用句の3科目，歴史は除外） & 250 & 4択MC & 選択肢一致 \\
 翻訳 & FLORES-200（日英ペア） & 250 & 対訳文 & COMET + LLM-as-a-Judge \\
 \bottomrule
 \end{tabular}

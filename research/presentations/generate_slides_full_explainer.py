@@ -426,7 +426,7 @@ add_table(sl,
           rows=[
               ["数学", "MGSM（日本語版GSM8K）", "250", "正規化完全一致"],
               ["常識", "JCommonsenseQA", "250", "選択肢ラベル一致"],
-              ["知識", "JMMLU（日本史中心4科目）", "250", "選択肢ラベル一致"],
+              ["知識", "JMMLU（公民・地理・慣用句、歴史は除外）", "250", "選択肢ラベル一致"],
               ["翻訳", "FLORES-200（日英ペア）", "250", "COMET閾値+LLM-as-a-Judge"],
           ],
           x=Inches(0.7), y=Inches(1.6), w=Inches(11.9), h=Inches(2.6), header_size=18, body_size=17)

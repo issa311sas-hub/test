@@ -137,7 +137,7 @@ MlingConf [Xue 2025] が単一手法・機械翻訳データセットで示し�
 | # | 問い | 比較軸 |
 |---|---|---|
 | **RQ1** | モデル間でキャリブレーション性能・改善パターンに差はあるか？ | GPT / Claude / Gemini / Swallow |
-| **RQ2** | タスクドメインによって改善幅は変化するか？ | 数学 / 常識 / 歴史 / 翻訳 |
+| **RQ2** | タスクドメインによって改善幅は変化するか？ | 数学 / 常識 / 知識 / 翻訳 |
 | **RQ3** | どのプロンプト方式が最も改善するか？（メインRQの中心的な比較軸） | Verb.1S / Verb.2S / Ling.1S |
 | **RQ4** | 日本語と英語で改善幅に差はあるか？ | 日本語 vs 英語 |
 
@@ -231,7 +231,7 @@ MlingConf [Xue 2025] は日本語を含む多言語で単一の verbalized confi
 |---|---|---|---|---|---|
 | 数学 | **MGSM**（日本語版 GSM8K） | 250 | 自由回答（数値） | 完全一致 | HuggingFace: juletxara/mgsm |
 | 常識 | **JCommonsenseQA** | 250（val 抽出） | 5択MC | 選択肢一致 | HuggingFace: sbintuitions/JCommonsenseQA |
-| 知識 | **JMMLU**（日本史中心4科目） | 250 | 4択MC | 選択肢一致 | HuggingFace: nlp-waseda/JMMLU |
+| 知識 | **JMMLU**（公民・地理・慣用句の3科目，歴史は除外） | 250 | 4択MC | 選択肢一致 | HuggingFace: nlp-waseda/JMMLU |
 | 翻訳 | **FLORES-200**（日英ペア） | 250（dev 抽出） | 対訳文 | BLEU + LLM-as-a-Judge | HuggingFace: facebook/flores |
 
 #### サンプルサイズの根拠
@@ -421,7 +421,7 @@ CoT（Chain-of-Thought）は Xiong 2024 で評価されているが、本研究�
 
 - 日本語タスクにおける複数モデルのキャリブレーション性能の定量的評価
 - プロンプト方式（Verb.1S / Verb.2S / Ling.1S）による性能差の特定と最適方式の提案
-- ドメイン依存性の可視化（数学 vs 歴史 vs 常識 vs 翻訳での差異）
+- ドメイン依存性の可視化（数学 vs 常識 vs 知識 vs 翻訳での差異）
 - 日本語 vs 英語でのキャリブレーション性能差に関する知見
 - 日本語ユーザー向けの「効果的な確信度引き出しプロンプト」の実務的指針
 
