@@ -272,6 +272,25 @@ FLORES-200（翻訳） & COMETスコア閾値 \\ \hline
 \end{frame}
 
 \begin{frame}
+\frametitle{今後の予定：Murphy分解（調査中の追加実験）}
+\begin{block}{$\mathrm{REL}$，$\mathrm{RES}$，$\mathrm{UNC}$}
+\[
+\mathrm{REL} = \sum_k \frac{n_k}{n}(\bar{f}_k - \bar{o}_k)^2 \, , \quad
+\mathrm{RES} = \sum_k \frac{n_k}{n}(\bar{o}_k - \bar{o})^2 \, , \quad
+\mathrm{UNC} = \bar{o}(1-\bar{o})
+\]
+\end{block}
+\begin{itemize}
+	\item $n_k$：ビン$k$のサンプル数
+	\item $\bar{f}_k$，$\bar{o}_k$：ビン$k$内の平均確信度・平均正答率
+	\item $\bar{o}$：全体の平均正答率
+	\vspace{10pt}
+	\item ECEの計算と同様にビン分割を用いるが，REL・RESに分離することで
+	\\⇒ \textcolor{red}{較正精度と識別能力のどちらに由来する改善かを区別できる}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
 \frametitle{参考文献}
 \footnotesize
 \begin{enumerate}
