@@ -41,18 +41,61 @@ from parser import parse_response, judge_correctness
 MAX_RETRIES = 5
 BASE_BACKOFF_SECONDS = 2.0
 
+# 再試行しても直らない種類のエラー（コードの不具合・環境不備）。
+# これらを再試行すると、一瞬で分かるはずの失敗に数十秒かかるだけで無駄。
+NON_RETRYABLE = (TypeError, ValueError, AttributeError, ImportError, RuntimeError, KeyError)
+
 
 def _with_retry(fn, *args, **kwargs):
     """レート制限・一時的なAPIエラーに対する exponential backoff 付き再試行"""
     for attempt in range(MAX_RETRIES):
         try:
             return fn(*args, **kwargs)
+        except NON_RETRYABLE:
+            raise
         except Exception as e:
             if attempt == MAX_RETRIES - 1:
                 raise
             wait = BASE_BACKOFF_SECONDS * (2 ** attempt)
             print(f"  retrying after error ({e}); wait {wait:.1f}s [{attempt+1}/{MAX_RETRIES}]")
             time.sleep(wait)
+
+
+# サンプリング指定（temperature）を受け付ける Claude モデル。
+# 現行世代（Sonnet 5 / Opus 5 等）では temperature 等が廃止され 400 になるため、
+# 旧世代のみ明示的に列挙する。実験時に使うモデルを追加する場合はここを更新する。
+_TEMPERATURE_OK_PREFIXES = (
+    "claude-sonnet-4-6", "claude-opus-4-6",
+    "claude-sonnet-4-5", "claude-haiku-4-5",
+)
+
+
+# 現行世代（サンプリング指定が廃止されたモデル）。これらに temperature を送ると 400。
+_TEMPERATURE_REMOVED_PREFIXES = (
+    "claude-sonnet-5", "claude-opus-5", "claude-opus-4-8",
+    "claude-opus-4-7", "claude-fable-5", "claude-mythos-5",
+)
+
+_warned_models: set[str] = set()
+
+
+def _accepts_temperature(model: str) -> bool:
+    """このモデルが temperature 指定を受け付けるか。
+
+    どちらのリストにも該当しない未知のモデルは temperature を送らない（400 を避ける）が、
+    その場合 API 既定値（temperature=1.0 相当のサンプリングあり）で実行される。
+    キャリブレーション測定は決定論性を前提にしているため、警告を出して明示する。
+    """
+    if model.startswith(_TEMPERATURE_OK_PREFIXES):
+        return True
+    if not model.startswith(_TEMPERATURE_REMOVED_PREFIXES) and model not in _warned_models:
+        _warned_models.add(model)
+        print(
+            f"  [警告] {model} は temperature 指定の可否が未確認のため送信しません。"
+            f"API既定のサンプリングで実行され、同一問題でも出力が揺れる可能性があります。"
+            f"（決定論性が必要な場合は run_pilot.py の _TEMPERATURE_OK_PREFIXES を確認・更新してください）"
+        )
+    return False
 
 
 def call_openai(model: str, messages: list[dict]) -> str:
@@ -71,9 +114,17 @@ def call_anthropic(model: str, messages: list[dict]) -> str:
     except ImportError:
         raise RuntimeError("pip install anthropic が必要です")
     client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+    # temperature は SDK 1.x で messages.create() の名前付き引数から削除された。
+    # claude-sonnet-4-6 等の旧世代モデルは API 側では引き続き受け付けるため
+    # extra_body 経由で渡す。現行世代（claude-sonnet-5 / opus-5 等）は
+    # サンプリング指定自体が廃止され 400 になるため送らない。
+    kwargs = {}
+    if _accepts_temperature(model):
+        kwargs["extra_body"] = {"temperature": 0.0}
     resp = client.messages.create(
-        model=model, max_tokens=512, temperature=0.0,
+        model=model, max_tokens=512,
         messages=messages,
+        **kwargs,
     )
     return "".join(b.text for b in resp.content if hasattr(b, "text"))
 
