@@ -158,6 +158,14 @@ def dispatch(model: str, messages: list[dict]) -> str:
 # 確信度の正規化（0.0〜1.0 に統一）
 # ---------------------------------------------------------------------------
 
+# 方式ごとの確信度パースモード（parser.parse_response の mode 引数）
+PARSE_MODES = {
+    "verb_1s": "numeric_0_100",
+    "verb_2s": "numeric_0_100",
+    "ling_1s": "ling",
+}
+
+
 def normalize_confidence(raw: str | float | None, method: str) -> float | None:
     """
     各方式の出力を 0.0〜1.0 の float に変換する。
@@ -165,11 +173,10 @@ def normalize_confidence(raw: str | float | None, method: str) -> float | None:
     """
     if raw is None:
         return None
-    if method == "ling_1s":
-        # 文字列 → 数値マッピング
-        if isinstance(raw, str):
-            return LING_TO_NUM.get(raw.strip())
-        return None
+    if method == "ling_1s" and isinstance(raw, str):
+        # 言語表現がそのまま渡ってきた場合のみここで数値化する。
+        # parse_response(mode="ling") を通っていれば既に数値なので下に流す。
+        return LING_TO_NUM.get(raw.strip())
     # verb_1s / verb_2s: float に変換して範囲チェック
     try:
         v = float(str(raw).replace("%", "").strip())
@@ -198,7 +205,9 @@ def run_one(
             assert isinstance(prompt, str)
             messages = [{"role": "user", "content": prompt}]
             raw = dispatch(model, messages)
-            parsed = parse_response(raw)
+            # Ling.1S は確信度が言語表現で返るので専用モードでパースする。
+            # 数値モードだと正規表現に一致せず confidence が全問 None になる。
+            parsed = parse_response(raw, mode=PARSE_MODES[method])
             conf_raw = parsed.confidence
             turn1_raw = ""
 
@@ -227,10 +236,15 @@ def run_one(
             parsed.answer, q["correct_answer"], q["answer_type"], choices=choices
         )
 
+        # Verb.2S の Turn2 応答には「回答:」欄が無いため parsed.parse_success は
+        # 常に False になる。回答は Turn1、確信度は Turn2 から取るので、
+        # 実験として成立したかは「回答と確信度が両方取れたか」で判定する。
+        parse_ok = parsed.answer is not None and conf is not None
+
         if verbose:
             print(
                 f"  answer={parsed.answer!r}  conf={conf}  correct={correct}  "
-                f"parse_ok={parsed.parse_success}"
+                f"parse_ok={parse_ok}"
             )
 
         return {
@@ -239,12 +253,14 @@ def run_one(
             "model": model,
             "method": method,
             "question": q["question"],
+            "choices": choices,
+            "answer_type": q.get("answer_type", ""),
             "gold": q["correct_answer"],
             "answer": parsed.answer or "",
             "confidence_raw": str(conf_raw) if conf_raw is not None else "",
             "confidence": conf if conf is not None else "",
             "correct": int(correct),
-            "parse_success": int(parsed.parse_success),
+            "parse_success": int(parse_ok),
             "raw_response": raw.replace("\n", "\\n"),
         }
 
@@ -257,6 +273,8 @@ def run_one(
             "model": model,
             "method": method,
             "question": q["question"],
+            "choices": q.get("choices", ""),
+            "answer_type": q.get("answer_type", ""),
             "gold": q["correct_answer"],
             "answer": "",
             "confidence_raw": "",
@@ -271,8 +289,10 @@ def run_one(
 # メイン実行
 # ---------------------------------------------------------------------------
 
+# answer_type / choices も保存する。後から rescore.py で再採点するときに、
+# これが無いと選択式の問題を正しく採点し直せない。
 FIELDNAMES = [
-    "id", "domain", "model", "method", "question", "gold",
+    "id", "domain", "model", "method", "question", "choices", "answer_type", "gold",
     "answer", "confidence_raw", "confidence", "correct", "parse_success", "raw_response",
 ]
 

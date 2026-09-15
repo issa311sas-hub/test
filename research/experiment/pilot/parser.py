@@ -34,6 +34,15 @@ CONFIDENCE_PATTERNS_NUMERIC = [
     r"自信度\s*[::]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
 ]
 
+# 「確信度: かなり自信がある」の値部分（テキスト）を取り出す正規表現。
+# Ling.1S では確信度が数値ではなく言語表現で返るため、数値用とは別に持つ。
+CONFIDENCE_PATTERNS_TEXT = [
+    r"確信度\s*[::]\s*(.+?)(?=\n|$)",
+    r"信頼度\s*[::]\s*(.+?)(?=\n|$)",
+    r"自信の度合い\s*[::]\s*(.+?)(?=\n|$)",
+    r"Confidence\s*[::]\s*(.+?)(?=\n|$)",
+]
+
 # 「まったく自信がない」などの自然言語表現を数値化するマップ
 VERBAL_TO_NUMERIC = {
     "まったく自信がない": 0.05,
@@ -61,11 +70,22 @@ def parse_response(text: str, mode: str = "numeric_0_100") -> ParseResult:
     mode:
       - "numeric_0_100": 信頼度を0〜100の整数で期待
       - "numeric_1_5": 信頼度を1〜5の5段階で期待
-      - "verbal": 信頼度を自然言語で期待
+      - "ling": Ling.1S の5つの定型表現（prompts.LING_TO_NUM）を期待
+      - "verbal": 信頼度を自然言語で期待（定型外の言い回しも拾う緩い判定）
     """
     answer = _extract_first(text, ANSWER_PATTERNS)
 
-    if mode in ("numeric_0_100", "numeric_1_5"):
+    if mode == "ling":
+        confidence = _parse_ling_confidence(text)
+        if confidence is None:
+            return ParseResult(
+                answer=answer,
+                confidence=None,
+                raw_response=text,
+                parse_success=False,
+                error="ling_confidence_unmatched",
+            )
+    elif mode in ("numeric_0_100", "numeric_1_5"):
         conf_raw = _extract_first(text, CONFIDENCE_PATTERNS_NUMERIC)
         if conf_raw is None:
             return ParseResult(
@@ -119,6 +139,27 @@ def _extract_first(text: str, patterns: list[str]) -> str | None:
         m = re.search(pat, text, re.MULTILINE | re.DOTALL)
         if m:
             return m.group(1).strip()
+    return None
+
+
+def _parse_ling_confidence(text: str) -> float | None:
+    """Ling.1S の定型5表現を数値に変換する。
+
+    プロンプト側（prompts.LING_TO_NUM）と同一のマッピングを使うため、
+    表現の追加・変更が片方だけに入ることがない。「確信度:」欄の値を優先し、
+    欄が取れない場合のみ応答全体から探す。部分一致の取り違えを避けるため、
+    長い表現から順に照合する。
+    """
+    from prompts import LING_TO_NUM  # prompts は parser を import しないので循環しない
+
+    ordered = sorted(LING_TO_NUM.items(), key=lambda kv: -len(kv[0]))
+    field = _extract_first(text, CONFIDENCE_PATTERNS_TEXT)
+    for haystack in (field, text):
+        if not haystack:
+            continue
+        for phrase, val in ordered:
+            if phrase in haystack:
+                return val
     return None
 
 
