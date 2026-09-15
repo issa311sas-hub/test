@@ -20,8 +20,15 @@ ENV/
 secrets.json
 
 # Experiment results (一時的な実行結果は含めない)
-research/experiment/pilot/results/
+research/experiment/pilot/results/*
 research/experiment/pilot/logs/
+
+# ただし本番パイロットの結果と図は研究成果そのものなので追跡する
+!research/experiment/pilot/results/mgsm_verb1s.csv
+!research/experiment/pilot/results/mgsm_verb2s.csv
+!research/experiment/pilot/results/mgsm_ling1s.csv
+!research/experiment/pilot/results/mgsm_ling1s_rescored.csv
+!research/experiment/pilot/results/comparison.md
 
 # OS
 .DS_Store
