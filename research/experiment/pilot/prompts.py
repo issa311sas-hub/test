@@ -186,6 +186,7 @@ def build_prompt(
       verb_2s → tuple[str, str] (Turn1, Turn2)
     """
     choices_section = _build_choices_section(choices)
+    _assert_choices_present(method, domain, question, choices_section)
 
     if method == "verb_1s":
         tmpl = PROMPT_TEMPLATES["verb_1s"][domain]
@@ -203,6 +204,29 @@ def build_prompt(
 
     else:
         raise ValueError(f"Unknown method: {method!r}. Choose from {PROMPT_METHODS}")
+
+
+# 選択肢が必須のドメイン（研究計画上、常識=JCommonsenseQA・知識=JMMLU は
+# いずれも選択式のため、選択肢のない問題は設計上存在しない）
+_MC_DOMAINS = ("commonsense", "knowledge")
+
+
+def _assert_choices_present(
+    method: str, domain: str, question: str, choices_section: str
+) -> None:
+    """MC ドメインなのに選択肢が無い場合に落とす。
+
+    選択肢が空のまま MC テンプレートを組み立てると
+    「選択肢の中から選び、A/B/C/D で答えよ」という指示だけが送られ、
+    モデルは選ぶ対象が無いまま機械的に 'A' 等を返す。エラーにならないため
+    実験データが静かに汚染される。ここで明示的に失敗させる。
+    """
+    if domain in _MC_DOMAINS and not choices_section.strip():
+        raise ValueError(
+            f"domain={domain!r} は選択式だが選択肢が空: {question[:30]!r} "
+            f"(method={method}). データ側の choices 列を確認するか、"
+            f"自由回答の問題であれば domain を見直すこと。"
+        )
 
 
 def _build_choices_section(choices: str | None) -> str:
