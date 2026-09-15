@@ -29,6 +29,8 @@ research/experiment/pilot/logs/
 !research/experiment/pilot/results/mgsm_ling1s.csv
 !research/experiment/pilot/results/mgsm_ling1s_rescored.csv
 !research/experiment/pilot/results/comparison.md
+!research/experiment/pilot/results/bootstrap.md
+!research/experiment/pilot/results/summary.md
 
 # OS
 .DS_Store
