@@ -223,7 +223,9 @@ def run_one(
             raise ValueError(f"Unknown method: {method!r}")
 
         conf = normalize_confidence(conf_raw, method)
-        correct = judge_correctness(parsed.answer, q["correct_answer"], q["answer_type"])
+        correct = judge_correctness(
+            parsed.answer, q["correct_answer"], q["answer_type"], choices=choices
+        )
 
         if verbose:
             print(

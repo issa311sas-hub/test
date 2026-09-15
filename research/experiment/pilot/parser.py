@@ -25,8 +25,10 @@ ANSWER_PATTERNS = [
     r"答え\s*[::]\s*(.+?)(?=\n|$|信頼度|自信度)",
 ]
 
-# 「信頼度: 75」や「信頼度: 75%」を抽出する正規表現
+# 「確信度: 0.9」「信頼度: 75」「信頼度: 75%」等を抽出する正規表現。
+# prompts.py のテンプレートは「確信度」を使うため、これを最初に置く。
 CONFIDENCE_PATTERNS_NUMERIC = [
+    r"確信度\s*[::]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
     r"信頼度\s*[::]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
     r"Confidence\s*[::]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
     r"自信度\s*[::]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
@@ -76,7 +78,10 @@ def parse_response(text: str, mode: str = "numeric_0_100") -> ParseResult:
         try:
             val = float(conf_raw)
             if mode == "numeric_0_100":
-                confidence = val / 100.0
+                # prompts.py のテンプレートは 0.0〜1.0 を要求するが、モデルが
+                # 0〜100 で返してくることもある。値域から judge して両方を受ける。
+                # （1.0 以下はそのまま、1 より大きければ 0〜100 スケールとみなす）
+                confidence = val if val <= 1.0 else val / 100.0
             else:  # numeric_1_5
                 confidence = (val - 1) / 4.0
             confidence = max(0.0, min(1.0, confidence))
@@ -124,12 +129,50 @@ def _parse_verbal_confidence(text: str) -> float | None:
     return None
 
 
+def resolve_choice_label(predicted: str, choices: str | None) -> str:
+    """選択肢ラベル（A/B/C/D や 0〜4）を選択肢テキストに解決する。
+
+    プロンプトはラベルでの回答を求めるが（例「回答: A」）、データセットによって
+    正解が選択肢テキスト（例「包丁」）で与えられる場合とラベルで与えられる場合の
+    両方がある。ラベルとして解釈できるときだけテキストに変換し、それ以外は
+    入力をそのまま返す。
+    """
+    if not predicted or not choices:
+        return predicted
+    items = [c.strip() for c in choices.split("|") if c.strip()]
+    if not items:
+        return predicted
+
+    token = predicted.strip()
+    # 「A」「A.」「(A)」「A: 包丁」等からラベル1文字を取り出す
+    m = re.match(r"^[（(\[]?\s*([A-Za-z0-9])\s*[）)\].:：、]?\s*$", token)
+    if not m:
+        m = re.match(r"^[（(\[]?\s*([A-Za-z0-9])\s*[）)\].:：、]\s*\S", token)
+    if not m:
+        return predicted
+
+    label = m.group(1).upper()
+    idx = None
+    if "A" <= label <= "Z":
+        idx = ord(label) - ord("A")
+    elif label.isdigit():
+        # 0始まり（JCommonsenseQA等）と1始まりの両方がありうる。
+        # 0始まりで範囲内ならそれを優先し、駄目なら1始まりとして解釈する。
+        n = int(label)
+        idx = n if n < len(items) else n - 1
+
+    if idx is None or not (0 <= idx < len(items)):
+        return predicted
+    return items[idx]
+
+
 def judge_correctness(
-    predicted: str, gold: str, answer_type: str
+    predicted: str, gold: str, answer_type: str, choices: str | None = None
 ) -> bool:
     """
     回答が正解かどうかを判定。
     answer_type: "mc"(多肢選択) / "numeric" / "text"
+    choices: "包丁|のこぎり|ハサミ|金槌" 形式の選択肢（mc でラベル回答を解決するのに使う）
     """
     if predicted is None:
         return False
@@ -143,8 +186,11 @@ def judge_correctness(
             # 数値として読めない場合は文字列として比較
             return gold in pred
     elif answer_type == "mc":
-        # 多肢選択: 選択肢本体が含まれていればOK
-        return gold in pred
+        # ラベル回答（A/B/C/D、0〜4）はまず選択肢テキストに解決してから比較する
+        if gold == pred:
+            return True
+        resolved = resolve_choice_label(pred, choices)
+        return gold in resolved or gold in pred
     elif answer_type == "text":
         # テキスト: 完全一致 or 含有
         return gold in pred or pred in gold
