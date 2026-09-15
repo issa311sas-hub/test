@@ -19,7 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from parser import parse_response, judge_correctness
-from prompts import BASIC_PROMPT_JA, build_prompt
+from prompts import build_prompt, PROMPT_METHODS
 
 
 def mock_llm_response(question: str, gold: str, answer_type: str) -> str:
@@ -42,7 +42,8 @@ def mock_llm_response(question: str, gold: str, answer_type: str) -> str:
     return f"回答: {answer}\n信頼度: {confidence}"
 
 
-def run_mock(questions_path: str, output: str, limit: int | None = None):
+def run_mock(questions_path: str, output: str, limit: int | None = None,
+             method: str = "verb_1s"):
     random.seed(42)
 
     with open(questions_path, encoding="utf-8") as f:
@@ -53,10 +54,15 @@ def run_mock(questions_path: str, output: str, limit: int | None = None):
 
     rows = []
     for i, q in enumerate(questions, 1):
-        prompt = build_prompt(BASIC_PROMPT_JA, q["question"], q.get("choices", ""))
+        choices = q.get("choices") or None
+        # プロンプト自体は使わないが、テンプレート構築が通ることを確認する
+        # （選択肢欠落などのデータ不備はここで例外になる）
+        build_prompt(method, q["domain"], q["question"], choices)
         response = mock_llm_response(q["question"], q["correct_answer"], q["answer_type"])
         parsed = parse_response(response)
-        correct = judge_correctness(parsed.answer, q["correct_answer"], q["answer_type"])
+        correct = judge_correctness(
+            parsed.answer, q["correct_answer"], q["answer_type"], choices=choices
+        )
 
         rows.append({
             "id": q["id"],
@@ -111,6 +117,7 @@ if __name__ == "__main__":
     p.add_argument("--questions", default="questions_sample.csv")
     p.add_argument("--output", default="results/mock_run.csv")
     p.add_argument("--limit", type=int, default=None)
+    p.add_argument("--method", default="verb_1s", choices=list(PROMPT_METHODS))
     args = p.parse_args()
 
-    run_mock(args.questions, args.output, args.limit)
+    run_mock(args.questions, args.output, args.limit, args.method)
