@@ -79,6 +79,27 @@ def main():
     results.append(test("テキスト正解", judge_correctness("東京", "東京", "text"), True))
     results.append(test("テキスト含有", judge_correctness("答えは東京です", "東京", "text"), True))
 
+    # ===== 回帰テスト: 2026-09-16 のレビューで発見された採点の不具合 =====
+    # 正解側のカンマを除去していなかったため数値比較に失敗し、部分一致に
+    # 落ちて正解が誤答と記録されていた（mgsm_ja_147 等）
+    results.append(test("正解側カンマ", judge_correctness("2125", "2,125", "numeric"), True))
+    results.append(test("正解側カンマ大", judge_correctness("114200", "114,200", "numeric"), True))
+    results.append(test("双方カンマ", judge_correctness("2,125", "2,125", "numeric"), True))
+    results.append(test("カンマ付き誤答", judge_correctness("2125", "2,126", "numeric"), False))
+    # 書式上の付加がある正解を取りこぼさない
+    results.append(test("百分率表記", judge_correctness("33%", "33", "numeric"), True))
+    results.append(test("括弧付き", judge_correctness("[32]", "32", "numeric"), True))
+    results.append(test("単位付き", judge_correctness("約64個", "64", "numeric"), True))
+    # 数値として読めない回答を正解にしない
+    results.append(test("非数値の回答", judge_correctness("不明", "64", "numeric"), False))
+
+    # 仮の記入のあとに本来の回答を書く応答から、最後の回答を採る（mgsm_ja_006 等）
+    two_step = "回答: [計算します]\n\n8 × 8 = 64\n\n回答: 64\n確信度: ほぼ確実"
+    results.append(test("末尾の回答を採る", parse_response(two_step, mode="ling").answer, "64"))
+    results.append(
+        test("末尾抽出でも確信度は不変", parse_response(two_step, mode="ling").confidence, 0.95)
+    )
+
     # ===== サマリー =====
     n_passed = sum(results)
     n_total = len(results)

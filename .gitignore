@@ -31,6 +31,11 @@ research/experiment/pilot/logs/
 !research/experiment/pilot/results/comparison.md
 !research/experiment/pilot/results/bootstrap.md
 !research/experiment/pilot/results/summary.md
+!research/experiment/pilot/results/fixed_verb1s.csv
+!research/experiment/pilot/results/fixed_verb2s.csv
+!research/experiment/pilot/results/fixed_ling1s.csv
+!research/experiment/pilot/results/comparison_fixed.md
+!research/experiment/pilot/results/bootstrap_fixed.md
 
 # OS
 .DS_Store

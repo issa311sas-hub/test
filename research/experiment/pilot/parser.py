@@ -20,9 +20,9 @@ class ParseResult:
 
 # 「回答: ...」を抽出する正規表現
 ANSWER_PATTERNS = [
-    r"回答\s*[::]\s*(.+?)(?=\n|$|信頼度|自信度|Confidence)",
+    r"回答\s*[::]\s*(.+?)(?=\n|$|確信度|信頼度|自信度|Confidence)",
     r"Answer\s*[::]\s*(.+?)(?=\n|$|Confidence)",
-    r"答え\s*[::]\s*(.+?)(?=\n|$|信頼度|自信度)",
+    r"答え\s*[::]\s*(.+?)(?=\n|$|確信度|信頼度|自信度)",
 ]
 
 # 「確信度: 0.9」「信頼度: 75」「信頼度: 75%」等を抽出する正規表現。
@@ -73,7 +73,7 @@ def parse_response(text: str, mode: str = "numeric_0_100") -> ParseResult:
       - "ling": Ling.1S の5つの定型表現（prompts.LING_TO_NUM）を期待
       - "verbal": 信頼度を自然言語で期待（定型外の言い回しも拾う緩い判定）
     """
-    answer = _extract_first(text, ANSWER_PATTERNS)
+    answer = _extract_last(text, ANSWER_PATTERNS)
 
     if mode == "ling":
         confidence = _parse_ling_confidence(text)
@@ -134,6 +134,20 @@ def parse_response(text: str, mode: str = "numeric_0_100") -> ParseResult:
     )
 
 
+def _extract_last(text: str, patterns: list[str]) -> str | None:
+    """最後に現れた一致を返す。
+
+    モデルは「回答: [計算します]」のような仮の記入をしてから途中式を書き、
+    最後に「回答: 64」と本来の答えを書くことがある。最初の一致を採ると
+    仮の記入のほうを回答として扱ってしまうため、最後の一致を採る。
+    """
+    for pat in patterns:
+        matches = re.findall(pat, text, re.MULTILINE | re.DOTALL)
+        if matches:
+            return matches[-1].strip()
+    return None
+
+
 def _extract_first(text: str, patterns: list[str]) -> str | None:
     for pat in patterns:
         m = re.search(pat, text, re.MULTILINE | re.DOTALL)
@@ -168,6 +182,34 @@ def _parse_verbal_confidence(text: str) -> float | None:
         if phrase in text:
             return val
     return None
+
+
+def extract_number(text: str | None) -> float | None:
+    """文字列から数値を1つ取り出す。取り出せない場合は None を返す。
+
+    正解側・回答側の双方に同じ規則を適用するために使う。以前は回答側だけ
+    桁区切りのカンマを除去し、正解側はそのまま float に渡していたため、
+    正解が「2,125」で回答が「2125」のとき数値比較に失敗し、部分一致の
+    判定に落ちて誤答と記録されていた。
+
+    「33%」「[32]」「約64個」のように書式上の付加がある回答も救済する。
+    ただし数値が複数含まれる場合は最初の 1 つだけを見るため、式をそのまま
+    書いた回答などは意図した値にならないことがある。
+    """
+    if text is None:
+        return None
+    s = str(text).strip()
+    if not s:
+        return None
+    # 桁区切りのカンマ（数字に挟まれたもの）のみを除去する
+    s = re.sub(r"(?<=\d),(?=\d)", "", s)
+    m = re.search(r"[-+]?\d+(?:\.\d+)?", s)
+    if not m:
+        return None
+    try:
+        return float(m.group(0))
+    except ValueError:
+        return None
 
 
 def resolve_choice_label(predicted: str, choices: str | None) -> str:
@@ -221,11 +263,11 @@ def judge_correctness(
     gold = gold.strip()
 
     if answer_type == "numeric":
-        try:
-            return abs(float(pred.replace(",", "")) - float(gold)) < 1e-6
-        except ValueError:
-            # 数値として読めない場合は文字列として比較
-            return gold in pred
+        p, g = extract_number(pred), extract_number(gold)
+        if p is not None and g is not None:
+            return abs(p - g) < 1e-6
+        # 双方を数値として読めない場合にかぎり文字列として比較する
+        return gold == pred
     elif answer_type == "mc":
         # ラベル回答（A/B/C/D、0〜4）はまず選択肢テキストに解決してから比較する
         if gold == pred:
