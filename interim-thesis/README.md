@@ -40,8 +40,12 @@
 | 図番号 | ファイル | 内容 |
 |---|---|---|
 | 図 3.1 | （作図が必要） | 評価の処理フロー．本文中に擬似的な図を置いてある |
-| 図 5.1 | `fig2_confidence.png` | 確信度の分布（方式別） |
-| 図 5.2 | `fig1_reliability.png` | 信頼度ダイアグラム |
+| 図 5.1 | `figures_fixed/fig2_confidence.png` | 確信度の分布（方式別） |
+| 図 5.2 | `figures_fixed/fig1_reliability.png` | 信頼度ダイアグラム |
+
+**ファイル名と図番号が逆になっている点に注意．** 図 5.1 が `fig2_`，
+図 5.2 が `fig1_` である．貼り付け時に取り違えないこと．また，採点処理の
+修正前に生成した `figures/` ではなく，**`figures_fixed/` を使う**．
 
 `fig3_metrics.png`（指標の比較）は表 5.1 と内容が重複するため採用していない．
 ページが余る場合は追加してもよい．
@@ -52,9 +56,11 @@
 
 第 5 章の数値はすべて実測値であり，以下から取っている．
 
-- 表 5.1，表 5.2：`research/experiment/pilot/results/comparison.md`
-- 表 5.3，表 5.4：`research/experiment/pilot/results/bootstrap.md`
-- 詳しい分析：`research/experiment/pilot-results-2026-09-15.md`
+- 表 5.1，表 5.2：`research/experiment/pilot/results/comparison_fixed.md`
+- 表 5.3，表 5.4：`research/experiment/pilot/results/bootstrap_fixed.md`
+- 採点修正の経緯：`research/experiment/rescoring-2026-09-16.md`
+- 修正前の分析（**論文には使わない**）：`research/experiment/pilot-results-2026-09-15.md`，
+  `results/comparison.md`，`results/bootstrap.md`
 
 ## 執筆時の注意
 
@@ -76,9 +82,26 @@ TeX に直す必要がある．
    とくに MlingConf の扱い（2.3 節）と ADVICE の扱い（2.2.4 項）．
 5. 各章の冒頭に道案内の段落があり，末尾に「本章のまとめ」があるか．
 
+## 改訂の経緯
+
+初版（コミット `b9ff4a2`）に対し，Codex によるレビュー
+（`reviews/interim-thesis-review.md`）を受けて全面的に改訂した．主な変更は
+以下の 3 点である．
+
+1. **採点処理の不具合を修正し，全数値を差し替えた．** 正解側の桁区切り
+   カンマを除去していなかった件と，応答中で最初に現れた回答を採っていた
+   件の 2 件．経緯は `research/experiment/rescoring-2026-09-16.md` に記録．
+2. **Murphy 分解に関する主張を撤回した．** 初版は「REL を用いれば較正と
+   正答率を分離できる」と述べていたが，REL も各区間の正答率を含むため
+   分離の手段にならない．再採点後は REL による差の検出もできなかった．
+   分解は補助的な情報として位置づけを下げ，分離には回答を固定した比較が
+   必要であることを第 6 章・第 7 章に明記した．
+3. **先行研究の記述を訂正した．** MlingConf の比較範囲，Tian らの尺度と
+   比較対象，Dai らの公開年，LLM-jp の引用先など．
+
 ## 未了の作業
 
 - [ ] 図 3.1 の清書
-- [ ] Murphy (1973) を `research/references.bib` に追加する（現在未登録）
 - [ ] 目次・図目次・表目次の作成（Overleaf 側で自動生成される想定）
 - [ ] 謝辞（卒業論文で必要．中間報告では省略）
+- [ ] レビュー指摘への対応状況の記録（`reviews/` に対応表を作る）

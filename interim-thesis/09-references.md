@@ -10,6 +10,8 @@ Language Modeling (2024). `fujii2024swallow`
 [2] LLM-jp Community: llm-jp-eval: A Cross-Tool Evaluation Framework for
 Japanese Large Language Models (2024). https://github.com/llm-jp/llm-jp-eval
 `llmjpeval2024`
+**※ これは日本語 LLM の評価基盤であり，モデル自体の出典ではない．
+本文 1.1.1 項では評価基盤への言及として引用している．**
 
 [3] Ji, Z., Lee, N., Frieske, R., Yu, T., et al.: Survey of Hallucination in
 Natural Language Generation. ACM Computing Surveys, 55(12), pp.1--38 (2023).
@@ -53,8 +55,7 @@ Probabilities Using Bayesian Binning. Proceedings of the AAAI Conference on
 Artificial Intelligence, 29(1) (2015). `naeini2015binning`
 
 [12] Murphy, A. H.: A New Vector Partition of the Probability Score. Journal
-of Applied Meteorology, 12(4), pp.595--600 (1973).
-**※ `references.bib` に未登録．追加が必要．**
+of Applied Meteorology, 12(4), pp.595--600 (1973). `murphy1973partition`
 
 [13] Ferro, C. A. T., Fricker, T. E.: A Bias-Corrected Decomposition of the
 Brier Score. Quarterly Journal of the Royal Meteorological Society, 138(668),
@@ -68,7 +69,7 @@ Principle: A New Perspective on Forecast Evaluation. arXiv:2005.01835 (2020).
 LLMs. arXiv:2412.14737 (2024). `yang2024verbalizedscores`
 
 [16] Dai, Y., Wang, Y.: Rescaling Confidence: What Scale Design Reveals About
-LLM Metacognition. arXiv:2603.09309 (2025). `dai2025rescaling`
+LLM Metacognition. arXiv:2603.09309 (2026). `dai2026rescaling`
 
 [17] Mielke, S. J., Szlam, A., Dinan, E., Boureau, Y.-L.: Reducing
 Conversational Agents' Overconfidence through Linguistic Calibration.
