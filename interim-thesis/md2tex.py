@@ -44,16 +44,22 @@ HEADINGS = {
     "book": ["chapter", "section", "subsection", "subsubsection"],
 }
 
-# 原稿 → テンプレート内の配置先
+# 原稿 → 出力ファイル名
+#
+# テンプレートは chapter1/index1.tex のようにフォルダを分けているが、
+# ここでは分けずに平らに置く。\include はファイルごとに .aux を書くため、
+# サブフォルダが無い環境では「I can't write on file 'chapter4/index4.aux'」
+# で止まる。実際にその症状が出たので、フォルダ分けをやめて \input で
+# 読み込む形に変えた（\input は .aux を書かない）。
 CHAPTERS = [
-    ("01-abstract.md", "abstract/abstract.tex", None),
-    ("02-chapter1-introduction.md", "chapter1/index1.tex", "序論"),
-    ("03-chapter2-related-work.md", "chapter2/index2.tex", "関連研究"),
-    ("04-chapter3-design.md", "chapter3/index3.tex", "設計方針"),
-    ("05-chapter4-implementation.md", "chapter4/index4.tex", "実装"),
-    ("06-chapter5-experiment.md", "chapter5/index5.tex", "予備実験"),
-    ("07-chapter6-discussion.md", "chapter6/index6.tex", "考察"),
-    ("08-chapter7-future-work.md", "chapter7/index7.tex", "今後の方針"),
+    ("01-abstract.md", "abstract.tex", None),
+    ("02-chapter1-introduction.md", "chapter1.tex", "序論"),
+    ("03-chapter2-related-work.md", "chapter2.tex", "関連研究"),
+    ("04-chapter3-design.md", "chapter3.tex", "設計方針"),
+    ("05-chapter4-implementation.md", "chapter4.tex", "実装"),
+    ("06-chapter5-experiment.md", "chapter5.tex", "予備実験"),
+    ("07-chapter6-discussion.md", "chapter6.tex", "考察"),
+    ("08-chapter7-future-work.md", "chapter7.tex", "今後の方針"),
 ]
 
 # 図番号 → (出力するファイル名, 元のファイル名, 幅)
@@ -134,7 +140,7 @@ def _visual_len(cell: str) -> int:
 # 表の幅の目安。テンプレートの本文幅は 30em + 50pt（およそ 14.4cm）で、
 # \small で組むと英数字でおよそ 78 文字分に相当する。_visual_len は
 # 日本語を 2、英数字を 1 で数えるので、その単位での目安として使う。
-PAGE_CAPACITY = 78
+PAGE_CAPACITY = 72
 # 1 つの列がこれより長い文を含むなら、折り返さないと本文幅を超える
 WRAP_THRESHOLD = 24
 
@@ -481,7 +487,7 @@ def build_bibliography() -> str:
 TITLE = r"""\begin{titlepage}
 
 \title{\flushleft{\vspace{-3cm}\small{2026年度~~卒業研究~~中間報告}}\\\vspace{3.5cm}
-\center{{\huge \bf
+\center{{\LARGE \bf
 
 プロンプト設計による大規模言語モデルの \\
 キャリブレーション性能向上に関する研究 \\
@@ -489,8 +495,9 @@ TITLE = r"""\begin{titlepage}
 }}\vfill}
 
 \author{
-\rightline{東京理科大学~~創域理工学部~~経営システム工学科}\\
-\rightline{秦野研究室~~7422048~~指田~~一茶}\\
+\rightline{東京理科大学~~創域理工学部}\\
+\rightline{経営システム工学科~~秦野研究室}\\
+\rightline{7422048~~指田~~一茶}\\
 \rightline{}\\
 \rightline{指導教員~~~秦野~~亮}}
 \date{}
@@ -523,6 +530,20 @@ def patch_main(text: str) -> str:
         + "\n\\usepackage{tabularx}  % 本文の表で使用"
         + "\n\\usepackage{url}       % 参考文献の URL で使用",
     )
+    # \include はファイルごとに .aux を書くため、サブフォルダが無い環境で
+    # 止まる。章はフォルダを分けずに \input で読み込む。
+    for a, b in [
+        ("\\include{abstract/abstract}", "\\input{abstract}"),
+        ("\\include{reference/reference}", "\\input{reference}"),
+        ("\\include{title}", "\\input{title}"),
+    ]:
+        assert text.count(a) == 1, f"main.tex に {a} が無い"
+        text = text.replace(a, b)
+    for n in range(1, 8):
+        a = f"\\include{{chapter{n}/index{n}}}"
+        assert text.count(a) == 1, f"main.tex に {a} が無い"
+        text = text.replace(a, f"\\input{{chapter{n}}}")
+
     text = text.replace(
         "% 2019年度　本論文　テンプレート",
         "% 2026年度 卒業研究 中間報告\n"
@@ -538,22 +559,20 @@ def main() -> int:
 
     if OUT.exists():
         shutil.rmtree(OUT)
-    for sub in ["", "figure", "abstract", "reference"] + [f"chapter{n}" for n in range(1, 8)]:
-        (OUT / sub).mkdir(parents=True, exist_ok=True)
+    (OUT / "figure").mkdir(parents=True, exist_ok=True)
 
     cites = load_citation_map()
     print(f"引用の対応: {len(cites)} 件")
 
     for src_name, out_name, title in CHAPTERS:
         body = convert(SRC / src_name, cites, title)
-        if out_name.startswith("abstract"):
+        if out_name == "abstract.tex":
             body = build_abstract(body)
         (OUT / out_name).write_text(body, encoding="utf-8")
         print(f"  {src_name} -> {out_name}")
 
-    (OUT / "reference" / "reference.tex").write_text(
-        build_bibliography(), encoding="utf-8")
-    print("  reference/reference.tex")
+    (OUT / "reference.tex").write_text(build_bibliography(), encoding="utf-8")
+    print("  reference.tex")
 
     (OUT / "title.tex").write_text(TITLE, encoding="utf-8")
     print("  title.tex")
