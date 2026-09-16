@@ -13,7 +13,7 @@
   ### 1.1.1 ...    → \subsection{...}
   **強調**         → \textbf{...}
   `コード`         → \texttt{...}
-  [1][2]           → \cite{key1,key2}（09-references.md の対応表を使う）
+  [1][2]           → \cite{key1}\cite{key2}（09-references.md の対応表を使う）
   表 5.1 ...       → table 環境（キャプションは表の上）
   図 5.1 ...       → figure 環境（キャプションは図の下）
   $$ ... $$        → equation 環境
@@ -118,11 +118,15 @@ def escape(text: str) -> str:
 
 def inline(text: str, cites: dict[str, str]) -> str:
     """行内の記法を変換する。escape のあとに適用する。"""
-    # 引用 [1][2] → \cite{a,b}（連続するものはまとめる）
+    # 引用 [1][2] → \cite{a}\cite{b}
+    # \cite{a,b} とまとめると [2,3] と出力されるが、研究室の書式は
+    # [2][3] のように 1 件ずつ分ける。そのため \cite を並べる。
     def cite_run(m: re.Match) -> str:
         nums = re.findall(r"\[(\d+)\]", m.group(0))
         keys = [cites[n] for n in nums if n in cites]
-        return "\\cite{" + ",".join(keys) + "}" if keys else m.group(0)
+        if not keys:
+            return m.group(0)
+        return "".join("\\cite{" + k + "}" for k in keys)
 
     text = re.sub(r"(?:\[\d+\])+", cite_run, text)
     # コードは escape 済みの記号を戻したいので \verb ではなく \texttt を使う
