@@ -20,27 +20,27 @@ class ParseResult:
 
 # 「回答: ...」を抽出する正規表現
 ANSWER_PATTERNS = [
-    r"回答\s*[::]\s*(.+?)(?=\n|$|確信度|信頼度|自信度|Confidence)",
-    r"Answer\s*[::]\s*(.+?)(?=\n|$|Confidence)",
-    r"答え\s*[::]\s*(.+?)(?=\n|$|確信度|信頼度|自信度)",
+    r"回答\s*[:：]\s*(.+?)(?=\n|$|確信度|信頼度|自信度|Confidence)",
+    r"Answer\s*[:：]\s*(.+?)(?=\n|$|Confidence)",
+    r"答え\s*[:：]\s*(.+?)(?=\n|$|確信度|信頼度|自信度)",
 ]
 
 # 「確信度: 0.9」「信頼度: 75」「信頼度: 75%」等を抽出する正規表現。
 # prompts.py のテンプレートは「確信度」を使うため、これを最初に置く。
 CONFIDENCE_PATTERNS_NUMERIC = [
-    r"確信度\s*[::]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
-    r"信頼度\s*[::]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
-    r"Confidence\s*[::]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
-    r"自信度\s*[::]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
+    r"確信度\s*[:：]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
+    r"信頼度\s*[:：]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
+    r"Confidence\s*[:：]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
+    r"自信度\s*[:：]\s*([0-9]+(?:\.[0-9]+)?)\s*%?",
 ]
 
 # 「確信度: かなり自信がある」の値部分（テキスト）を取り出す正規表現。
 # Ling.1S では確信度が数値ではなく言語表現で返るため、数値用とは別に持つ。
 CONFIDENCE_PATTERNS_TEXT = [
-    r"確信度\s*[::]\s*(.+?)(?=\n|$)",
-    r"信頼度\s*[::]\s*(.+?)(?=\n|$)",
-    r"自信の度合い\s*[::]\s*(.+?)(?=\n|$)",
-    r"Confidence\s*[::]\s*(.+?)(?=\n|$)",
+    r"確信度\s*[:：]\s*(.+?)(?=\n|$)",
+    r"信頼度\s*[:：]\s*(.+?)(?=\n|$)",
+    r"自信の度合い\s*[:：]\s*(.+?)(?=\n|$)",
+    r"Confidence\s*[:：]\s*(.+?)(?=\n|$)",
 ]
 
 # 「まったく自信がない」などの自然言語表現を数値化するマップ
@@ -99,9 +99,14 @@ def parse_response(text: str, mode: str = "numeric_0_100") -> ParseResult:
             val = float(conf_raw)
             if mode == "numeric_0_100":
                 # prompts.py のテンプレートは 0.0〜1.0 を要求するが、モデルが
-                # 0〜100 で返してくることもある。値域から judge して両方を受ける。
-                # （1.0 以下はそのまま、1 より大きければ 0〜100 スケールとみなす）
-                confidence = val if val <= 1.0 else val / 100.0
+                # 0〜100 で返してくることもある。
+                # 「%」が明記されている場合は百分率として必ず 100 で割る。
+                # 値域だけで判断すると「0.5%」を 0.5（=50%）と誤って読む。
+                # 「%」が無い場合にかぎり、値域から尺度を推定する。
+                if _has_percent(text):
+                    confidence = val / 100.0
+                else:
+                    confidence = val if val <= 1.0 else val / 100.0
             else:  # numeric_1_5
                 confidence = (val - 1) / 4.0
             confidence = max(0.0, min(1.0, confidence))
@@ -132,6 +137,17 @@ def parse_response(text: str, mode: str = "numeric_0_100") -> ParseResult:
         raw_response=text,
         parse_success=answer is not None,
     )
+
+
+# 確信度の値に百分率記号が付いているか
+_CONF_PERCENT_RE = re.compile(
+    r"(?:確信度|信頼度|自信度|Confidence)\s*[:：]\s*[0-9]+(?:\.[0-9]+)?\s*[%％]"
+)
+
+
+def _has_percent(text: str) -> bool:
+    """確信度の値が百分率で書かれているか。"""
+    return bool(_CONF_PERCENT_RE.search(text))
 
 
 def _extract_last(text: str, patterns: list[str]) -> str | None:
@@ -189,48 +205,45 @@ def _parse_verbal_confidence(text: str) -> float | None:
     return None
 
 
-# 数値回答から取り除いてよい表記上の付加。ここに挙げたものだけを許容し、
-# 取り除いたあとに文字列全体が 1 つの数値として読める場合にかぎり受理する。
-# MGSM の正解は単位を持たない数値なので、単位や概数の語は数値の同一性を
-# 変えない付加とみなす。単位付きの正解を持つデータセットを扱う際は、
-# この一覧と受理の方針を見直すこと。
-_NUM_PREFIXES = ("約", "およそ", "ほぼ", "答えは", "答え", "＝", "=")
-_NUM_SUFFIXES = (
-    "%", "％",
-    "円", "ドル", "セント", "ユーロ",
-    "個", "人", "匹", "頭", "羽", "冊", "枚", "本", "台", "回", "点", "問",
-    "歳", "袋", "箱", "束", "足", "組", "杯", "皿", "切れ",
-    "日", "時間", "分", "秒", "週間", "か月", "ヶ月", "年",
-    "ページ", "キロ", "メートル", "センチ", "グラム", "リットル",
-    "km", "m", "cm", "kg", "g", "L",
-    "です", "。", "．", ".",
-)
+# 数値回答から取り除いてよい表記上の付加。
+#
+# ここに単位（円・個・cm 等）は含めない。正解欄に単位が無いことは、回答側の
+# 単位を消してよい理由にならないためである。たとえば 100 ドルを問う設問で
+# 「100セント」と答えた場合、単位を消すと gold=100 と一致してしまう。
+# 単位の整合性を見るには設問が要求する単位を持つ必要があり、本研究の
+# 採点規則はそこまで踏み込まない。
+#
+# 百分率記号のみ例外として扱う。MGSM 日本語版で確率を問う設問（mgsm_ja_227）
+# の正解が単位なしの数値で与えられており、「33%」という回答は設問が要求する
+# 単位を伴った同じ値だからである。この判断は設問を確認したうえでのもので、
+# 一般の単位に拡張できるものではない。
+_PERCENT_SUFFIXES = ("%", "％")
 _BRACKET_PAIRS = (("[", "]"), ("(", ")"), ("（", "）"), ("「", "」"), ("『", "』"))
 
-# 取り除いたあとに全体が一致していなければならない形
+# 正規化後に全体が一致していなければならない形
 _NUMBER_RE = re.compile(r"^[-+]?\d+(?:\.\d+)?$")
+# 桁区切りとして認めるカンマの入り方（先頭 1〜3 桁 + 「,」+ 3 桁の繰り返し）
+_GROUPED_RE = re.compile(r"^[-+]?\d{1,3}(?:,\d{3})+(?:\.\d+)?$")
 
 
 def extract_number(text: str | None) -> float | None:
     """回答または正解を数値として読む。読めない場合は None を返す。
 
-    正解側・回答側の双方に同じ規則を適用するために使う。以前は回答側だけ
-    桁区切りのカンマを除去し、正解側はそのまま float に渡していたため、
-    正解が「2,125」で回答が「2125」のとき数値比較に失敗していた。
-
-    受理するのは、下記の正規化を施したあとに**文字列全体**が単一の数値と
-    して読める場合にかぎる。文字列のどこかに数字があれば採用する方式は、
-    「1/2」を 1、「32 or 64」を 32 として受理してしまうため採らない。
+    正解側・回答側の双方に同じ規則を適用するために使う。受理するのは、
+    下記の正規化を施したあとに**文字列全体**が単一の数値として読める場合に
+    かぎる。文字列のどこかに数字があれば採用する方式は、「1/2」を 1、
+    「32 or 64」を 32 として受理してしまうため採らない。
 
     正規化の内容:
       - 全角数字・全角記号を半角にする
-      - 数字に挟まれたカンマ（桁区切り）を除去する
-      - 前後の空白を除去する
       - 囲みの括弧を 1 組だけ外す
-      - _NUM_PREFIXES / _NUM_SUFFIXES に挙げた語を前後から取り除く
+      - 末尾の百分率記号を 1 つだけ外す
+      - 桁区切りのカンマを除去する。ただし 3 桁区切りとして正しい場合に限る
 
-    分数（1/2）と指数表記（1e3）は未対応であり、受理しない。これらを
-    正しく扱う必要が生じた場合は、この関数で明示的に解釈を追加すること。
+    未対応（受理しない）:
+      - 分数（1/2）、指数表記（1e3）、小数点前の 0 を省いた表記（.5）
+      - 単位を伴う回答（32cm など）。単位の整合性を判定できないため
+      - 複数の値を含む回答（32 or 64、32〜64）
     """
     if text is None:
         return None
@@ -239,9 +252,7 @@ def extract_number(text: str | None) -> float | None:
         return None
 
     # 全角数字・記号を半角へ
-    s = s.translate(str.maketrans("０１２３４５６７８９．＋－，", "0123456789.+-,"))
-    # 桁区切りのカンマ（数字に挟まれたもの）のみを除去
-    s = re.sub(r"(?<=\d),(?=\d)", "", s)
+    s = s.translate(str.maketrans("０１２３４５６７８９．＋－，％", "0123456789.+-,%"))
     s = s.strip()
 
     # 囲みの括弧を 1 組だけ外す
@@ -250,18 +261,18 @@ def extract_number(text: str | None) -> float | None:
             s = s[len(left):-len(right)].strip()
             break
 
-    # 前後の付加を繰り返し取り除く（「約64個です」のように重なる場合がある）
-    changed = True
-    while changed:
-        changed = False
-        for pre in _NUM_PREFIXES:
-            if s.startswith(pre) and len(s) > len(pre):
-                s = s[len(pre):].strip()
-                changed = True
-        for suf in _NUM_SUFFIXES:
-            if s.endswith(suf) and len(s) > len(suf):
-                s = s[: -len(suf)].strip()
-                changed = True
+    # 末尾の百分率記号を 1 つだけ外す
+    for suf in _PERCENT_SUFFIXES:
+        if s.endswith(suf) and len(s) > len(suf):
+            s = s[: -len(suf)].strip()
+            break
+
+    # 桁区切りのカンマは、3 桁区切りとして正しい場合にかぎり除去する。
+    # 「1,2」のように 3 桁でないものは桁区切りと判断できないため受理しない。
+    if "," in s:
+        if not _GROUPED_RE.match(s):
+            return None
+        s = s.replace(",", "")
 
     if not _NUMBER_RE.match(s):
         return None
@@ -322,11 +333,20 @@ def judge_correctness(
     gold = gold.strip()
 
     if answer_type == "numeric":
-        p, g = extract_number(pred), extract_number(gold)
-        if p is not None and g is not None:
-            return abs(p - g) < 1e-6
-        # 双方を数値として読めない場合にかぎり文字列として比較する
-        return gold == pred
+        g = extract_number(gold)
+        if g is None:
+            # 数値タスクなのに正解を数値として読めない。データ側の不備であり、
+            # 文字列一致で正答にしてしまうと不備が見えなくなる。
+            raise ValueError(
+                f"answer_type='numeric' だが正解を数値として読めない: {gold!r}"
+            )
+        p = extract_number(pred)
+        if p is None:
+            # 回答が数値として読めない場合は未対応の表記として誤答扱いにする。
+            # 文字列一致による救済は行わない（'1/2' と '1/2' のように、
+            # 数値として解釈していないものを正答にしないため）。
+            return False
+        return abs(p - g) < 1e-6
     elif answer_type == "mc":
         # ラベル回答（A/B/C/D、0〜4）はまず選択肢テキストに解決してから比較する
         if gold == pred:

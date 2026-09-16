@@ -89,7 +89,7 @@ def main():
     # 書式上の付加がある正解を取りこぼさない
     results.append(test("百分率表記", judge_correctness("33%", "33", "numeric"), True))
     results.append(test("括弧付き", judge_correctness("[32]", "32", "numeric"), True))
-    results.append(test("単位付き", judge_correctness("約64個", "64", "numeric"), True))
+    results.append(test("概数語と単位は不可", judge_correctness("約64個", "64", "numeric"), False))
     # 数値として読めない回答を正解にしない
     results.append(test("非数値の回答", judge_correctness("不明", "64", "numeric"), False))
 
@@ -103,9 +103,9 @@ def main():
     results.append(test("範囲は受理しない", judge_correctness("32〜64", "32", "numeric"), False))
     # 表記上の付加は引き続き受理する
     results.append(test("全角数字", judge_correctness("１２３", "123", "numeric"), True))
-    results.append(test("文末の です", judge_correctness("64です", "64", "numeric"), True))
-    results.append(test("概数語と単位", judge_correctness("約 64 個です", "64", "numeric"), True))
-    results.append(test("正解側に単位なし", judge_correctness("1,200円", "1200", "numeric"), True))
+    results.append(test("文末の です は不可", judge_correctness("64です", "64", "numeric"), False))
+    results.append(test("概数語と単位は不可", judge_correctness("約 64 個です", "64", "numeric"), False))
+    results.append(test("単位付きは不可", judge_correctness("1,200円", "1200", "numeric"), False))
 
     # 見出しが混在する応答では、パターンの優先順ではなく出現位置で最後を採る
     mixed = "回答: 1\nAnswer: 2\nConfidence: 0.9"
@@ -117,6 +117,42 @@ def main():
     results.append(
         test("末尾抽出でも確信度は不変", parse_response(two_step, mode="ling").confidence, 0.95)
     )
+
+    # ===== 回帰テスト: 2026-09-16 の検証レビュー（G02〜G07）=====
+    # 単位は取り除かない。正解欄に単位が無いことは、回答の単位を消してよい
+    # 理由にならない（100ドルと100セントを区別できなくなる）。
+    results.append(test("単位付きは受理しない", judge_correctness("32cm", "32", "numeric"), False))
+    results.append(test("単位付き(m)", judge_correctness("32m", "32", "numeric"), False))
+    results.append(test("単位付き(円)", judge_correctness("32円", "32", "numeric"), False))
+    # 百分率だけは例外（設問が百分率を要求し、正解が単位なしの数値のため）
+    results.append(test("百分率は受理", judge_correctness("33%", "33", "numeric"), True))
+    results.append(test("全角百分率", judge_correctness("33％", "33", "numeric"), True))
+
+    # カンマは 3 桁区切りとして正しい場合のみ除去する
+    results.append(test("3桁区切り", judge_correctness("1,234", "1234", "numeric"), True))
+    results.append(test("2桁の区切りは不可", judge_correctness("1,23", "123", "numeric"), False))
+    results.append(test("1桁の区切りは不可", judge_correctness("1,2", "12", "numeric"), False))
+
+    # 付加の繰り返し除去を許さない
+    results.append(test("単位の重複", judge_correctness("32円ドル", "32", "numeric"), False))
+    results.append(test("記号の重複", judge_correctness("32%%", "32", "numeric"), False))
+    results.append(test("末尾記号の重複", judge_correctness("1.2..", "1.2", "numeric"), False))
+
+    # 未対応の表記は受理しない
+    results.append(test("小数点前の0省略", judge_correctness(".5", "0.5", "numeric"), False))
+    # 数値化できない回答は、正解と文字列が一致しても正答にしない
+    results.append(test("非数値の一致", judge_correctness("1/2", "1", "numeric"), False))
+
+    # 全角コロンの見出しを読める
+    fw = "回答：32\n確信度：0.9"
+    results.append(test("全角コロンの回答", parse_response(fw).answer, "32"))
+    results.append(test("全角コロンの確信度", parse_response(fw).confidence, 0.9))
+
+    # 確信度に % が付く場合は必ず 100 で割る
+    results.append(test("確信度 0.5%", parse_response("回答: 32\n確信度: 0.5%").confidence, 0.005))
+    results.append(test("確信度 75%", parse_response("回答: 32\n確信度: 75%").confidence, 0.75))
+    results.append(test("確信度 0.9", parse_response("回答: 32\n確信度: 0.9").confidence, 0.9))
+    results.append(test("確信度 90", parse_response("回答: 32\n確信度: 90").confidence, 0.9))
 
     # ===== サマリー =====
     n_passed = sum(results)
