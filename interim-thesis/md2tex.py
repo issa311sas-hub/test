@@ -34,26 +34,26 @@ import re
 from pathlib import Path
 
 SRC = Path(__file__).parent
-OUT = SRC / "tex"
+OUT = SRC / "overleaf"
+TEMPLATE = SRC / "template-src"
 
-# 見出しの対応。研究室の 2 段組みテンプレートは article 系で \chapter を
-# 持たないため、既定では章を \section に落とす。book 系のテンプレートに
-# 入れる場合は STYLE を "book" にする。
-STYLE = "article"
+# 研究室のテンプレート（jreport・1 段組み・章ごとのフォルダ）に合わせる。
+STYLE = "book"
 HEADINGS = {
     "article": ["section", "subsection", "subsubsection", "paragraph"],
     "book": ["chapter", "section", "subsection", "subsubsection"],
 }
 
+# 原稿 → テンプレート内の配置先
 CHAPTERS = [
-    ("01-abstract.md", "abstract.tex", None),
-    ("02-chapter1-introduction.md", "chapter1.tex", "序論"),
-    ("03-chapter2-related-work.md", "chapter2.tex", "関連研究"),
-    ("04-chapter3-design.md", "chapter3.tex", "設計方針"),
-    ("05-chapter4-implementation.md", "chapter4.tex", "実装"),
-    ("06-chapter5-experiment.md", "chapter5.tex", "予備実験"),
-    ("07-chapter6-discussion.md", "chapter6.tex", "考察"),
-    ("08-chapter7-future-work.md", "chapter7.tex", "今後の方針"),
+    ("01-abstract.md", "abstract/abstract.tex", None),
+    ("02-chapter1-introduction.md", "chapter1/index1.tex", "序論"),
+    ("03-chapter2-related-work.md", "chapter2/index2.tex", "関連研究"),
+    ("04-chapter3-design.md", "chapter3/index3.tex", "設計方針"),
+    ("05-chapter4-implementation.md", "chapter4/index4.tex", "実装"),
+    ("06-chapter5-experiment.md", "chapter5/index5.tex", "予備実験"),
+    ("07-chapter6-discussion.md", "chapter6/index6.tex", "考察"),
+    ("08-chapter7-future-work.md", "chapter7/index7.tex", "今後の方針"),
 ]
 
 # 図番号 → (出力するファイル名, 元のファイル名, 幅)
@@ -63,9 +63,11 @@ CHAPTERS = [
 # 図番号 → (出力名, 元のファイル名, 幅, 2段抜きにするか)
 # 確信度の分布は横長（3 対 1 程度）で、2 段組みの 1 段に入れると潰れて
 # 読めないため 2 段抜きにする。
+# 図番号 → (出力名, 元のファイル名, 幅の指定)
+# テンプレートの流儀に合わせて ./figure/ に置き、幅は cm で指定する。
 FIGURES = {
-    "5.1": ("confidence-distribution", "fig2_confidence", 1.0, True),
-    "5.2": ("reliability-diagram", "fig1_reliability", 0.85, False),
+    "5.1": ("confidence-distribution", "fig2_confidence", "14cm"),
+    "5.2": ("reliability-diagram", "fig1_reliability", "11cm"),
 }
 
 
@@ -129,18 +131,12 @@ def _visual_len(cell: str) -> int:
     return sum(1 if ch.isascii() else 2 for ch in body)
 
 
-def _visual_len(cell: str) -> int:
-    """おおまかな表示幅。日本語は 2、英数字は 1 として数える。"""
-    body = re.sub(r"\\[a-zA-Z]+\{?|\}", "", cell)
-    return sum(1 if ch.isascii() else 2 for ch in body)
-
-
-# 表の幅を決める目安（\small で組んだときに収まるおおよその文字数）。
-# 2 段組みの 1 段はおよそ 45 文字、本文幅いっぱいならおよそ 95 文字。
-COL_CAPACITY = 45
-PAGE_CAPACITY = 95
-# 1 つの列がこれより長い文を含むなら、折り返さないと段の外へ出る
-WRAP_THRESHOLD = 22
+# 表の幅の目安。テンプレートの本文幅は 30em + 50pt（およそ 14.4cm）で、
+# \small で組むと英数字でおよそ 78 文字分に相当する。_visual_len は
+# 日本語を 2、英数字を 1 で数えるので、その単位での目安として使う。
+PAGE_CAPACITY = 78
+# 1 つの列がこれより長い文を含むなら、折り返さないと本文幅を超える
+WRAP_THRESHOLD = 24
 
 
 def _breakable(code: str) -> str:
@@ -158,15 +154,15 @@ def _breakable(code: str) -> str:
 def convert_table(caption: str, rows: list[str], label: str) -> list[str]:
     r"""Markdown の表を LaTeX の表にする。キャプションは表の上に置く。
 
-    2 段組みで段幅を超えないよう、中身の量に応じて組み方を変える。
+    本文幅を超えないよう、中身の量に応じて組み方を変える。
 
-      - 全体が段幅に収まるなら table と tabular。
-      - 収まらないなら table\* で 2 段抜きにする。
-      - 長い文を含む列は tabularx の X 列にして折り返す。l 列は折り返さない
-        ため、そのままでは枠の外へ出る。
+      - 長い文を含む列があるなら tabularx の X 列にして折り返す。
+        l 列は折り返さないため、そのままでは本文幅を超える。
+      - 文は短いが列数が多くて収まらない表は、テンプレートの流儀に合わせて
+        \scalebox で縮める。数値が並ぶ表は折り返しても読めない。
 
-    tabularx を使う表があるため、テンプレート側に \usepackage{tabularx} が
-    必要になる。
+    tabularx を使う表があるため、main.tex に \usepackage{tabularx} を
+    加えてある。
     """
     cells = [[c.strip() for c in r.strip().strip("|").split("|")] for r in rows]
     header, body = cells[0], cells[2:]
@@ -175,37 +171,38 @@ def convert_table(caption: str, rows: list[str], label: str) -> list[str]:
               for k in range(ncol)]
     total = sum(widths) + 2 * ncol  # 罫線と余白の分
 
-    wide = total > COL_CAPACITY
-    long_cols = [k for k, w in enumerate(widths)
-                 if w > (WRAP_THRESHOLD * (2 if wide else 1))]
-    # 2 段抜きにしても収まらないなら、長い列を折り返す
-    if total > PAGE_CAPACITY and not long_cols:
-        long_cols = [max(range(ncol), key=lambda k: widths[k])]
+    long_cols = [k for k, w in enumerate(widths) if w > WRAP_THRESHOLD]
 
-    env = "table*" if wide else "table"
-    placement = "[t]" if wide else "[htbp]"
-    total_w = r"\textwidth" if wide else r"\linewidth"
-
-    lines = [f"\\begin{{{env}}}{placement}", r"\centering", r"\small",
+    lines = [r"\begin{table}[htbp]", r"\centering", r"\small",
              f"\\caption{{{caption}}}", f"\\label{{tab:{label}}}"]
 
+    scale = None
     if long_cols:
         spec = "|" + "|".join("X" if k in long_cols else "l"
                               for k in range(ncol)) + "|"
-        lines.append(f"\\begin{{tabularx}}{{{total_w}}}{{{spec}}}")
+        open_tag = f"\\begin{{tabularx}}{{\\linewidth}}{{{spec}}}"
         close = r"\end{tabularx}"
     else:
         spec = "|" + "l|" * ncol
-        lines.append(f"\\begin{{tabular}}{{{spec}}}")
+        open_tag = f"\\begin{{tabular}}{{{spec}}}"
         close = r"\end{tabular}"
+        if total > PAGE_CAPACITY:
+            scale = max(0.6, round(PAGE_CAPACITY / total, 2))
 
+    if scale is not None:
+        lines.append(f"\\scalebox{{{scale}}}{{")
+    lines.append(open_tag)
     lines.append(r"\hline")
     lines.append(" & ".join(header) + r" \\")
     lines.append(r"\hline")
     for row in body:
         row = (row + [""] * ncol)[:ncol]
         lines.append(" & ".join(row) + r" \\")
-    lines += [r"\hline", close, f"\\end{{{env}}}", ""]
+    lines.append(r"\hline")
+    lines.append(close)
+    if scale is not None:
+        lines.append("}")
+    lines += [r"\end{table}", ""]
     return lines
 
 
@@ -220,7 +217,7 @@ def flow_figure(lines: list[str], caption: str, num: str,
         steps.append(inline(escape(t), cites))
     out = [
         r"\begin{figure}[htbp]",
-        r"\centering",
+        r"\begin{center}",
         r"\begin{tabular}{c}",
     ]
     for k, step in enumerate(steps):
@@ -231,6 +228,7 @@ def flow_figure(lines: list[str], caption: str, num: str,
         r"\end{tabular}",
         f"\\caption{{{inline(escape(caption), cites)}}}",
         f"\\label{{fig:{num}}}",
+        r"\end{center}",
         r"\end{figure}",
         "",
     ]
@@ -367,24 +365,22 @@ def convert(path: Path, cites: dict[str, str], chapter_title: str | None) -> str
             flush_para(); close_list()
             num, cap = m.group(1), inline(escape(m.group(2)), cites)
             if num in FIGURES:
-                fname, _src, width, wide = FIGURES[num]
-                env = "figure*" if wide else "figure"
-                place = "[t]" if wide else "[htbp]"
-                base = r"\textwidth" if wide else r"\linewidth"
+                fname, _src, width = FIGURES[num]
                 out += [
-                    f"\\begin{{{env}}}{place}", r"\centering",
-                    f"\\includegraphics[width={width}{base}]{{figures/{fname}}}",
+                    r"\begin{figure}[htbp]",
+                    r"\begin{center}",
+                    f"\\includegraphics[width={width}]{{./figure/{fname}.png}}",
                     f"\\caption{{{cap}}}", f"\\label{{fig:{num}}}",
-                    f"\\end{{{env}}}", "",
+                    r"\end{center}",
+                    r"\end{figure}", "",
                 ]
             else:
-                # 図 3.1 は未作成。差し替え位置を残す
                 out += [
-                    r"\begin{figure}[htbp]", r"\centering",
+                    r"\begin{figure}[htbp]", r"\begin{center}",
                     r"\fbox{\parbox{0.8\linewidth}{\centering\vspace{3zw}"
                     r"（作図して差し替える）\vspace{3zw}}}",
                     f"\\caption{{{cap}}}", f"\\label{{fig:{num}}}",
-                    r"\end{figure}", "",
+                    r"\end{center}", r"\end{figure}", "",
                 ]
             i += 1
             continue
@@ -466,7 +462,7 @@ def build_bibliography() -> str:
             continue
         blocks[num].append(t)
 
-    lines = [r"\begin{thebibliography}{99}"]
+    lines = [r"\begin{thebibliography}{99}", r"{\normalsize", ""]
     for n in sorted(blocks, key=int):
         key = cites.get(n)
         if not key:
@@ -477,95 +473,109 @@ def build_bibliography() -> str:
         body = re.sub(r"https?://[^\s]+", lambda m: r"\url{" + m.group(0) + "}",
                       body)
         lines.append(f"\\bibitem{{{key}}} {body}")
-    lines.append(r"\end{thebibliography}")
+        lines.append("")
+    lines += ["", "}", r"\end{thebibliography}"]
     return "\n".join(lines) + "\n"
 
 
-MAIN = r"""%% 中間論文（夏の中間報告）
-%%
-%% Overleaf でのコンパイル設定:
-%%   Compiler: LaTeX  (uplatex + dvipdfmx)
-%%   Main document: main.tex
-%%
-%% 研究室指定のテンプレートに入れる場合は、この main.tex は使わず、
-%% \input{...} で各章を差し込む。そのときテンプレートのプリアンブルに
-%% 下の \usepackage 群（とくに tabularx）が入っているか確認すること。
-\documentclass[uplatex,dvipdfmx,a4paper,10pt,twocolumn]{jsarticle}
+TITLE = r"""\begin{titlepage}
 
-\usepackage{graphicx}
-\usepackage{amsmath,amssymb}
-\usepackage{tabularx}   % 表の折り返しに必要
-\usepackage{url}        % 参考文献の URL に必要
-\usepackage[dvipdfmx]{hyperref}
-\usepackage{pxjahyper}
+\title{\flushleft{\vspace{-3cm}\small{2026年度~~卒業研究~~中間報告}}\\\vspace{3.5cm}
+\center{{\huge \bf
 
-\title{プロンプト設計による大規模言語モデルの\\キャリブレーション性能向上に関する研究}
-\author{7422048 指田 一茶}
-\date{2026 年度 中間報告}
+プロンプト設計による大規模言語モデルの \\
+キャリブレーション性能向上に関する研究 \\
 
-\begin{document}
+}}\vfill}
 
-\twocolumn[
-  \begin{@twocolumnfalse}
-    \maketitle
-    \begin{abstract}
-    \input{abstract}
-    \end{abstract}
-    \vspace{1zw}
-  \end{@twocolumnfalse}
-]
+\author{
+\rightline{東京理科大学~~創域理工学部~~経営システム工学科}\\
+\rightline{秦野研究室~~7422048~~指田~~一茶}\\
+\rightline{}\\
+\rightline{指導教員~~~秦野~~亮}}
+\date{}
 
-\input{chapter1}
-\input{chapter2}
-\input{chapter3}
-\input{chapter4}
-\input{chapter5}
-\input{chapter6}
-\input{chapter7}
+\maketitle
 
-%% 参考文献は BibTeX を使わずに出力する。
-%% BibTeX を使いたい場合は、この行を次の 2 行に置き換える。
-%%   \bibliographystyle{junsrt}
-%%   \bibliography{references}
-\input{references}
-
-\end{document}
+\end{titlepage}
 """
 
 
+def build_abstract(body: str) -> str:
+    """概要はテンプレートに合わせて chapter* で組む。"""
+    return ("\\chapter*{中間報告概要}\n"
+            "\\addcontentsline{toc}{chapter}{中間報告概要}\n\n") + body
+
+
+def patch_main(text: str) -> str:
+    r"""テンプレートの main.tex に必要な変更を加える。
+
+    本文の表で tabularx を、参考文献で url を使うため、パッケージを足す。
+    それ以外はテンプレートのまま変えない。参考文献は
+    reference/reference.tex に thebibliography 形式で書き出すので、
+    テンプレートの \include をそのまま使える。
+    """
+    anchor = "\\usepackage{caption}"
+    assert text.count(anchor) == 1, "main.tex の想定が違う"
+    text = text.replace(
+        anchor,
+        anchor
+        + "\n\\usepackage{tabularx}  % 本文の表で使用"
+        + "\n\\usepackage{url}       % 参考文献の URL で使用",
+    )
+    text = text.replace(
+        "% 2019年度　本論文　テンプレート",
+        "% 2026年度 卒業研究 中間報告\n"
+        "% 研究室テンプレートに interim-thesis の原稿を流し込んだもの。\n"
+        "% 原稿を直す場合は interim-thesis/*.md を直し、\n"
+        "% interim-thesis/md2tex.py を実行し直すこと。",
+    )
+    return text
+
+
 def main() -> int:
-    OUT.mkdir(exist_ok=True)
-    (OUT / "figures").mkdir(exist_ok=True)
+    import shutil
+
+    if OUT.exists():
+        shutil.rmtree(OUT)
+    for sub in ["", "figure", "abstract", "reference"] + [f"chapter{n}" for n in range(1, 8)]:
+        (OUT / sub).mkdir(parents=True, exist_ok=True)
+
     cites = load_citation_map()
     print(f"引用の対応: {len(cites)} 件")
 
     for src_name, out_name, title in CHAPTERS:
         body = convert(SRC / src_name, cites, title)
+        if out_name.startswith("abstract"):
+            body = build_abstract(body)
         (OUT / out_name).write_text(body, encoding="utf-8")
-        print(f"  {src_name} -> tex/{out_name}  ({len(body)} 文字)")
+        print(f"  {src_name} -> {out_name}")
 
-    (OUT / "references.tex").write_text(build_bibliography(), encoding="utf-8")
-    print("  tex/references.tex（thebibliography 版）")
+    (OUT / "reference" / "reference.tex").write_text(
+        build_bibliography(), encoding="utf-8")
+    print("  reference/reference.tex")
 
-    (OUT / "main.tex").write_text(MAIN, encoding="utf-8")
-    print("  tex/main.tex")
+    (OUT / "title.tex").write_text(TITLE, encoding="utf-8")
+    print("  title.tex")
 
-    # 図と文献データを tex/ に配置する
-    import shutil
+    main_tex = (TEMPLATE / "main.tex").read_text(encoding="utf-8")
+    (OUT / "main.tex").write_text(patch_main(main_tex), encoding="utf-8")
+    shutil.copy(TEMPLATE / "latexmkrc", OUT / "latexmkrc")
+    print("  main.tex / latexmkrc")
 
     figdir = SRC.parent / "research" / "experiment" / "pilot" / "figures_fixed"
-    for _num, (dst, src_name, _w, _wide) in FIGURES.items():
+    for _num, (dst, src_name, _w) in FIGURES.items():
         src_path = figdir / f"{src_name}.png"
         if src_path.exists():
-            shutil.copy(src_path, OUT / "figures" / f"{dst}.png")
-            print(f"  figures/{dst}.png <- {src_name}.png")
+            shutil.copy(src_path, OUT / "figure" / f"{dst}.png")
+            print(f"  figure/{dst}.png")
         else:
             print(f"  [警告] 図が見つかりません: {src_path}")
 
     bib = SRC.parent / "research" / "references.bib"
     if bib.exists():
         shutil.copy(bib, OUT / "references.bib")
-        print("  tex/references.bib")
+        print("  references.bib（BibTeX を使う場合のみ）")
     return 0
 
 
