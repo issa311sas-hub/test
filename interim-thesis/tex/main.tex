@@ -4,14 +4,15 @@
 %%   Compiler: LaTeX  (uplatex + dvipdfmx)
 %%   Main document: main.tex
 %%
-%% 研究室指定のフォーマットがある場合は、この main.tex は使わず、
-%% chapter1.tex 〜 chapter7.tex と abstract.tex をテンプレートに
-%% \input で差し込むこと。
-\documentclass[uplatex,dvipdfmx,a4paper,11pt]{jsbook}
+%% 研究室指定のテンプレートに入れる場合は、この main.tex は使わず、
+%% \input{...} で各章を差し込む。そのときテンプレートのプリアンブルに
+%% 下の \usepackage 群（とくに tabularx）が入っているか確認すること。
+\documentclass[uplatex,dvipdfmx,a4paper,10pt,twocolumn]{jsarticle}
 
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
-\usepackage{booktabs}
+\usepackage{tabularx}   % 表の折り返しに必要
+\usepackage{url}        % 参考文献の URL に必要
 \usepackage[dvipdfmx]{hyperref}
 \usepackage{pxjahyper}
 
@@ -21,15 +22,15 @@
 
 \begin{document}
 
-\maketitle
-
-\chapter*{要旨}
-\addcontentsline{toc}{chapter}{要旨}
-\input{abstract}
-
-\tableofcontents
-\listoffigures
-\listoftables
+\twocolumn[
+  \begin{@twocolumnfalse}
+    \maketitle
+    \begin{abstract}
+    \input{abstract}
+    \end{abstract}
+    \vspace{1zw}
+  \end{@twocolumnfalse}
+]
 
 \input{chapter1}
 \input{chapter2}
@@ -39,7 +40,10 @@
 \input{chapter6}
 \input{chapter7}
 
-\bibliographystyle{junsrt}
-\bibliography{references}
+%% 参考文献は BibTeX を使わずに出力する。
+%% BibTeX を使いたい場合は、この行を次の 2 行に置き換える。
+%%   \bibliographystyle{junsrt}
+%%   \bibliography{references}
+\input{references}
 
 \end{document}
