@@ -68,5 +68,8 @@ build/
 dist/
 *.egg-info/
 
+# Overleaf へ渡すためにまとめた書庫（interim-thesis/tex/ から作り直せる）
+interim-thesis/*.zip
+
 # Claude Code local settings (personal overrides)
 .claude/settings.local.json
