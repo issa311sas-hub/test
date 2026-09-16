@@ -93,6 +93,24 @@ def main():
     # 数値として読めない回答を正解にしない
     results.append(test("非数値の回答", judge_correctness("不明", "64", "numeric"), False))
 
+    # ===== 回帰テスト: 2026-09-16 の追加レビュー（F01・F03）=====
+    # 文字列の一部に数字があれば採用する実装は、意味の異なる回答まで
+    # 受理してしまっていた。正規化後に全体が数値として読める場合のみ受理する。
+    results.append(test("分数は受理しない", judge_correctness("1/2", "1", "numeric"), False))
+    results.append(test("指数表記は受理しない", judge_correctness("1e3", "1", "numeric"), False))
+    results.append(test("複数候補は受理しない", judge_correctness("32 or 64", "32", "numeric"), False))
+    results.append(test("式は受理しない", judge_correctness("8 × 8", "8", "numeric"), False))
+    results.append(test("範囲は受理しない", judge_correctness("32〜64", "32", "numeric"), False))
+    # 表記上の付加は引き続き受理する
+    results.append(test("全角数字", judge_correctness("１２３", "123", "numeric"), True))
+    results.append(test("文末の です", judge_correctness("64です", "64", "numeric"), True))
+    results.append(test("概数語と単位", judge_correctness("約 64 個です", "64", "numeric"), True))
+    results.append(test("正解側に単位なし", judge_correctness("1,200円", "1200", "numeric"), True))
+
+    # 見出しが混在する応答では、パターンの優先順ではなく出現位置で最後を採る
+    mixed = "回答: 1\nAnswer: 2\nConfidence: 0.9"
+    results.append(test("見出し混在で最後を採る", parse_response(mixed).answer, "2"))
+
     # 仮の記入のあとに本来の回答を書く応答から、最後の回答を採る（mgsm_ja_006 等）
     two_step = "回答: [計算します]\n\n8 × 8 = 64\n\n回答: 64\n確信度: ほぼ確実"
     results.append(test("末尾の回答を採る", parse_response(two_step, mode="ling").answer, "64"))

@@ -135,17 +135,22 @@ def parse_response(text: str, mode: str = "numeric_0_100") -> ParseResult:
 
 
 def _extract_last(text: str, patterns: list[str]) -> str | None:
-    """最後に現れた一致を返す。
+    """応答中で最後に現れた回答を返す。
 
     モデルは「回答: [計算します]」のような仮の記入をしてから途中式を書き、
     最後に「回答: 64」と本来の答えを書くことがある。最初の一致を採ると
     仮の記入のほうを回答として扱ってしまうため、最後の一致を採る。
+
+    パターンの優先順ではなく出現位置で選ぶ。パターンごとに順に探して最初に
+    一致したものを採ると、「回答:」と「Answer:」のように見出しが混在する
+    応答で、後ろにある本来の回答ではなく前にある見出しの側を拾ってしまう。
     """
+    best: tuple[int, str] | None = None
     for pat in patterns:
-        matches = re.findall(pat, text, re.MULTILINE | re.DOTALL)
-        if matches:
-            return matches[-1].strip()
-    return None
+        for m in re.finditer(pat, text, re.MULTILINE | re.DOTALL):
+            if best is None or m.start() > best[0]:
+                best = (m.start(), m.group(1).strip())
+    return best[1] if best else None
 
 
 def _extract_first(text: str, patterns: list[str]) -> str | None:
@@ -184,30 +189,84 @@ def _parse_verbal_confidence(text: str) -> float | None:
     return None
 
 
+# 数値回答から取り除いてよい表記上の付加。ここに挙げたものだけを許容し、
+# 取り除いたあとに文字列全体が 1 つの数値として読める場合にかぎり受理する。
+# MGSM の正解は単位を持たない数値なので、単位や概数の語は数値の同一性を
+# 変えない付加とみなす。単位付きの正解を持つデータセットを扱う際は、
+# この一覧と受理の方針を見直すこと。
+_NUM_PREFIXES = ("約", "およそ", "ほぼ", "答えは", "答え", "＝", "=")
+_NUM_SUFFIXES = (
+    "%", "％",
+    "円", "ドル", "セント", "ユーロ",
+    "個", "人", "匹", "頭", "羽", "冊", "枚", "本", "台", "回", "点", "問",
+    "歳", "袋", "箱", "束", "足", "組", "杯", "皿", "切れ",
+    "日", "時間", "分", "秒", "週間", "か月", "ヶ月", "年",
+    "ページ", "キロ", "メートル", "センチ", "グラム", "リットル",
+    "km", "m", "cm", "kg", "g", "L",
+    "です", "。", "．", ".",
+)
+_BRACKET_PAIRS = (("[", "]"), ("(", ")"), ("（", "）"), ("「", "」"), ("『", "』"))
+
+# 取り除いたあとに全体が一致していなければならない形
+_NUMBER_RE = re.compile(r"^[-+]?\d+(?:\.\d+)?$")
+
+
 def extract_number(text: str | None) -> float | None:
-    """文字列から数値を1つ取り出す。取り出せない場合は None を返す。
+    """回答または正解を数値として読む。読めない場合は None を返す。
 
     正解側・回答側の双方に同じ規則を適用するために使う。以前は回答側だけ
     桁区切りのカンマを除去し、正解側はそのまま float に渡していたため、
-    正解が「2,125」で回答が「2125」のとき数値比較に失敗し、部分一致の
-    判定に落ちて誤答と記録されていた。
+    正解が「2,125」で回答が「2125」のとき数値比較に失敗していた。
 
-    「33%」「[32]」「約64個」のように書式上の付加がある回答も救済する。
-    ただし数値が複数含まれる場合は最初の 1 つだけを見るため、式をそのまま
-    書いた回答などは意図した値にならないことがある。
+    受理するのは、下記の正規化を施したあとに**文字列全体**が単一の数値と
+    して読める場合にかぎる。文字列のどこかに数字があれば採用する方式は、
+    「1/2」を 1、「32 or 64」を 32 として受理してしまうため採らない。
+
+    正規化の内容:
+      - 全角数字・全角記号を半角にする
+      - 数字に挟まれたカンマ（桁区切り）を除去する
+      - 前後の空白を除去する
+      - 囲みの括弧を 1 組だけ外す
+      - _NUM_PREFIXES / _NUM_SUFFIXES に挙げた語を前後から取り除く
+
+    分数（1/2）と指数表記（1e3）は未対応であり、受理しない。これらを
+    正しく扱う必要が生じた場合は、この関数で明示的に解釈を追加すること。
     """
     if text is None:
         return None
     s = str(text).strip()
     if not s:
         return None
-    # 桁区切りのカンマ（数字に挟まれたもの）のみを除去する
+
+    # 全角数字・記号を半角へ
+    s = s.translate(str.maketrans("０１２３４５６７８９．＋－，", "0123456789.+-,"))
+    # 桁区切りのカンマ（数字に挟まれたもの）のみを除去
     s = re.sub(r"(?<=\d),(?=\d)", "", s)
-    m = re.search(r"[-+]?\d+(?:\.\d+)?", s)
-    if not m:
+    s = s.strip()
+
+    # 囲みの括弧を 1 組だけ外す
+    for left, right in _BRACKET_PAIRS:
+        if s.startswith(left) and s.endswith(right) and len(s) > 2:
+            s = s[len(left):-len(right)].strip()
+            break
+
+    # 前後の付加を繰り返し取り除く（「約64個です」のように重なる場合がある）
+    changed = True
+    while changed:
+        changed = False
+        for pre in _NUM_PREFIXES:
+            if s.startswith(pre) and len(s) > len(pre):
+                s = s[len(pre):].strip()
+                changed = True
+        for suf in _NUM_SUFFIXES:
+            if s.endswith(suf) and len(s) > len(suf):
+                s = s[: -len(suf)].strip()
+                changed = True
+
+    if not _NUMBER_RE.match(s):
         return None
     try:
-        return float(m.group(0))
+        return float(s)
     except ValueError:
         return None
 
