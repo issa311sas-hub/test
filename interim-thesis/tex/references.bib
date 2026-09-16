@@ -1,0 +1,477 @@
+% 卒業研究 参考文献 BibTeX データベース
+% 作成日: 2026年4月9日
+% 注意: URLと一部のページ番号は実際に論文を確認して埋めてください
+
+% ===== A. Confidence Calibration 基礎 =====
+
+@inproceedings{guo2017calibration,
+  title={On Calibration of Modern Neural Networks},
+  author={Guo, Chuan and Pleiss, Geoff and Sun, Yu and Weinberger, Kilian Q.},
+  booktitle={Proceedings of the 34th International Conference on Machine Learning},
+  year={2017},
+  series={ICML'17},
+  pages={1321--1330},
+  url={https://arxiv.org/abs/1706.04599}
+}
+
+@inproceedings{desai2020calibration,
+  title={Calibration of Pre-trained Transformers},
+  author={Desai, Shrey and Durrett, Greg},
+  booktitle={Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing},
+  year={2020},
+  pages={295--302},
+  publisher={Association for Computational Linguistics},
+  url={https://arxiv.org/abs/2003.07892}
+}
+
+@inproceedings{kuleshov2018calibrated,
+  title={Accurate Uncertainties for Deep Learning Using Calibrated Regression},
+  author={Kuleshov, Volodymyr and Fenner, Nathan and Ermon, Stefano},
+  booktitle={Proceedings of the 35th International Conference on Machine Learning},
+  year={2018},
+  url={https://arxiv.org/abs/1807.00263}
+}
+
+@inproceedings{naeini2015binning,
+  title={Obtaining Well Calibrated Probabilities Using Bayesian Binning},
+  author={Naeini, Mahdi Pakdaman and Cooper, Gregory and Hauskrecht, Milos},
+  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  year={2015},
+  volume={29},
+  number={1}
+}
+
+% ===== B. LLM の自己評価能力 =====
+
+@article{kadavath2022know,
+  title={Language Models (Mostly) Know What They Know},
+  author={Kadavath, Saurav and Conerly, Tom and Askell, Amanda and Henighan, Tom and others},
+  journal={arXiv preprint arXiv:2207.05221},
+  year={2022},
+  url={https://arxiv.org/abs/2207.05221}
+}
+
+@article{lin2022teaching,
+  title={Teaching Models to Express Their Uncertainty in Words},
+  author={Lin, Stephanie and Hilton, Jacob and Evans, Owain},
+  journal={Transactions on Machine Learning Research},
+  year={2022},
+  url={https://arxiv.org/abs/2205.14334}
+}
+
+@inproceedings{tian2023justask,
+  title={Just Ask for Calibration: Strategies for Eliciting Calibrated Confidence Scores from Language Models Fine-Tuned with Human Feedback},
+  author={Tian, Katherine and Mitchell, Eric and Zhou, Allan and Khattab, Omar and others},
+  booktitle={Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing},
+  year={2023},
+  url={https://arxiv.org/abs/2305.14975}
+}
+
+@inproceedings{xiong2024llmuncertainty,
+  title={Can LLMs Express Their Uncertainty? An Empirical Evaluation of Confidence Elicitation in LLMs},
+  author={Xiong, Miao and Hu, Zhiyuan and Lu, Xinyang and Li, Yifei and others},
+  booktitle={International Conference on Learning Representations},
+  year={2024},
+  url={https://arxiv.org/abs/2306.13063}
+}
+
+@article{yang2024verbalizedscores,
+  title={On Verbalized Confidence Scores for LLMs},
+  author={Yang, Daniel and Tsai, Yao-Hung Hubert and Yamada, Makoto},
+  journal={arXiv preprint arXiv:2412.14737},
+  year={2024},
+  url={https://arxiv.org/abs/2412.14737},
+  note={PDF: research/papers/2412.14737v2.pdf}
+}
+
+@article{dai2026rescaling,
+  title={Rescaling Confidence: What Scale Design Reveals About LLM Metacognition},
+  author={Dai, Yuyang and Wang, Yuxia},
+  journal={arXiv preprint arXiv:2603.09309},
+  year={2026},
+  url={https://arxiv.org/abs/2603.09309},
+  note={0-100スケールでの確信度がラウンドナンバーに集中する問題を指摘。0-20スケールがmeta-d'で最良と報告。PDF: research/papers/2603.09309v2.pdf}
+}
+
+@inproceedings{seo2025advice,
+  title={{ADVICE}: Answer-Dependent Verbalized Confidence Estimation},
+  author={Seo, Ki Jung and Lim, Sehun and Kim, Taeuk},
+  booktitle={arXiv preprint},
+  year={2025},
+  url={https://arxiv.org/abs/2510.10913},
+  note={fine-tuning手法（本研究のプロンプトのみの設計とは異なる）。回答非依存性が過信の主因という診断的知見のみを引用。PDF: research/papers/2510.10913v3.pdf}
+}
+
+@inproceedings{xue2025mlingconf,
+  title={{MlingConf}: A Comprehensive Study of Multilingual Confidence Estimation on Large Language Models},
+  author={Xue, Boyang and Wang, Hongru and Wang, Rui and Wang, Sheng and Wang, Zezhong and Du, Yiming and Liang, Bin and Zhang, Wenxuan and Wong, Kam-Fai},
+  booktitle={Findings of the Association for Computational Linguistics: ACL 2025},
+  pages={2535--2556},
+  year={2025},
+  url={https://aclanthology.org/2025.findings-acl.129/},
+  note={日本語を含む5言語でVerbalized Confidence（単一手法）を検証済み。ただし複数プロンプト方式の比較・日本語ネイティブデータセットは未実施。PDF: research/papers/2025.findings-acl.129.pdf}
+}
+
+@inproceedings{li2025conftuner,
+  title={ConfTuner: Training Large Language Models to Express Their Confidence Verbally},
+  author={Li, Yibo and Xiong, Miao and Wu, Jiaying and Hooi, Bryan},
+  booktitle={arXiv preprint},
+  year={2025},
+  url={https://arxiv.org/abs/2508.18847},
+  note={fine-tuning手法（比較対象として言及のみ、本研究では不使用）。PDF: research/papers/2508.18847v2.pdf}
+}
+
+@article{mielke2022reducing,
+  title={Reducing Conversational Agents' Overconfidence through Linguistic Calibration},
+  author={Mielke, Sabrina J. and Szlam, Arthur and Dinan, Emily and Boureau, Y-Lan},
+  journal={Transactions of the Association for Computational Linguistics},
+  year={2022},
+  volume={10},
+  pages={857--872},
+  url={https://arxiv.org/abs/2012.14983}
+}
+
+% ===== C. LLM 評価・ベンチマーク =====
+
+@inproceedings{hendrycks2021mmlu,
+  title={Measuring Massive Multitask Language Understanding},
+  author={Hendrycks, Dan and Burns, Collin and Basart, Steven and Zou, Andy and others},
+  booktitle={International Conference on Learning Representations},
+  year={2021},
+  url={https://arxiv.org/abs/2009.03300}
+}
+
+@article{cobbe2021gsm8k,
+  title={Training Verifiers to Solve Math Word Problems},
+  author={Cobbe, Karl and Kosaraju, Vineet and Bavarian, Mohammad and Chen, Mark and others},
+  journal={arXiv preprint arXiv:2110.14168},
+  year={2021},
+  url={https://arxiv.org/abs/2110.14168}
+}
+
+@inproceedings{shi2023mgsm,
+  title={Language Models are Multilingual Chain-of-Thought Reasoners},
+  author={Shi, Freda and Suzgun, Mirac and Freitag, Markus and Wang, Xuezhi and others},
+  booktitle={International Conference on Learning Representations},
+  year={2023},
+  url={https://arxiv.org/abs/2210.03057}
+}
+
+% ===== D. 日本語 LLM・日本語評価 =====
+
+@misc{llmjpeval2024,
+  title={llm-jp-eval: A Cross-Tool Evaluation Framework for Japanese Large Language Models},
+  author={{LLM-jp Community}},
+  year={2024},
+  howpublished={\url{https://github.com/llm-jp/llm-jp-eval}}
+}
+
+@inproceedings{fujii2024swallow,
+  title={Continual Pre-Training for Cross-Lingual LLM Adaptation: Enhancing Japanese Language Capabilities},
+  author={Fujii, Kazuki and Nakamura, Taishi and Loem, Mengsay and Iida, Hiroki and Ohi, Masanari and Hattori, Kakeru and Shota, Hirai and Mizuki, Sakae and Yokota, Rio and Okazaki, Naoaki},
+  booktitle={First Conference on Language Modeling},
+  year={2024}
+}
+
+@inproceedings{kurihara2022jglue,
+  title={JGLUE: Japanese General Language Understanding Evaluation},
+  author={Kurihara, Kentaro and Kawahara, Daisuke and Shibata, Tomohide},
+  booktitle={Proceedings of the Thirteenth Language Resources and Evaluation Conference},
+  year={2022},
+  pages={2957--2966}
+}
+
+% ===== E. 幻覚（Hallucination）研究 =====
+
+@article{ji2023hallucination,
+  title={Survey of Hallucination in Natural Language Generation},
+  author={Ji, Ziwei and Lee, Nayeon and Frieske, Rita and Yu, Tiezheng and others},
+  journal={ACM Computing Surveys},
+  year={2023},
+  volume={55},
+  number={12},
+  pages={1--38},
+  url={https://arxiv.org/abs/2202.03629}
+}
+
+@article{huang2023hallucination,
+  title={A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions},
+  author={Huang, Lei and Yu, Weijiang and Ma, Weitao and Zhong, Weihong and others},
+  journal={arXiv preprint arXiv:2311.05232},
+  year={2023},
+  url={https://arxiv.org/abs/2311.05232}
+}
+
+% ===== F. 社会・倫理 =====
+
+@inproceedings{bender2021parrots,
+  title={On the Dangers of Stochastic Parrots: Can Language Models Be Too Big?},
+  author={Bender, Emily M. and Gebru, Timnit and McMillan-Major, Angelina and Shmitchell, Shmargaret},
+  booktitle={Proceedings of the 2021 ACM Conference on Fairness, Accountability, and Transparency},
+  year={2021},
+  pages={610--623}
+}
+
+% ===== G. LLM 一般 =====
+
+@inproceedings{devlin2019bert,
+  title={{BERT}: Pre-training of Deep Bidirectional Transformers for Language Understanding},
+  author={Devlin, Jacob and Chang, Ming-Wei and Lee, Kenton and Toutanova, Kristina},
+  booktitle={Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics},
+  year={2019},
+  pages={4171--4186}
+}
+
+@article{nllb2022,
+  title={No Language Left Behind: Scaling Human-Centered Machine Translation},
+  author={{NLLB Team} and others},
+  journal={arXiv preprint arXiv:2207.04672},
+  year={2022},
+  url={https://arxiv.org/abs/2207.04672}
+}
+
+% ===== H. 動的認識論理（DEL）— 理論的フレーミング用 =====
+
+@book{vanditmarsch2007del,
+  title={Dynamic Epistemic Logic},
+  author={van Ditmarsch, Hans and van der Hoek, Wiebe and Kooi, Barteld},
+  year={2007},
+  publisher={Springer},
+  series={Synthese Library},
+  volume={337},
+  address={Dordrecht}
+}
+
+@book{fagin1995reasoning,
+  title={Reasoning About Knowledge},
+  author={Fagin, Ronald and Halpern, Joseph Y. and Moses, Yoram and Vardi, Moshe Y.},
+  year={1995},
+  publisher={MIT Press},
+  address={Cambridge, MA}
+}
+
+@book{ono1994joho,
+  title={情報科学における論理},
+  author={小野, 寛晰},
+  year={1994},
+  publisher={日本評論社},
+  address={東京}
+}
+
+@misc{baltag2016del,
+  title={Dynamic Epistemic Logic},
+  author={Baltag, Alexandru and Renne, Bryan},
+  year={2016},
+  howpublished={\url{https://plato.stanford.edu/entries/dynamic-epistemic/}},
+  note={Stanford Encyclopedia of Philosophy}
+}
+
+% ===== J. Murphy 分解・Proper Scoring Rule 理論（探索的オプション用） =====
+
+@article{brocker2009reliability,
+  title={Reliability, Sufficiency, and the Decomposition of Proper Scores},
+  author={Br{\"o}cker, Jochen},
+  journal={Quarterly Journal of the Royal Meteorological Society},
+  volume={135},
+  number={643},
+  pages={1512--1519},
+  year={2009},
+  url={https://arxiv.org/abs/0806.0813},
+  note={PDF: research/papers/0806.0813v2.pdf}
+}
+
+@article{ferro2012decomposition,
+  title={A Bias-Corrected Decomposition of the Brier Score},
+  author={Ferro, Christopher A. T. and Fricker, Thomas E.},
+  journal={Quarterly Journal of the Royal Meteorological Society},
+  volume={138},
+  number={668},
+  pages={1954--1960},
+  year={2012},
+  url={https://arxiv.org/abs/1303.6182},
+  note={PDF未入手（arXiv:1303.6182、research/missing-papers-checklist.md参照）}
+}
+
+@article{murphy1973partition,
+  title={A New Vector Partition of the Probability Score},
+  author={Murphy, Allan H.},
+  journal={Journal of Applied Meteorology},
+  volume={12},
+  number={4},
+  pages={595--600},
+  year={1973},
+  note={Brier Score の REL/RES/UNC 分解の出典}
+}
+
+@article{pohle2020murphy,
+  title={The Murphy Decomposition and the Calibration-Resolution Principle: A New Perspective on Forecast Evaluation},
+  author={Pohle, Marc-Oliver},
+  journal={arXiv preprint arXiv:2005.01835},
+  year={2020},
+  url={https://arxiv.org/abs/2005.01835},
+  note={PDF: research/papers/2005.01835v1.pdf}
+}
+
+% ===== K. 翻訳評価・LLM-as-a-Judge（正答判定用） =====
+
+@inproceedings{rei2020comet,
+  title={{COMET}: A Neural Framework for {MT} Evaluation},
+  author={Rei, Ricardo and Stewart, Craig and Farinha, Ana C and Lavie, Alon},
+  booktitle={Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing},
+  pages={2685--2702},
+  year={2020},
+  url={https://aclanthology.org/2020.emnlp-main.213/},
+  note={PDF: research/papers/2020.emnlp-main.213.pdf}
+}
+
+@inproceedings{zhang2020bertscore,
+  title={{BERTScore}: Evaluating Text Generation with {BERT}},
+  author={Zhang, Tianyi and Kishore, Varsha and Wu, Felix and Weinberger, Kilian Q. and Artzi, Yoav},
+  booktitle={International Conference on Learning Representations},
+  year={2020},
+  url={https://arxiv.org/abs/1904.09675},
+  note={PDF: research/papers/1904.09675v3.pdf}
+}
+
+@inproceedings{kocmi2023gemba,
+  title={Large Language Models Are State-of-the-Art Evaluators of Translation Quality},
+  author={Kocmi, Tom and Federmann, Christian},
+  booktitle={Proceedings of the 24th Annual Conference of the European Association for Machine Translation},
+  year={2023},
+  url={https://arxiv.org/abs/2302.14520},
+  note={PDF: research/papers/2023.eamt-1.19.pdf}
+}
+
+@inproceedings{kocmi2023gembamqm,
+  title={{GEMBA-MQM}: Detecting Translation Quality Error Spans with {GPT-4}},
+  author={Kocmi, Tom and Federmann, Christian},
+  booktitle={Proceedings of the Eighth Conference on Machine Translation (WMT)},
+  pages={768--775},
+  year={2023},
+  url={https://arxiv.org/abs/2310.13988},
+  note={PDF: research/papers/2023.wmt-1.64.pdf}
+}
+
+@inproceedings{saito2023verbosity,
+  title={Verbosity Bias in Preference Labeling by Large Language Models},
+  author={Saito, Keita and Wachi, Akifumi and Wataoka, Koki and Akimoto, Youhei},
+  booktitle={NeurIPS Workshop on Instruction Tuning and Instruction Following},
+  year={2023},
+  url={https://arxiv.org/abs/2310.10076},
+  note={PDF: research/papers/2310.10076v1.pdf}
+}
+
+@inproceedings{shi2025judgingjudges,
+  title={Judging the Judges: A Systematic Study of Position Bias in {LLM-as-a-Judge}},
+  author={Shi, Lin and Ma, Chiyu and Liang, Wenhua and Diao, Xingjian and Ma, Weicheng and Vosoughi, Soroush},
+  booktitle={Proceedings of the 14th International Joint Conference on Natural Language Processing and the 4th Conference of the Asia-Pacific Chapter of the ACL (IJCNLP-AACL)},
+  pages={292--314},
+  year={2025},
+  url={https://arxiv.org/abs/2406.07791},
+  note={PDF: research/papers/2025.ijcnlp-long.18.pdf}
+}
+
+@article{ye2024justiceprejudice,
+  title={Justice or Prejudice? Quantifying Biases in {LLM-as-a-Judge}},
+  author={Ye, Jiayi and Wang, Yanbo and Huang, Yue and Chen, Dongping and Zhang, Qihui and Moniz, Nuno and Gao, Tian and Geyer, Werner and Huang, Chao and Chen, Pin-Yu and Chawla, Nitesh V. and Zhang, Xiangliang},
+  journal={arXiv preprint arXiv:2410.02736},
+  year={2024},
+  url={https://arxiv.org/abs/2410.02736},
+  note={PDF: research/papers/2410.02736v2.pdf}
+}
+
+% ===== L. なぜプロンプト設計か（black-box 較正の防御論理） =====
+
+@article{xie2024blackboxsurvey,
+  title={A Survey of Calibration Process for Black-Box {LLMs}},
+  author={Xie, Liangru and Liu, Hui and Zeng, Jingying and Tang, Xianfeng and Han, Yan and Luo, Chen and Huang, Jing and Li, Zhen and Wang, Suhang and He, Qi},
+  journal={arXiv preprint arXiv:2412.12767},
+  year={2024},
+  url={https://arxiv.org/abs/2412.12767},
+  note={PDF: research/papers/2412.12767v1.pdf}
+}
+
+@inproceedings{xie2024adaptivetemp,
+  title={Calibrating Language Models with Adaptive Temperature Scaling},
+  author={Xie, Johnathan and Chen, Annie S. and Lee, Yoonho and Mitchell, Eric and Finn, Chelsea},
+  booktitle={Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing},
+  pages={18128--18138},
+  year={2024},
+  url={https://arxiv.org/abs/2409.19817},
+  note={PDF: research/papers/2024.emnlp-main.1007.pdf}
+}
+
+@inproceedings{estienne2023prioradaptation,
+  title={Unsupervised Calibration through Prior Adaptation for Text Classification using Large Language Models},
+  author={Estienne, Lautaro and Ferrer, Luciana and Vera, Mat{\'i}as and Piantanida, Pablo},
+  booktitle={arXiv preprint},
+  year={2023},
+  url={https://arxiv.org/abs/2307.06713},
+  note={PDF: research/papers/2307.06713v3.pdf}
+}
+
+@article{xiao2025restoringcalibration,
+  title={Restoring Calibration for Aligned Large Language Models: A Calibration-Aware Fine-Tuning Approach},
+  author={Xiao, Jiancong and Hou, Bojian and Wang, Zhanliang and Jin, Ruochen and Long, Qi and Su, Weijie J. and Shen, Li},
+  journal={arXiv preprint arXiv:2505.01997},
+  year={2025},
+  url={https://arxiv.org/abs/2505.01997},
+  note={PDF: research/papers/2505.01997v3.pdf}
+}
+
+@inproceedings{xia2025influences,
+  title={Influences on {LLM} Calibration: A Study of Response Agreement, Loss Functions, and Prompt Styles},
+  author={Xia, Yuxi and Luz de Araujo, Pedro Henrique and Zaporojets, Klim and Roth, Benjamin},
+  booktitle={Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics},
+  pages={3740--3761},
+  year={2025},
+  url={https://arxiv.org/abs/2501.03991},
+  note={PDF: research/papers/2025.acl-long.188.pdf}
+}
+
+@inproceedings{naderi2025medicalprompt,
+  title={Evaluating Prompt Engineering Techniques for Accuracy and Confidence Elicitation in Medical {LLMs}},
+  author={Naderi, Nariman and Atf, Zahra and Lewis, Peter R. and Mahjoubfar, Aref and Safavi-Naini, Seyed Amir Ahmad and Soroush, Ali},
+  booktitle={arXiv preprint},
+  year={2025},
+  url={https://arxiv.org/abs/2506.00072},
+  note={PDF: research/papers/2506.00072v1.pdf}
+}
+
+@article{jang2025verbalizedselfverify,
+  title={Verbalized Confidence Triggers Self-Verification: Emergent Behavior Without Explicit Reasoning Supervision},
+  author={Jang, Chaeyun and Choi, Moonseok and Kim, Yegon and Lee, Hyungi and Lee, Juho},
+  journal={arXiv preprint arXiv:2506.03723},
+  year={2025},
+  url={https://arxiv.org/abs/2506.03723},
+  note={PDF: research/papers/2506.03723v1.pdf}
+}
+
+% ===== I. DEL × LLM 先行研究（2026-04-10 調査で発見） =====
+
+@inproceedings{deltom2025,
+  title={{DEL-ToM}: Inference-Time Scaling for Theory-of-Mind Reasoning via Dynamic Epistemic Logic},
+  author={{Authors TBD}},
+  booktitle={Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing},
+  year={2025},
+  url={https://aclanthology.org/2025.emnlp-main.573/},
+  note={著者名は ACL Anthology で確認すること}
+}
+
+@article{epistemicintegrity2024,
+  title={Epistemic Integrity in Large Language Models},
+  author={{Authors TBD}},
+  journal={arXiv preprint arXiv:2411.06528},
+  year={2024},
+  url={https://arxiv.org/abs/2411.06528},
+  note={著者名は arXiv で確認すること}
+}
+
+@article{llmknowwhattheydontknow2024,
+  title={Do Large Language Models Know What They Don't Know? Evaluating Epistemic Calibration via Prediction Markets},
+  author={{Authors TBD}},
+  journal={arXiv preprint arXiv:2512.16030},
+  year={2024},
+  url={https://arxiv.org/abs/2512.16030},
+  note={著者名は arXiv で確認すること}
+}

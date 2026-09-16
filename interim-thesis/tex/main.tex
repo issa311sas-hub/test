@@ -1,0 +1,45 @@
+%% 中間論文（夏の中間報告）
+%%
+%% Overleaf でのコンパイル設定:
+%%   Compiler: LaTeX  (uplatex + dvipdfmx)
+%%   Main document: main.tex
+%%
+%% 研究室指定のフォーマットがある場合は、この main.tex は使わず、
+%% chapter1.tex 〜 chapter7.tex と abstract.tex をテンプレートに
+%% \input で差し込むこと。
+\documentclass[uplatex,dvipdfmx,a4paper,11pt]{jsbook}
+
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage[dvipdfmx]{hyperref}
+\usepackage{pxjahyper}
+
+\title{プロンプト設計による大規模言語モデルの\\キャリブレーション性能向上に関する研究}
+\author{7422048 指田 一茶}
+\date{2026 年度 中間報告}
+
+\begin{document}
+
+\maketitle
+
+\chapter*{要旨}
+\addcontentsline{toc}{chapter}{要旨}
+\input{abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\input{chapter1}
+\input{chapter2}
+\input{chapter3}
+\input{chapter4}
+\input{chapter5}
+\input{chapter6}
+\input{chapter7}
+
+\bibliographystyle{junsrt}
+\bibliography{references}
+
+\end{document}
