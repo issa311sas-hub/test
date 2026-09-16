@@ -595,6 +595,11 @@ def main() -> int:
         else:
             print(f"  [警告] 図が見つかりません: {src_path}")
 
+    readme = SRC / "overleaf-readme.md"
+    if readme.exists():
+        shutil.copy(readme, OUT / "README.md")
+        print("  README.md")
+
     bib = SRC.parent / "research" / "references.bib"
     if bib.exists():
         shutil.copy(bib, OUT / "references.bib")
