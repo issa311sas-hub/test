@@ -71,5 +71,16 @@ dist/
 # Overleaf へ渡すためにまとめた書庫（interim-thesis/tex/ から作り直せる）
 interim-thesis/*.zip
 
+# 手元でコンパイル検証したときの中間ファイル（.tex は追跡する）
+interim-thesis/overleaf/*.aux
+interim-thesis/overleaf/*.dvi
+interim-thesis/overleaf/*.pdf
+interim-thesis/overleaf/*.log
+interim-thesis/overleaf/*.toc
+interim-thesis/overleaf/*.lof
+interim-thesis/overleaf/*.lot
+interim-thesis/overleaf/*.fls
+interim-thesis/overleaf/*.fdb_latexmk
+
 # Claude Code local settings (personal overrides)
 .claude/settings.local.json

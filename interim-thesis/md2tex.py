@@ -57,9 +57,8 @@ CHAPTERS = [
     ("03-chapter2-related-work.md", "chapter2.tex", "関連研究"),
     ("04-chapter3-design.md", "chapter3.tex", "設計方針"),
     ("05-chapter4-implementation.md", "chapter4.tex", "実装"),
-    ("06-chapter5-experiment.md", "chapter5.tex", "予備実験"),
-    ("07-chapter6-discussion.md", "chapter6.tex", "考察"),
-    ("08-chapter7-future-work.md", "chapter7.tex", "今後の方針"),
+    ("06-chapter5-experiment.md", "chapter5.tex", "予備実験と考察"),
+    ("07-chapter6-summary.md", "chapter6.tex", "まとめと今後の方針"),
 ]
 
 # 図番号 → (出力するファイル名, 元のファイル名, 幅)
@@ -72,8 +71,8 @@ CHAPTERS = [
 # 図番号 → (出力名, 元のファイル名, 幅の指定)
 # テンプレートの流儀に合わせて ./figure/ に置き、幅は cm で指定する。
 FIGURES = {
-    "5.1": ("confidence-distribution", "fig2_confidence", "14cm"),
-    "5.2": ("reliability-diagram", "fig1_reliability", "11cm"),
+    "5.1": ("confidence-distribution", "fig2_confidence", "12cm"),
+    "5.2": ("reliability-diagram", "fig1_reliability", "9.5cm"),
 }
 
 
@@ -148,6 +147,19 @@ PAGE_CAPACITY = 72
 # 1 つの列がこれより長い文を含むなら、折り返さないと本文幅を超える
 WRAP_THRESHOLD = 24
 
+# 日本語の文字。折り返してよいのは日本語の文が入る列だけで、数値や
+# 区間の表記（+0.029 [-0.014, +0.054]）は途中で折り返すと読めなくなる。
+_CJK_RE = re.compile(r"[　-ヿ一-鿿＀-￯]")
+
+
+def _wrappable(cells: list[str]) -> bool:
+    """この列を tabularx の X 列にしてよいか。
+
+    見出しは含めずに判定する。見出しが日本語でも中身が数値なら折り返して
+    はいけない。
+    """
+    return any(_CJK_RE.search(c) for c in cells)
+
 
 def _breakable(code: str) -> str:
     r"""等幅で組む文字列に改行可能な位置を入れる。
@@ -181,7 +193,9 @@ def convert_table(caption: str, rows: list[str], label: str) -> list[str]:
               for k in range(ncol)]
     total = sum(widths) + 2 * ncol  # 罫線と余白の分
 
-    long_cols = [k for k, w in enumerate(widths) if w > WRAP_THRESHOLD]
+    long_cols = [k for k, w in enumerate(widths)
+                 if w > WRAP_THRESHOLD
+                 and _wrappable([r[k] for r in body if k < len(r)])]
 
     lines = [r"\begin{table}[htbp]", r"\centering", r"\small",
              f"\\caption{{{caption}}}", f"\\label{{tab:{label}}}"]
@@ -543,10 +557,29 @@ def patch_main(text: str) -> str:
     ]:
         assert text.count(a) == 1, f"main.tex に {a} が無い"
         text = text.replace(a, b)
-    for n in range(1, 8):
+    # テンプレートは \include{reference/reference} の前で \markright して
+    # いる。\include と違い \input は改ページしないため、そのままだと最終章
+    # の最後のページの柱が「参考文献」になる。先に改ページする。
+    a = "\\markright{参考文献}"
+    assert text.count(a) == 1, f"main.tex に {a} が無い"
+    text = text.replace(a, "\\clearpage\n" + a)
+
+    # 図・表の目次は，図 3 点・表 6 点の中間報告では 1 ページずつ使うだけで
+    # 読み手の役に立たない。テンプレートの行をコメントにして出さない。
+    for a in ["\\listoffigures", "\\listoftables"]:
+        assert text.count(a) == 1, f"main.tex に {a} が無い"
+        text = text.replace(a, "%" + a)
+
+    n_chapters = sum(1 for _s, out, _t in CHAPTERS if out.startswith("chapter"))
+    for n in range(1, n_chapters + 1):
         a = f"\\include{{chapter{n}/index{n}}}"
         assert text.count(a) == 1, f"main.tex に {a} が無い"
         text = text.replace(a, f"\\input{{chapter{n}}}")
+    # テンプレートは 7 章ぶん用意されている。使わない章の読み込み行は消す。
+    for n in range(n_chapters + 1, 8):
+        a = f"\\include{{chapter{n}/index{n}}}"
+        assert text.count(a) == 1, f"main.tex に {a} が無い"
+        text = text.replace(a, f"%\\include{{chapter{n}/index{n}}}")
 
     text = text.replace(
         "% 2019年度　本論文　テンプレート",
@@ -561,28 +594,40 @@ def patch_main(text: str) -> str:
 def main() -> int:
     import shutil
 
-    if OUT.exists():
-        shutil.rmtree(OUT)
-    (OUT / "figure").mkdir(parents=True, exist_ok=True)
-
     cites = load_citation_map()
     print(f"引用の対応: {len(cites)} 件")
 
+    # 出力先を消す前に全章を変換しておく。途中で落ちると、消したあとに
+    # 一部しか書けていない中途半端な overleaf/ が残るため。
+    converted: list[tuple[str, str, str]] = []
     for src_name, out_name, title in CHAPTERS:
         body = convert(SRC / src_name, cites, title)
         if out_name == "abstract.tex":
             body = build_abstract(body)
+        # インライン数式が行をまたぐと $...$ の対を取れず、中身がそのまま
+        # エスケープされて組版時に壊れる。原稿側で 1 行に収めること。
+        assert "\\textbackslash\\{\\}mathrm" not in body, (
+            f"{src_name}: インライン数式が行をまたいでいる")
+        converted.append((src_name, out_name, body))
+
+    bibliography = build_bibliography()
+    main_tex = patch_main((TEMPLATE / "main.tex").read_text(encoding="utf-8"))
+
+    if OUT.exists():
+        shutil.rmtree(OUT)
+    (OUT / "figure").mkdir(parents=True, exist_ok=True)
+
+    for src_name, out_name, body in converted:
         (OUT / out_name).write_text(body, encoding="utf-8")
         print(f"  {src_name} -> {out_name}")
 
-    (OUT / "reference.tex").write_text(build_bibliography(), encoding="utf-8")
+    (OUT / "reference.tex").write_text(bibliography, encoding="utf-8")
     print("  reference.tex")
 
     (OUT / "title.tex").write_text(TITLE, encoding="utf-8")
     print("  title.tex")
 
-    main_tex = (TEMPLATE / "main.tex").read_text(encoding="utf-8")
-    (OUT / "main.tex").write_text(patch_main(main_tex), encoding="utf-8")
+    (OUT / "main.tex").write_text(main_tex, encoding="utf-8")
     shutil.copy(TEMPLATE / "latexmkrc", OUT / "latexmkrc")
     print("  main.tex / latexmkrc")
 
